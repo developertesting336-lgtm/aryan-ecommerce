@@ -18,7 +18,7 @@ import VendorLayout from "../layouts/VendorLayout";
 // ============================================
 
 import Login from "../pages/Login";
-import RegisterPage from "../pages/register";
+import RegisterPage from "../pages/Register";
 
 // ============================================
 // CUSTOMER PAGES
