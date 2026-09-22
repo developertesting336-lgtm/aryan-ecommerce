@@ -460,13 +460,14 @@ const relatedProducts = useMemo(() => {
     }
 
     try {
-      await dispatch(
-        addProduct({
+    const addtocart=   await dispatch(
+       addProduct({
           productId: id,
           price: currentPrice,
           quantity,
         })
       ).unwrap();
+      showSuccess(addtocart.message || 'deleted')
     } catch (error) {
       console.error(
         "Failed to add product to cart:",

@@ -26,17 +26,19 @@ createRoot(document.getElementById('root')).render(
     /> */}
 <ToastContainer
   position="bottom-right"
-  autoClose={2000}
+  autoClose={2500}
   hideProgressBar={false}
-  newestOnTop={false}
+  newestOnTop
   closeOnClick={false}
   rtl={false}
   pauseOnFocusLoss
   draggable
   pauseOnHover
   theme="light"
+  toastClassName="!rounded-xl !shadow-lg !border !border-slate-200 !bg-white !text-slate-800 !px-3 !py-2 !min-h-0"
+  bodyClassName="!text-xs sm:!text-sm !font-medium !text-slate-700"
   progressClassName="!bg-blue-600"
-  iconClassName="!text-blue-600"
+  closeButton={true}
 />
 
    {/* </ThemeProvider> */}
