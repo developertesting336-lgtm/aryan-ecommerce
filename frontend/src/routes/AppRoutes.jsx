@@ -76,7 +76,6 @@ import { getCart } from "../redux/slices/cartSlice";
 import { getWishlist } from "../redux/slices/wishlistSlice";
 import { getRootCategories } from "../redux/slices/categorySlice";
 
-import { TestConnection } from "../App";
 import VendorOrders from "../pages/vendor/VendorOrders";
 
 // ============================================================
@@ -381,7 +380,6 @@ function AppRoutes() {
             HEALTH CHECK
         ====================================================== */}
 
-        <Route path="/health" element={<TestConnection />} />
       </Routes>
     </BrowserRouter>
   );

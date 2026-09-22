@@ -9,35 +9,7 @@ import { getCart } from './redux/slices/cartSlice'
 import axios from "axios";
 import Navbar from './components/Header'
 
-export function TestConnection(){
 
-const checkConnection = async()=>{
-
-try{
-
-const res = await axios.get(
-"http://localhost:3000/health"
-);
-
-console.log("rr",res.data.message);
-
-}
-catch(error){
-
-console.log("Backend not connected");
-
-}
-
-};
-
-
-return(
-<button onClick={checkConnection}>
-Check Backend
-</button>
-);
-
-}
 
 
 function App() {
