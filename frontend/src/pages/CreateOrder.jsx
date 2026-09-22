@@ -32,22 +32,33 @@ const API_URL =
 // IMAGE URL
 // =====================================================
 
-const getImageUrl = (image) => {
+  const getImageUrl = (image) => {
   if (!image) {
     return "/1786052049893.webp";
   }
 
+  // Already a complete URL
   if (
-    typeof image === "string" &&
-    (image.startsWith("http://") ||
-      image.startsWith("https://"))
+    image.startsWith("http://") ||
+    image.startsWith("https://") ||
+    image.startsWith("blob:")
   ) {
     return image;
   }
 
-  return `${API_URL}/uploads/${image}`;
-};
+  // Already starts with /uploads/
+  if (image.startsWith("/uploads/")) {
+    return `http://localhost:3000${image}`;
+  }
 
+  // Starts with uploads/
+  if (image.startsWith("uploads/")) {
+    return `http://localhost:3000/${image}`;
+  }
+
+  // Normal filename
+  return `${BASE_URL}${image}`;
+};
 // =====================================================
 // COMPONENT
 // =====================================================
