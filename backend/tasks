@@ -1,0 +1,1695 @@
+Absolutely. Let's make it **like a development checklist**, so you can look at it and immediately know:
+
+**What to build → What the API does → What the frontend needs → What the requirements are.**
+
+# 🛒 MERN Ecommerce — Admin API Task List
+
+## Phase 1 — Admin Dashboard
+
+### Task 1: Dashboard API
+
+**API:** `GET /api/admin/dashboard`
+
+**Purpose:** Get all information required by the admin dashboard in one request.
+
+**Dashboard needs:**
+
+| Data            | Purpose                                     |
+| --------------- | ------------------------------------------- |
+| Total Revenue   | Show revenue stat card                      |
+| Total Orders    | Show orders stat card                       |
+| Total Customers | Show customer stat card                     |
+| Total Products  | Show products stat card                     |
+| Sales Data      | Display sales chart                         |
+| Recent Orders   | Display recent orders                       |
+| Top Products    | Display best-selling products               |
+| Order Summary   | Show Delivered/Processing/Pending/Cancelled |
+
+**Backend requirements:**
+
+* Verify JWT
+* Verify user is admin
+* Calculate revenue
+* Count orders
+* Count customers
+* Count products
+* Calculate sales data
+* Find recent orders
+* Find top-selling products
+* Calculate order-status percentages
+
+**Frontend components using it:**
+
+```text
+AdminDashboard
+├── StatCard
+├── SalesChart
+├── OrderSummary
+├── RecentOrders
+└── TopProducts
+```
+
+---
+
+# Phase 2 — Users Management
+
+## Task 2: Get Users
+
+**API:** `GET /api/admin/users`
+
+**Purpose:** Display all users in the admin users table.
+
+### Requirements
+
+The API should support:
+
+* Pagination
+* Search
+* Filter by role
+* Filter by status
+* Sorting
+
+Example functionality:
+
+```text
+Search: john
+Role: customer
+Status: active
+Page: 1
+Limit: 10
+```
+
+### Response needs
+
+```text
+users
+totalUsers
+currentPage
+totalPages
+```
+
+### Frontend
+
+```text
+AdminUsers
+└── UsersTable
+```
+
+---
+
+## Task 3: Get Single User
+
+**API:** `GET /api/admin/users/:id`
+
+**Purpose:** Get complete information about one customer.
+
+### Requirements
+
+Return:
+
+```text
+User
+├── name
+├── email
+├── phone
+├── role
+├── status
+├── createdAt
+└── address
+```
+
+You can use this later for:
+
+```text
+/admin/users/:id
+```
+
+---
+
+## Task 4: Update User
+
+**API:** `PATCH /api/admin/users/:id`
+
+**Purpose:** Admin changes user information/status.
+
+### Requirements
+
+Admin should be able to:
+
+* Activate user
+* Deactivate user
+* Block user
+* Change role, if your application allows it
+
+---
+
+## Task 5: Delete User
+
+**API:** `DELETE /api/admin/users/:id`
+
+**Purpose:** Remove a user.
+
+### Requirements
+
+Before deleting, consider:
+
+* Does the user have orders?
+* Should their orders remain?
+* Should you soft-delete instead?
+
+For an ecommerce application, **soft delete/deactivate is often safer** than permanently deleting customers.
+
+---
+
+# Phase 3 — Product Management
+
+This is one of your most important admin sections.
+
+## Task 6: Get Products
+
+**API:** `GET /api/admin/products`
+
+**Purpose:** Display products in the admin products table.
+
+### Requirements
+
+Support:
+
+* Pagination
+* Search
+* Category filter
+* Stock filter
+* Status filter
+* Sorting
+
+Example:
+
+```text
+Search: Nike
+Category: Shoes
+Status: Active
+Page: 1
+Limit: 10
+```
+
+### Response
+
+```text
+products
+totalProducts
+currentPage
+totalPages
+```
+
+### Frontend
+
+```text
+AdminProducts
+├── ProductStats
+├── Search
+├── CategoryFilter
+├── StatusFilter
+└── ProductTable
+```
+
+---
+
+## Task 7: Get Single Product
+
+**API:** `GET /api/admin/products/:id`
+
+**Purpose:** Get complete product information for viewing/editing.
+
+### Requirements
+
+Return:
+
+```text
+Product
+├── name
+├── description
+├── price
+├── discount
+├── category
+├── stock
+├── images
+├── brand
+├── SKU
+└── status
+```
+
+---
+
+## Task 8: Create Product
+
+**API:** `POST /api/admin/products`
+
+**Purpose:** Create a new product.
+
+### Requirements
+
+Your `CreateProduct` page should collect things such as:
+
+```text
+Product Information
+├── Name
+├── Description
+├── Price
+├── Discount
+├── Category
+├── Brand
+├── SKU
+├── Stock
+└── Images
+```
+
+### Backend must validate
+
+* Name required
+* Price valid
+* Stock cannot be negative
+* Category exists
+* Required images
+* SKU uniqueness, if using SKU
+
+---
+
+## Task 9: Update Product
+
+**API:** `PATCH /api/admin/products/:id`
+
+**Purpose:** Edit an existing product.
+
+Admin should be able to change:
+
+* Name
+* Description
+* Price
+* Discount
+* Category
+* Stock
+* Images
+* Brand
+* Status
+
+---
+
+## Task 10: Delete Product
+
+**API:** `DELETE /api/admin/products/:id`
+
+**Purpose:** Remove a product.
+
+### Important
+
+Before permanently deleting products, think about existing orders.
+
+A product that was previously purchased shouldn't necessarily disappear from historical order information.
+
+A better approach can be:
+
+```text
+Product
+status = inactive
+```
+
+instead of permanently deleting it.
+
+---
+
+# Phase 4 — Order Management
+
+## Task 11: Get Orders
+
+**API:** `GET /api/admin/orders`
+
+**Purpose:** Display all ecommerce orders.
+
+### Requirements
+
+Support:
+
+* Pagination
+* Search by order ID
+* Search by customer
+* Order status filter
+* Payment status filter
+* Date filter
+* Sorting
+
+Example:
+
+```text
+Search: ORD123
+Status: Processing
+Payment: Paid
+Page: 1
+Limit: 10
+```
+
+### Response
+
+```text
+orders
+totalOrders
+currentPage
+totalPages
+```
+
+### Frontend
+
+```text
+AdminOrders
+├── OrderStats
+├── Search
+├── StatusFilter
+├── PaymentFilter
+└── OrdersTable
+```
+
+---
+
+## Task 12: Get Single Order
+
+**API:** `GET /api/admin/orders/:id`
+
+**Purpose:** Show complete order information.
+
+### Requirements
+
+Return:
+
+```text
+Order
+├── Order ID
+├── Customer
+├── Products
+│   ├── Product
+│   ├── Quantity
+│   └── Price
+├── Total Amount
+├── Shipping Address
+├── Payment Information
+├── Order Status
+├── Payment Status
+├── Created Date
+└── Updated Date
+```
+
+This will be useful for an eventual:
+
+```text
+/admin/orders/:id
+```
+
+page.
+
+---
+
+## Task 13: Update Order Status
+
+**API:** `PATCH /api/admin/orders/:id/status`
+
+**Purpose:** Admin changes the order's status.
+
+Typical flow:
+
+```text
+Pending
+   ↓
+Processing
+   ↓
+Shipped
+   ↓
+Delivered
+```
+
+Possible cancellation:
+
+```text
+Pending
+   ↓
+Cancelled
+```
+
+### Requirements
+
+Validate status transitions on the backend.
+
+For example, don't blindly allow:
+
+```text
+Delivered → Processing
+```
+
+unless your business rules specifically allow it.
+
+---
+
+# Phase 5 — Category Management
+
+## Task 14: Get Categories
+
+**API:** `GET /api/admin/categories`
+
+**Purpose:** Display categories in the admin category page.
+
+### Requirements
+
+Return:
+
+```text
+Category
+├── ID
+├── Name
+├── Description
+├── Image
+├── Status
+├── Parent Category
+├── Product Count
+└── Created Date
+```
+
+---
+
+## Task 15: Get Single Category
+
+**API:** `GET /api/admin/categories/:id`
+
+**Purpose:** Show category details.
+
+Your:
+
+```text
+CategoryDetails
+```
+
+page will use this.
+
+It can display:
+
+```text
+Category
+├── Name
+├── Description
+├── Image
+├── Status
+└── Products in this category
+```
+
+---
+
+## Task 16: Create Category
+
+**API:** `POST /api/admin/categories`
+
+**Purpose:** Create a new category.
+
+Your:
+
+```text
+CreateCategory
+```
+
+page uses this.
+
+### Requirements
+
+Input:
+
+```text
+Name
+Description
+Image
+Parent Category (optional)
+Status
+```
+
+Backend should make sure the category name is valid and doesn't create unwanted duplicates.
+
+---
+
+## Task 17: Update Category
+
+**API:** `PATCH /api/admin/categories/:id`
+
+**Purpose:** Edit an existing category.
+
+Admin can change:
+
+* Name
+* Description
+* Image
+* Parent category
+* Status
+
+---
+
+## Task 18: Delete Category
+
+**API:** `DELETE /api/admin/categories/:id`
+
+**Purpose:** Remove/deactivate a category.
+
+### Important requirement
+
+Check whether products currently belong to the category.
+
+For example:
+
+```text
+Category: Shoes
+Products: 45
+```
+
+You shouldn't blindly delete it.
+
+Possible solutions:
+
+```text
+Option 1 → Don't allow deletion
+Option 2 → Move products to another category
+Option 3 → Deactivate category
+```
+
+I'd recommend **deactivating** categories rather than permanently deleting them.
+
+---
+
+# Phase 6 — Image Upload
+
+## Task 19: Product/Category Image Upload
+
+If you're using Cloudinary or another image-storage service:
+
+**API:** `POST /api/admin/upload`
+
+**Purpose:** Upload images.
+
+### Flow
+
+```text
+React
+   ↓
+Select Image
+   ↓
+Backend
+   ↓
+Cloudinary
+   ↓
+Image URL
+   ↓
+MongoDB
+```
+
+Your database stores the URL, not the actual image file.
+
+This can be used by:
+
+```text
+CreateProduct
+EditProduct
+CreateCategory
+EditCategory
+```
+
+---
+
+# Phase 7 — Admin Security
+
+This is **not optional**.
+
+Every admin API should be protected.
+
+For example:
+
+```text
+GET /api/admin/users
+GET /api/admin/products
+POST /api/admin/products
+DELETE /api/admin/products/:id
+```
+
+should go through:
+
+```text
+Request
+   ↓
+JWT Authentication
+   ↓
+Is user logged in?
+   ↓
+Is user an admin?
+   ↓
+Controller
+```
+
+You should have middleware conceptually like:
+
+```text
+authenticate
+      ↓
+authorizeAdmin
+      ↓
+adminController
+```
+
+The frontend `ProtectedRoute` is useful for UI navigation, but **it does not secure your backend**.
+
+---
+
+# 📋 Complete Task Checklist
+
+This is the part you can actually use while developing.
+
+| #  | Task            | API                              | Used By             | Main Requirement              |
+| -- | --------------- | -------------------------------- | ------------------- | ----------------------------- |
+| 1  | Dashboard       | `GET /admin/dashboard`           | Dashboard           | Stats + charts + orders       |
+| 2  | Get Users       | `GET /admin/users`               | Users               | Search + filter + pagination  |
+| 3  | Get User        | `GET /admin/users/:id`           | User Details        | Complete user information     |
+| 4  | Update User     | `PATCH /admin/users/:id`         | Users               | Status/role changes           |
+| 5  | Delete User     | `DELETE /admin/users/:id`        | Users               | Remove/deactivate user        |
+| 6  | Get Products    | `GET /admin/products`            | Products            | Search + filter + pagination  |
+| 7  | Get Product     | `GET /admin/products/:id`        | Edit Product        | Complete product              |
+| 8  | Create Product  | `POST /admin/products`           | Create Product      | Validation + images           |
+| 9  | Update Product  | `PATCH /admin/products/:id`      | Edit Product        | Update product                |
+| 10 | Delete Product  | `DELETE /admin/products/:id`     | Products            | Delete/deactivate             |
+| 11 | Get Orders      | `GET /admin/orders`              | Orders              | Search + filters + pagination |
+| 12 | Get Order       | `GET /admin/orders/:id`          | Order Details       | Complete order                |
+| 13 | Update Order    | `PATCH /admin/orders/:id/status` | Orders              | Status management             |
+| 14 | Get Categories  | `GET /admin/categories`          | Categories          | Categories + product count    |
+| 15 | Get Category    | `GET /admin/categories/:id`      | Category Details    | Category information          |
+| 16 | Create Category | `POST /admin/categories`         | Create Category     | Validation                    |
+| 17 | Update Category | `PATCH /admin/categories/:id`    | Category Details    | Edit category                 |
+| 18 | Delete Category | `DELETE /admin/categories/:id`   | Categories          | Delete/deactivate             |
+| 19 | Upload Image    | `POST /admin/upload`             | Products/Categories | Image storage                 |
+| 20 | Admin Auth      | Middleware                       | **All admin APIs**  | JWT + admin role              |
+
+---
+
+# 🧩 What You Actually Need to Build
+
+Don't try to build all 20 tasks at once.
+
+I'd build your backend in this order:
+
+### Step 1 — Products
+
+```text
+Product Model
+      ↓
+Create Product API
+      ↓
+Get Products API
+      ↓
+Get Product API
+      ↓
+Update Product API
+      ↓
+Delete Product API
+      ↓
+Redux
+      ↓
+AdminProducts UI
+```
+
+### Step 2 — Categories
+
+```text
+Category Model
+      ↓
+Category CRUD APIs
+      ↓
+Redux
+      ↓
+Categories UI
+```
+
+### Step 3 — Orders
+
+```text
+Order Model
+      ↓
+Get Orders
+      ↓
+Get Order
+      ↓
+Update Order Status
+      ↓
+Redux
+      ↓
+AdminOrders
+```
+
+### Step 4 — Users
+
+```text
+User Model
+      ↓
+Get Users
+      ↓
+Get User
+      ↓
+Update User
+      ↓
+Delete/Deactivate User
+      ↓
+Redux
+      ↓
+AdminUsers
+```
+
+### Step 5 — Dashboard
+
+Once Products, Orders and Users APIs are working:
+
+```text 
+Products ──┐
+Orders ────┼──→ Dashboard API ──→ AdminDashboard
+Users ─────┘
+```
+
+This order is useful because your **dashboard depends on the underlying ecommerce data already existing**.
+
+So when you're coding, you can literally work through the checklist from **1 → 20** instead of trying to figure out what API each component needs.
+
+
+
+
+
+
+
+
+
+
+---
+
+<--------------------------COUPONS ARCHITECTURE--------------------------------->
+
+You're right to stop here. Let me give you one production-level design instead of giving you multiple possibilities.
+
+Looking at your schemas and the fact that you have multiple vendors + product-level coupons, I recommend:
+
+Do NOT store couponCode in the Cart.
+
+Do store the coupon information in Order and OrderItem.
+
+The Cart should contain products and quantities only.
+
+The key is that the coupon is a checkout/order concern, not a permanent property of the shopping cart.
+
+1. Your Cart should stay like this
+
+I would keep your Cart essentially:
+
+const cartSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+
+    items: [
+      {
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+
+        quantity: {
+          type: Number,
+          required: true,
+          default: 1,
+          min: 1,
+        },
+
+        price: {
+          type: Number,
+          required: true,
+        },
+
+        vendor: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Vendor",
+          required: true,
+          index: true,
+        },
+      },
+    ],
+
+    totalPrice: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+  },
+  { timestamps: true }
+);
+
+Why no coupon?
+
+Because your cart represents:
+
+"What products does this customer currently want to buy?"
+
+It doesn't need to represent:
+
+"What promotion will eventually be used to purchase these products?"
+
+A customer can:
+
+add/remove products
+leave the site
+come back tomorrow
+change quantities
+enter a different coupon
+remove the coupon
+have a coupon expire
+
+The cart should remain independent.
+
+2. Your coupon is applied during checkout
+
+The flow I recommend is:
+
+Cart
+ │
+ │ products + quantities
+ ▼
+Checkout
+ │
+ │ user enters coupon
+ ▼
+POST /api/coupons/apply
+ │
+ │
+ ├── Validate coupon
+ ├── Check eligible products
+ ├── Check vendor
+ ├── Check expiry
+ ├── Check minimum amount
+ ├── Calculate discount
+ │
+ ▼
+Checkout displays:
+Subtotal
+Discount
+Shipping
+Tax
+Grand Total
+
+
+Notice:
+
+The coupon API does NOT modify the Cart.
+
+It calculates a checkout quote.
+
+3. What should /coupons/apply return?
+
+Suppose:
+
+Vendor A
+
+Product A = ₹1000
+Product B = ₹500
+
+Vendor B
+
+Product C = ₹2000
+
+
+Coupon:
+
+SAVE20
+20%
+Applicable to Product A + B
+
+
+API:
+
+POST /api/coupons/apply
+
+
+Request:
+
+{
+  "couponCode": "SAVE20"
+}
+
+
+The backend already knows the user, so it loads the user's cart.
+
+It calculates:
+
+Product A       ₹1000
+Product B        ₹500
+Product C       ₹2000
+----------------------
+Subtotal         ₹3500
+
+Eligible:
+A + B = ₹1500
+
+20% discount = ₹300
+
+Final subtotal = ₹3200
+
+
+Response:
+
+{
+  "couponCode": "SAVE20",
+  "subtotal": 3500,
+  "discount": 300,
+  "total": 3200
+}
+
+
+The frontend displays the result.
+
+Nothing needs to be saved in Cart.
+
+4. Then Place Order
+
+This is where your Order and OrderItem schemas come into play.
+
+When the customer clicks:
+
+Place Order
+
+Frontend sends:
+
+{
+  "couponCode": "SAVE20",
+  "shippingAddress": "...",
+  "billingAddress": "..."
+}
+
+
+Then:
+
+POST /api/orders
+
+
+Your backend does NOT trust the previous coupon calculation.
+
+It recalculates everything.
+
+                  POST /orders
+                       │
+                       ▼
+                  Load Cart
+                       │
+                       ▼
+              Load Products from DB
+                       │
+                       ▼
+                Calculate prices
+                       │
+                       ▼
+                Calculate subtotal
+                       │
+                       ▼
+                 Find coupon
+                       │
+                       ▼
+              Validate coupon AGAIN
+                       │
+                       ▼
+            Find eligible products
+                       │
+                       ▼
+             Calculate discount
+                       │
+                       ▼
+             Calculate tax/shipping
+                       │
+                       ▼
+                 Create Order
+                       │
+                       ▼
+              Create OrderItems
+
+
+This is the important production-level part.
+
+5. Your Order schema is correct for this
+
+Keep:
+
+subtotal: Number,
+discount: Number,
+couponCode: String,
+shippingCharge: Number,
+tax: Number,
+total: Number
+
+
+So your final Order becomes:
+
+{
+  user: userId,
+
+  subtotal: 3500,
+
+  discount: 300,
+
+  couponCode: "SAVE20",
+
+  shippingCharge: 100,
+
+  tax: 200,
+
+  total: 3500,
+
+  ...
+}
+
+
+Calculation:
+
+Subtotal       ₹3500
+Discount       -₹300
+Shipping        ₹100
+Tax             ₹200
+--------------------
+Total          ₹3500
+
+
+The Order is now a permanent snapshot of what actually happened.
+
+6. Your OrderItem is where product-level discount belongs
+
+This part of your schema is very good:
+
+discount: {
+  type: Number,
+  default: 0,
+},
+
+
+And you have:
+
+couponCode: {
+  type: String,
+  trim: true,
+  uppercase: true,
+},
+
+
+I actually recommend keeping couponCode here too, given your product-level coupon requirement.
+
+For example:
+
+{
+  product: productA,
+  vendor: vendorA,
+
+  productName: "Product A",
+
+  price: 1000,
+  quantity: 1,
+
+  discount: 200,
+  couponCode: "SAVE20",
+
+  tax: 50,
+
+  total: 850
+}
+
+
+Product B:
+
+{
+  product: productB,
+  vendor: vendorA,
+
+  productName: "Product B",
+
+  price: 500,
+  quantity: 1,
+
+  discount: 100,
+  couponCode: "SAVE20",
+
+  tax: 25,
+
+  total: 425
+}
+
+
+Product C isn't eligible:
+
+{
+  product: productC,
+  vendor: vendorB,
+
+  productName: "Product C",
+
+  price: 2000,
+  quantity: 1,
+
+  discount: 0,
+
+  couponCode: null,
+
+  tax: 100,
+
+  total: 2100
+}
+
+
+Now you have an exact historical record of which products received the coupon.
+
+7. Why store couponCode in both Order AND OrderItem?
+
+This is one of the places where duplication is actually useful.
+
+Order
+couponCode: "SAVE20"
+discount: 300
+
+
+means:
+
+This order used SAVE20 and received ₹300 total discount.
+
+OrderItem
+couponCode: "SAVE20"
+discount: 200
+
+
+means:
+
+This particular product received ₹200 from SAVE20.
+
+This is useful for:
+
+Order history
+Vendor dashboards
+Refunds
+Returns
+Invoice generation
+Coupon usage reporting
+Vendor settlement
+Auditing
+
+For a marketplace, that historical information is valuable.
+
+8. Your vendor situation makes this especially important
+
+Imagine:
+
+Order #1001
+
+Vendor A
+ ├── Product A ₹1000
+ │      Coupon discount ₹200
+ │
+ └── Product B ₹500
+        Coupon discount ₹100
+
+Vendor B
+ └── Product C ₹2000
+        No discount
+
+
+Your data can represent that:
+
+Order
+├── subtotal: ₹3500
+├── discount: ₹300
+├── couponCode: SAVE20
+└── total: ...
+
+OrderItems
+├── Product A
+│   ├── vendor: A
+│   ├── discount: ₹200
+│   └── couponCode: SAVE20
+│
+├── Product B
+│   ├── vendor: A
+│   ├── discount: ₹100
+│   └── couponCode: SAVE20
+│
+└── Product C
+    ├── vendor: B
+    ├── discount: ₹0
+    └── couponCode: null
+
+
+That's much better than just saying:
+
+Order discount = ₹300
+
+
+because you know where that ₹300 came from.
+
+9. One thing I would change in your schemas
+
+I would change this:
+
+couponCode: {
+  type: String,
+  trim: true,
+  uppercase: true,
+},
+
+
+to:
+
+couponCode: {
+  type: String,
+  trim: true,
+  uppercase: true,
+  default: null,
+},
+
+
+And perhaps make your OrderItem discount:
+
+discount: {
+  type: Number,
+  default: 0,
+  min: 0,
+},
+
+
+Also:
+
+tax: {
+  type: Number,
+  default: 0,
+  min: 0,
+},
+
+
+and:
+
+total: {
+  type: Number,
+  required: true,
+  min: 0,
+},
+
+10. The final architecture I recommend
+
+Don't add coupon fields to Cart.
+
+Use this:
+---
+┌─────────────────────┐
+│        CART         │
+├─────────────────────┤
+│ user                │
+│ items               │
+│  ├─ product         │
+│  ├─ vendor          │
+│  ├─ quantity        │
+│  └─ price           │
+│ totalPrice          │
+└──────────┬──────────┘
+           │
+           │
+           ▼
+┌─────────────────────┐
+│      CHECKOUT       │
+├─────────────────────┤
+│ couponCode entered  │
+└──────────┬──────────┘
+           │
+           ▼
+ POST /coupons/apply
+           │
+           ▼
+  Validate + calculate
+           │
+           ▼
+    Show discount
+           │
+           ▼
+   User: Place Order
+           │
+           ▼
+   POST /orders
+           │
+           ▼
+  Validate AGAIN
+           │
+           ▼
+┌─────────────────────┐
+│        ORDER        │
+├─────────────────────┤
+│ subtotal            │
+│ discount            │
+│ couponCode          │
+│ shippingCharge      │
+│ tax                 │
+│ total               │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│     ORDER ITEMS     │
+├─────────────────────┤
+│ product             │
+│ vendor              │
+│ productName         │
+│ price               │
+│ quantity            │
+│ discount            │
+│ couponCode          │
+│ tax                 │
+│ total               │
+│ commissionRate      │
+│ commissionAmount    │
+│ vendorEarning       │
+└─────────────────────┘
+
+The rule to remember
+
+Cart = what the customer wants to buy.
+
+Coupon API = calculate/validate a promotion against the current cart.
+
+Order = permanent record of the final transaction.
+
+OrderItem = permanent record of exactly how each product was priced/discounted.
+
+And never use the Cart's totalPrice or the frontend's discount as the final authority. The POST /orders backend should recalculate the final numbers from database data and the submitted coupon code.
+
+That is the architecture I would use for a production-oriented multi-vendor MERN marketplace.
+
+
+                    COUPON
+                       │
+            ┌──────────┴──────────┐
+            │                     │
+       PLATFORM                 VENDOR
+            │                     │
+     vendor = null          vendor = Vendor A
+            │                     │
+            └──────────┬──────────┘
+                       ↓
+                 APPLICABILITY
+                       │
+          ┌────────────┼────────────┐
+          ↓            ↓            ↓
+        ALL         PRODUCTS     CATEGORIES
+                       │
+                       ↓
+                  CART ITEMS
+                       │
+                       ↓
+              Eligible items only
+                       │
+                       ↓
+                  DISCOUNT
+                       │
+                       ↓
+                    ORDER
+                       │
+             ┌─────────┴─────────┐
+             ↓                   ↓
+          Order              OrderItem
+       total discount       item discount
+       couponCode           couponCode
+
+
+
+
+
+                    ┌─────────────────────┐
+                    │       Admin         │
+                    │ Create / Manage     │
+                    │ Coupons             │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │      Coupon         │
+                    │   Configuration     │
+                    └──────────┬──────────┘
+                               │
+                Customer enters coupon code
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ Coupon Validation   │
+                    │      Service        │
+                    └──────────┬──────────┘
+                               │
+              ┌────────────────┼────────────────┐
+              ▼                ▼                ▼
+        User eligibility   Product rules   Usage rules
+              │                │                │
+              └────────────────┼────────────────┘
+                               ▼
+                    ┌─────────────────────┐
+                    │ Calculate Discount  │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │       Order         │
+                    │ Apply final discount│
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │    CouponUsage      │
+                    │ Permanent audit     │
+                    │       record        │
+                    └─────────────────────┘
+
+
+
+                                     COUPON SYSTEM
+                      │
+       ┌──────────────┼──────────────┐
+       │              │              │
+       ▼              ▼              ▼
+   Management      Customer       Reporting
+       │              │              │
+       ▼              ▼              ▼
+ Create coupon    Apply coupon    Usage history
+ Update coupon    Validate        Analytics
+ Disable coupon   Calculate       Vendor reports
+ Delete coupon    Consume
+       │              │
+       └──────┬───────┘
+              ▼
+       Coupon Service
+              │
+    ┌─────────┼─────────┐
+    ▼         ▼         ▼
+ Coupon    CouponUsage  Other Models
+ Model       Model      │
+                        ├── User
+                        ├── Product
+                        ├── Category
+                        ├── Vendor
+                        └── Order
+
+And inside the service:
+                        CouponService
+│
+├── Find coupon
+│
+├── Determine status
+│
+├── Validate user
+│
+├── Validate order amount
+│
+├── Validate product/category
+│
+├── Validate usage limits
+│
+├── Calculate discount
+│
+├── Apply coupon to order/cart
+│
+├── Consume coupon
+│
+└── Handle reversal/refund
+
+
+
+The most important mental model
+
+Don't think:
+
+"I have a Coupon model, so how do I use it?"
+
+Think:
+
+Coupon is a rule definition.
+
+And:
+
+CouponUsage is a record of a completed application of those rules.
+
+Then your application sits between them:
+
+             COUPON
+          "What are the rules?"
+                 │
+                 ▼
+        ┌─────────────────┐
+        │  Coupon Service │
+        │                 │
+User ──►│ Can use it?     │
+Cart ──►│ Which items?    │
+Order ─►│ How much?       │
+        │                 │
+        └────────┬────────┘
+                 │
+                 ▼
+             DISCOUNT
+                 │
+                 ▼
+              ORDER
+                 │
+                 ▼
+          COUPON USAGE
+       "What actually happened?"
+
+
+       One final architectural recommendation
+
+Since you're building what looks like a marketplace with vendors, I'd design the coupon system around the cart/order calculation layer, rather than making coupons directly modify products or orders.
+
+In other words:
+
+Cart
+ ↓
+Pricing
+ ↓
+Coupon Engine
+ ↓
+Discount
+ ↓
+Order Total
+ ↓
+Order Creation
+ ↓
+Coupon Consumption
+ ↓
+CouponUsage
+
+
+
+
+
+
+The complete flow
+Think of your code like this:
+
+                    FRONTEND
+                       │
+                       │ productId
+                       │ quantity
+                       │ coupon code
+                       ▼
+                ┌──────────────┐
+                │ createOrder  │
+                └──────┬───────┘
+                       │
+                       ▼
+                  Find User
+                       │
+                       ▼
+                   Find Cart
+                       │
+                       ▼
+             Populate Cart Products
+                       │
+                       ▼
+             Buy Now / Buy All?
+                    /       \
+                   /         \
+               Buy Now      Buy All
+                  │             │
+                  └──────┬──────┘
+                         ▼
+                  itemsToOrder
+                         │
+                         ▼
+                   Calculate
+                    subtotal
+                         │
+                         ▼
+                   Coupon exists?
+                    /          \
+                  NO            YES
+                  │              │
+                  │              ▼
+                  │         Find Coupon
+                  │              │
+                  │              ▼
+                  │       Find Eligible Items
+                  │              │
+                  │              ▼
+                  │       Calculate eligibleAmount
+                  │              │
+                  │              ▼
+                  │       validateCoupon()
+                  │              │
+                  │       ┌──────┴───────┐
+                  │       │              │
+                  │     INVALID        VALID
+                  │       │              │
+                  │      ERROR           ▼
+                  │              calculateDiscount()
+                  │                     │
+                  └──────────────┬──────┘
+                                 ▼
+                         Calculate shipping
+                                 │
+                                 ▼
+                          Calculate total
+                                 │
+                                 ▼
+                           Create Order
+                                 │
+                                 ▼
+                         Create OrderItems
+                                 │
+                                 ▼
+                         Create Address
+                                 │
+                                 ▼
+                       Remove from Cart
+                                 │
+                                 ▼
+                         Coupon Usage
+                                 │
+                                 ▼
+                           SUCCESS
+
+
+
+
+The most important distinction
+Keep these three values separate in your mind:
+
+
+subtotal
+   ↓
+Entire order amount
+
+eligibleAmount
+   ↓
+Amount belonging to products that
+the coupon can discount
+
+discount
+   ↓
+Actual money removed from the order
