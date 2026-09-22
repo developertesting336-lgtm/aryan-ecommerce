@@ -11,6 +11,38 @@ export default function Cart() {
 
   const BASE_URL = "http://localhost:3000/uploads/";
 
+  const getImageUrl = (image) => {
+  if (!image) {
+    return "/1786052049893.webp";
+  }
+
+  // Already a complete URL
+  if (
+    image.startsWith("http://") ||
+    image.startsWith("https://") ||
+    image.startsWith("blob:")
+  ) {
+    return image;
+  }
+
+  // Already starts with /uploads/
+  if (image.startsWith("/uploads/")) {
+    return `http://localhost:3000${image}`;
+  }
+
+  // Starts with uploads/
+  if (image.startsWith("uploads/")) {
+    return `http://localhost:3000/${image}`;
+  }
+
+  // Normal filename
+  return `${BASE_URL}${image}`;
+};
+ const productImage =
+    Array.isArray(images) &&
+    images.length > 0
+      ? getImageUrl(images[0])
+      : "/1786052049893.webp";
   const { loading, error, cart } = useSelector((state) => state.cart);
 
  const handleAddCart = async (item) => {
@@ -139,9 +171,9 @@ const handleBuyThis = (item) => {
                   {/* Product Image */}
                   <img
                     src={
-                      item?.product?.images?.length
+                     productImage || (item?.product?.images?.length
                         ? `${BASE_URL}${item.product.images[0]}`
-                        : "/1786052049893.webp"
+                        : "/1786052049893.webp")
                     }
                     alt={item?.product?.name || "Product"}
                     className="
