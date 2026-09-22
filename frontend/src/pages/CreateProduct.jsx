@@ -280,6 +280,33 @@ const couponBasePath =
 
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
+const getImageUrl = (image) => {
+  if (!image) {
+    return "/1786052049893.webp";
+  }
+
+  // Already a complete URL
+  if (
+    image.startsWith("http://") ||
+    image.startsWith("https://") ||
+    image.startsWith("blob:")
+  ) {
+    return image;
+  }
+
+  // Already starts with /uploads/
+  if (image.startsWith("/uploads/")) {
+    return `http://localhost:3000${image}`;
+  }
+
+  // Starts with uploads/
+  if (image.startsWith("uploads/")) {
+    return `http://localhost:3000/${image}`;
+  }
+
+  // Normal filename
+  return `${BASE_URL}${image}`;
+};
 
   // =====================================================
   // ADDON PRODUCTS
@@ -2066,7 +2093,7 @@ console.log("actvpro",activeProducts)
 
                               {addonProduct.images?.[0] ? (
                                 <img
-                                  src={`http://localhost:3000/uploads/${addonProduct.images?.[0]}`}
+                                  src={ getImageUrl(addonProduct.images?.[0])|| `http://localhost:3000/uploads/${addonProduct.images?.[0]}`}
                                   alt={
                                     addonProduct.name
                                   }
