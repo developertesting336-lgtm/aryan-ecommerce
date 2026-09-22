@@ -38,11 +38,7 @@ export default function Cart() {
   // Normal filename
   return `${BASE_URL}${image}`;
 };
- const productImage =
-    Array.isArray(images) &&
-    images.length > 0
-      ? getImageUrl(images[0])
-      : "/1786052049893.webp";
+
   const { loading, error, cart } = useSelector((state) => state.cart);
 
  const handleAddCart = async (item) => {
@@ -171,7 +167,7 @@ const handleBuyThis = (item) => {
                   {/* Product Image */}
                   <img
                     src={
-                     productImage || (item?.product?.images?.length
+                     getImageUrl(item?.product?.images[0]) || (item?.product?.images?.length
                         ? `${BASE_URL}${item.product.images[0]}`
                         : "/1786052049893.webp")
                     }
