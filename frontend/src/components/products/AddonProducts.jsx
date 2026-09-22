@@ -18,16 +18,21 @@ console.log("related",relatedProducts)
 console.log("currentProduct",currentProduct)
 console.log("products",products)
 
-  const addons = useMemo(() => {
-    return relatedProducts
-      // .filter(
-      //   (item) => item?.product._id !== currentProduct?._id || item?.product._id !== currentProduct
-      // )
-      // // .filter(
-      // //   (item) => item._id !== currentProduct?._id || item._id !== currentProduct
-      // // )
-      // .slice(0, 3);
-  }, [relatedProducts, currentProduct]);
+const addons = useMemo(() => {
+  if (!Array.isArray(relatedProducts)) {
+    return [];
+  }
+
+  return relatedProducts
+    .filter(
+      (item) =>
+        item?.relatedProduct &&
+        item.relatedProduct?._id &&
+        String(item.relatedProduct._id) !==
+          String(currentProduct?._id)
+    )
+    .slice(0, 3);
+}, [relatedProducts, currentProduct]);
  useEffect(() => {
   setSelected([currentProduct?._id]);
 }, [currentProduct?._id, relatedProducts]);

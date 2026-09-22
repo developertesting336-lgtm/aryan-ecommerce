@@ -316,8 +316,11 @@ console.log("pro",product)
     );
   }, [product, id]);
 
- const  inStock = currentProduct.stock
- console.log("curr",inStock)
+const inStock = currentProduct?.stock ?? 0;
+ console.log("id from URL:", id);
+console.log("products:", product);
+console.log("currentProduct:", currentProduct);
+console.log("inStock:", inStock);
   /* =======================================================
      CART CHECK
   ======================================================= */
