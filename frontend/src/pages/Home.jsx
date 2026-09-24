@@ -6,6 +6,9 @@ import NewArrivals from "../components/home/NewArrivals";
 import ShoppingIntent from "../components/home/ShoppingIntent";
 import TrendingProducts from "../components/home/TrendingProducts";
 import ShopByNeed from "../components/home/ShopByNeed";
+import PromoCards from "../components/home/PromoCards";
+import PromoGrid from "../components/home/PromoGrid";
+import CategorySection from "../components/home/CategorySection";
 import CustomerFavorites from "../components/home/CustomerFavorites";
 import TrustStrip from "../components/home/TrustStrip";
 export default function Home() {
@@ -15,12 +18,15 @@ export default function Home() {
       <main>
         {/* Hero */}
         <Hero />
+        <PromoCards />
+        <CategorySection />
+        <PromoGrid />
 {/* <ShoppingIntent/>
 <TrendingProducts /> */}
 {/* <CustomerFavorites /> */}
 {/* <TrustStrip /> */}
         {/* Store Benefits */}
-        <Features />
+        {/* <Features /> */}
         {/* Featured Products */}
 <ShopByNeed />
         <FeaturedProducts />

@@ -1,2360 +1,1081 @@
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 import {
+  ArrowRight,
+  ChevronDown,
+  Heart,
+  LogIn,
+  LogOut,
   Menu,
   Search,
-  Heart,
-  ShoppingCart,
-  User,
-  Home,
-  Package,
-  Grid2X2,
-  LayoutDashboard,
+  ShoppingBag,
+  UserRound,
   X,
-  ChevronRight,
-  Smartphone,
-  Shirt,
-  Sofa,
-  Sparkles,
-  Laptop,
-  Baby,
-  Watch,
-  Monitor,
-  Headphones,
-  Footprints,
-  BookOpen,
 } from "lucide-react";
 
-import { useState } from "react";
-import { useSelector } from "react-redux";
-
+import { getProducts } from "../redux/slices/productSlice";
 import {
-  useNavigate,
-  useLocation,
-  useSearchParams,
-} from "react-router-dom";
+  getCategoryChildren,
+  getRootCategories,
+} from "../redux/slices/categorySlice";
+
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { logout } from "../redux/slices/authSlice";
+
+const navigation = [
+  { label: "Home", to: "/", end: true },
+  { label: "Shop", to: "/products", menu: true },
+  { label: "Categories", to: "/categories", menu: true, badge: "NEW" },
+  { label: "Products", to: "/products", menu: true },
+  // { label: "Top Deals", to: "/products", menu: true }, 
+];
+
+const getCategoryId = (category) =>
+  category?._id || category?.id;
+
+const getCategoryName = (category) =>
+  category?.name ||
+  category?.title ||
+  category?.categoryName ||
+  "Category";
+
+const getHeaderImage = (image) => {
+  const path =
+    typeof image === "string"
+      ? image
+      : image?.url ||
+        image?.secure_url ||
+        image?.preview;
+
+  if (!path) return "/1786052049893.webp";
+
+  if (/^(https?:|blob:)/i.test(path)) {
+    return path;
+  }
+
+  const backendOrigin = new URL(
+    import.meta.env.VITE_BACKEND_URL || window.location.origin
+  ).origin;
+
+  const cleanPath = path.replace(/^\/?uploads\/?/, "");
+
+  return `${backendOrigin}/uploads/${cleanPath}`;
+};
+
+function CountBadge({ children }) {
+  return (
+    <span className="absolute -right-0.5 top-0 flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-app-primary px-1 text-[9px] font-bold text-white ring-2 ring-white">
+      {children}
+    </span>
+  );
+}
+
+function IconLink({ to, label, count, children }) {
+  return (
+    <Link
+      to={to}
+      aria-label={label}
+      className="relative flex h-11 w-11 items-center justify-center text-gray-800 transition-colors hover:text-app-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-app-primary"
+    >
+      {children}
+
+      {count > 0 && (
+        <CountBadge>
+          {count > 99 ? "99+" : count}
+        </CountBadge>
+      )}
+    </Link>
+  );
+}
 
 export default function Navbar() {
-  // =========================================================
-  // REDUX STATE
-  // =========================================================
-
-  const { cart } = useSelector((state) => state.cart);
-  const { wishlist } = useSelector((state) => state.wishlist);
-  const { user } = useSelector((state) => state.auth);
-
-  // =========================================================
-  // ROUTER
-  // =========================================================
-
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [searchParams] = useSearchParams();
 
-  // =========================================================
-  // LOCAL STATE
-  // =========================================================
+  const menuRef = useRef(null);
 
-  const [mobileMenu, setMobileMenu] = useState(false);
+  // Used to delay dropdown closing and cancel it
+  // when the mouse enters the dropdown.
+  const dropdownCloseTimer = useRef(null);
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [mobileSubmenu, setMobileSubmenu] = useState(null);
   const [search, setSearch] = useState("");
 
-  // =========================================================
-  // AUTH
-  // =========================================================
+  const { user } = useSelector((state) => state.auth);
 
-  const isLoggedIn = !!user;
+const couponBasePath =
+  user?.role === "admin"
+    ? "/admin/"
+    : "/vendor/";
 
-  // =========================================================
-  // DASHBOARD ROUTE
-  // =========================================================
+  const cartItems = useSelector(
+    (state) => state.cart.cart?.items ?? []
+  );
+
+  const wishlistItems = useSelector(
+    (state) =>
+      state.wishlist.wishlist?.products ??
+      state.wishlist.wishlist ??
+      []
+  );
+console.log("lemghg",wishlistItems)
+  const isLoggedIn = Boolean(user);
 
   const dashboardPath =
     user?.role === "admin"
       ? "/admin/dashboard"
-      : "/vendor/dashboard";
+      : user?.role === "vendor"
+      ? "/vendor/dashboard"
+      : "/profile";
 
-  // =========================================================
-  // MAIN NAVIGATION
-  // =========================================================
+  const displayName =
+    user?.firstName ||
+    user?.name ||
+    user?.email?.split("@")[0];
 
-  const navItems = [
-    {
-      name: "Home",
-      path: "/",
-      icon: Home,
-    },
-    {
-      name: "Products",
-      path: "/products",
-      icon: Package,
-    },
-  ];
+  const products = useSelector((state) =>
+    Array.isArray(state.product?.product)
+      ? state.product.product
+      : []
+  );
 
-  // =========================================================
-  // CATEGORIES
-  // =========================================================
+  const productLoading = useSelector(
+    (state) => state.product?.loading ?? false
+  );
 
-  const categories = [
-    {
-      name: "Electronics",
-      slug: "electronics",
-      icon: Monitor,
-    },
-    {
-      name: "Mobiles",
-      slug: "mobile-phones",
-      icon: Smartphone,
-    },
-    {
-      name: "Laptops",
-      slug: "laptops",
-      icon: Laptop,
-    },
-    {
-      name: "Fashion",
-      slug: "fashion",
-      icon: Shirt,
-    },
-    {
-      name: "Footwear",
-      slug: "shoes",
-      icon: Footprints,
-    },
-    {
-      name: "Home",
-      slug: "home",
-      icon: Sofa,
-    },
-    {
-      name: "Beauty",
-      slug: "beauty",
-      icon: Sparkles,
-    },
-    {
-      name: "Kids",
-      slug: "kids",
-      icon: Baby,
-    },
-    {
-      name: "Watches",
-      slug: "watches",
-      icon: Watch,
-    },
-    {
-      name: "Audio",
-      slug: "audio",
-      icon: Headphones,
-    },
-    {
-      name: "Books",
-      slug: "books",
-      icon: BookOpen,
-    },
-  ];
+  const rootCategories = useSelector(
+    (state) => state.category?.rootCategories ?? []
+  );
 
-  // =========================================================
-  // ACTIVE NAVIGATION
-  // =========================================================
+  const categoryChildren = useSelector(
+    (state) => state.category?.children ?? {}
+  );
 
-  const isActive = (path) => {
-    if (path === "/") {
-      return location.pathname === "/";
+  const categoryLoading = useSelector(
+    (state) => state.category?.loading ?? false
+  );
+
+  const featuredProducts = products.slice(0, 4);
+
+  // --------------------------------------------------
+  // Dropdown data loading
+  // --------------------------------------------------
+
+  useEffect(() => {
+    if (!activeDropdown) return;
+
+    if (!products.length && !productLoading) {
+      dispatch(
+        getProducts({
+          page: 1,
+          limit: 8,
+        })
+      );
     }
 
-    return location.pathname.startsWith(path);
+    if (!rootCategories.length && !categoryLoading) {
+      dispatch(getRootCategories());
+    }
+  }, [
+    activeDropdown,
+    categoryLoading,
+    dispatch,
+    productLoading,
+    products.length,
+    rootCategories.length,
+  ]);
+
+  useEffect(() => {
+    if (!activeDropdown || !rootCategories.length) {
+      return;
+    }
+
+    rootCategories.forEach((category) => {
+      const categoryId = getCategoryId(category);
+
+      if (
+        categoryId &&
+        !Object.prototype.hasOwnProperty.call(
+          categoryChildren,
+          categoryId
+        )
+      ) {
+        dispatch(getCategoryChildren(categoryId));
+      }
+    });
+  }, [
+    activeDropdown,
+    categoryChildren,
+    dispatch,
+    rootCategories,
+  ]);
+
+  // --------------------------------------------------
+  // Mobile menu outside click
+  // --------------------------------------------------
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return undefined;
+
+    const closeOnOutsideClick = (event) => {
+      if (!menuRef.current?.contains(event.target)) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener(
+      "mousedown",
+      closeOnOutsideClick
+    );
+
+    document.addEventListener(
+      "keydown",
+      closeOnEscape
+    );
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        closeOnOutsideClick
+      );
+
+      document.removeEventListener(
+        "keydown",
+        closeOnEscape
+      );
+
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
+  // --------------------------------------------------
+  // Dropdown hover handling
+  // --------------------------------------------------
+
+  const clearDropdownTimer = () => {
+    if (dropdownCloseTimer.current) {
+      clearTimeout(dropdownCloseTimer.current);
+      dropdownCloseTimer.current = null;
+    }
   };
 
-  // =========================================================
-  // ACTIVE CATEGORY
-  // =========================================================
+  const openDropdown = (label) => {
+    clearDropdownTimer();
+    setActiveDropdown(label);
+  };
 
-  const activeCategory = searchParams.get("category");
+  const scheduleDropdownClose = () => {
+    clearDropdownTimer();
 
-  const isCategoryActive = (slug) => {
-    return (
-      location.pathname === "/products" &&
-      activeCategory === slug
+    dropdownCloseTimer.current = setTimeout(() => {
+      setActiveDropdown(null);
+      dropdownCloseTimer.current = null;
+    }, 250);
+  };
+
+  // Cleanup timer when component unmounts
+  useEffect(() => {
+    return () => {
+      clearDropdownTimer();
+    };
+  }, []);
+
+  // --------------------------------------------------
+  // General actions
+  // --------------------------------------------------
+
+  const closeMenu = () => {
+    clearDropdownTimer();
+
+    setMobileMenuOpen(false);
+    setActiveDropdown(null);
+    setMobileSubmenu(null);
+  };
+
+  const openSearch = (query) => {
+    closeMenu();
+
+    navigate(
+      `/search?q=${encodeURIComponent(query)}`
     );
   };
 
-  // =========================================================
-  // NAVIGATION
-  // =========================================================
+  const handleSearch = (event) => {
+    event.preventDefault();
 
-  const goTo = (path) => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    const query = search.trim();
 
-    navigate(path);
-
-    setMobileMenu(false);
-  };
-
-  // =========================================================
-  // SEARCH
-  // =========================================================
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-
-    const value = search.trim();
-
-    if (!value) return;
+    if (!query) return;
 
     setSearch("");
+    closeMenu();
 
-    goTo(
-      `/search?q=${encodeURIComponent(value)}`
+    navigate(
+      `/search?q=${encodeURIComponent(query)}`
     );
   };
 
-  // =========================================================
-  // CATEGORY NAVIGATION
-  // =========================================================
+  const handleLogout = () => {
+    dispatch(logout());
 
-  const goToCategory = (slug) => {
-    goTo(`/search?q=${slug}`);
+    closeMenu();
+
+    navigate("/");
   };
-
-  // =========================================================
-  // MAIN APP NAV ITEM
-  // =========================================================
-
-  const AppNavItem = ({
-    name,
-    icon: Icon,
-    active,
-    onClick,
-  }) => {
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        className={`
-          relative
-
-          flex
-          flex-col
-          items-center
-          justify-center
-
-          h-[58px]
-          min-w-[68px]
-
-          px-2
-
-          shrink-0
-
-          cursor-pointer
-
-          transition-colors
-          duration-200
-
-          ${
-            active
-              ? "text-blue-600"
-              : "text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
-          }
-        `}
-      >
-        <Icon
-          size={20}
-          strokeWidth={active ? 2.4 : 1.9}
-        />
-
-        <span
-          className={`
-            mt-1
-
-            text-[11px]
-            leading-none
-
-            whitespace-nowrap
-
-            ${
-              active
-                ? "font-semibold"
-                : "font-medium"
-            }
-          `}
-        >
-          {name}
-        </span>
-
-        {active && (
-          <span
-            className="
-              absolute
-
-              bottom-0
-              left-1/2
-              -translate-x-1/2
-
-              h-[3px]
-              w-6
-
-              rounded-full
-
-              bg-blue-600
-            "
-          />
-        )}
-      </button>
-    );
-  };
-
-  // =========================================================
-  // CATEGORY NAV ITEM
-  // =========================================================
-
-  const CategoryNavItem = ({
-    category,
-  }) => {
-    const Icon = category.icon;
-
-    const active = isCategoryActive(
-      category.slug
-    );
-
-    return (
-      <button
-        type="button"
-        onClick={() =>
-          goToCategory(category.slug)
-        }
-        className={`
-          relative
-
-          flex
-          flex-col
-          items-center
-          justify-center
-
-          h-[58px]
-
-          min-w-[78px]
-
-          px-2
-
-          shrink-0
-
-          cursor-pointer
-
-          transition-colors
-          duration-200
-
-          ${
-            active
-              ? "text-blue-600"
-              : "text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
-          }
-        `}
-      >
-        <Icon
-          size={19}
-          strokeWidth={
-            active ? 2.3 : 1.8
-          }
-        />
-
-        <span
-          className={`
-            mt-1
-
-            text-[10px]
-            sm:text-[11px]
-
-            leading-none
-
-            whitespace-nowrap
-
-            ${
-              active
-                ? "font-semibold"
-                : "font-medium"
-            }
-          `}
-        >
-          {category.name}
-        </span>
-
-        {active && (
-          <span
-            className="
-              absolute
-
-              bottom-0
-              left-1/2
-              -translate-x-1/2
-
-              h-[3px]
-              w-5
-
-              rounded-full
-
-              bg-blue-600
-            "
-          />
-        )}
-      </button>
-    );
-  };
-
-  // =========================================================
-  // RETURN
-  // =========================================================
 
   return (
-    <>
+    <header
+      ref={menuRef}
+      className="sticky top-0 z-50 w-full bg-white text-gray-950 shadow-sm"
+    >
+      {/* =====================================================
+          TOP BAR
+      ====================================================== */}
+
+      <div className="bg-app-primary text-white">
+        <div className="mx-auto flex min-h-[42px] max-w-[1440px] items-center justify-center px-4 text-center sm:justify-between sm:px-6 lg:px-8">
+          <p className="text-xs font-medium sm:text-sm">
+            Curated tech for everyday life{" "}
+            <span className="mx-2 text-white/50">
+              ·
+            </span>{" "}
+            Free delivery over ₹2,000{" "}
+            <Link
+              to="/products"
+              className="ml-1 underline underline-offset-4 hover:text-blue-200"
+            >
+              Shop now
+            </Link>
+          </p>
+
+          <div className="hidden items-center divide-x divide-white/20 text-sm md:flex">
+            <Link
+              to="/orders"
+              className="px-5 transition hover:text-blue-200"
+            >
+              Order Tracking
+            </Link>
+
+            <Link
+              to="/profile"
+              className="px-5 transition hover:text-blue-200"
+            >
+              Help Center
+            </Link>
+
+       {  user?.role!=="user" &&  <button
+              type="button"
+              className="flex items-center gap-1 px-5 hover:text-blue-200"
+              onClick={()=>navigate(`${couponBasePath}/`)}
+            >
+              Dashboard
+              {/* <ChevronDown size={14} /> */}
+            </button>}
+
+            <button
+              type="button"
+              className="flex items-center gap-1 pl-5 hover:text-blue-200"
+            >
+              ₹ INR
+              <ChevronDown size={14} />
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* =====================================================
           MAIN HEADER
-      ===================================================== */}
+      ====================================================== */}
 
-      <header
-        className="
-          sticky
-          top-0
-          z-50
+      <div className="mx-auto flex min-h-[84px] max-w-[1440px] items-center gap-3 px-4 sm:px-6 lg:px-8">
 
-          w-full
-          max-w-full
+        {/* Mobile menu button */}
 
-          bg-white/95
-          backdrop-blur-xl
+        <button
+          type="button"
+          aria-label={
+            mobileMenuOpen
+              ? "Close menu"
+              : "Open menu"
+          }
+          aria-expanded={mobileMenuOpen}
+          onClick={() =>
+            setMobileMenuOpen(
+              (open) => !open
+            )
+          }
+          className="flex h-10 w-10 shrink-0 items-center justify-center text-gray-800 hover:text-app-primary lg:hidden"
+        >
+          {mobileMenuOpen ? (
+            <X size={22} />
+          ) : (
+            <Menu size={22} />
+          )}
+        </button>
 
-          border-b
-          border-gray-100
+        {/* Logo */}
 
-          dark:bg-gray-900/95
-          dark:border-gray-800
-          dark:text-white
-        "
-      >
-        {/* ===================================================
-            TOP HEADER
-        =================================================== */}
+        <Link
+          to="/"
+          onClick={closeMenu}
+          aria-label="NovaCart home"
+          className="flex shrink-0 items-center gap-2"
+        >
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-app-primary text-lg font-black text-white">
+            N
+          </span>
+
+          <span className="text-[21px] font-black tracking-[-0.05em] text-gray-950 sm:text-2xl">
+            Nova
+            <span className="text-app-primary">
+              Cart
+            </span>
+          </span>
+        </Link>
+
+        {/* =================================================
+            DESKTOP NAVIGATION + DROPDOWN
+        ================================================== */}
 
         <div
-          className="
-            w-full
-            max-w-7xl
-            mx-auto
-
-            px-3
-            sm:px-4
-            lg:px-6
-          "
+          className="relative ml-auto hidden lg:flex xl:ml-16"
+          onMouseEnter={clearDropdownTimer}
+          onMouseLeave={scheduleDropdownClose}
         >
-          <div
-            className="
-              min-h-[64px]
-              sm:min-h-[68px]
-
-              flex
-              items-center
-
-              gap-2
-              sm:gap-3
-
-              min-w-0
-              max-w-full
-            "
+          <nav
+            aria-label="Primary navigation"
+            className="flex items-center justify-between gap-5 xl:gap-8"
           >
-            {/* =================================================
-                MOBILE MENU
-            ================================================= */}
-
-            <button
-              type="button"
-              onClick={() =>
-                setMobileMenu(true)
-              }
-              aria-label="Open menu"
-              className="
-                lg:hidden
-
-                h-10
-                w-10
-
-                shrink-0
-
-                rounded-lg
-
-                bg-gray-100
-                text-gray-700
-
-                flex
-                items-center
-                justify-center
-
-                hover:bg-blue-50
-                hover:text-blue-600
-
-                dark:bg-gray-800
-                dark:text-gray-200
-
-                transition
-                cursor-pointer
-              "
-            >
-              <Menu size={21} />
-            </button>
-
-            {/* =================================================
-                LOGO
-            ================================================= */}
-
-            <button
-              type="button"
-              onClick={() =>
-                goTo("/")
-              }
-              className="
-                shrink-0
-                cursor-pointer
-              "
-            >
-              <div
-                className="
-                  text-xl
-                  sm:text-2xl
-                  lg:text-3xl
-
-                  font-black
-                  tracking-tight
-
-                  whitespace-nowrap
-                "
-              >
-                <span className="text-gray-900 dark:text-white">
-                  E
-                </span>
-
-                <span className="text-blue-600">
-                  comStore
-                </span>
-              </div>
-            </button>
-
-            {/* =================================================
-                DESKTOP SEARCH
-            ================================================= */}
-
-            <div
-              className="
-                hidden
-                md:block
-
-                flex-1
-                min-w-0
-
-                max-w-2xl
-
-                mx-2
-                lg:mx-4
-              "
-            >
-              <form
-                onSubmit={handleSearch}
-                className="relative group"
-              >
-                <Search
-                  size={18}
-                  className="
-                    absolute
-
-                    left-3.5
-                    top-1/2
-                    -translate-y-1/2
-
-                    text-gray-400
-
-                    group-focus-within:text-blue-600
-
-                    transition
-                  "
-                />
-
-                <input
-                  type="text"
-                  value={search}
-                  placeholder="Search products, brands and more..."
-                  onChange={(e) =>
-                    setSearch(
-                      e.target.value
-                    )
-                  }
-                  className="
-                    w-full
-
-                    h-11
-
-                    pl-10
-                    pr-24
-
-                    rounded-lg
-
-                    border
-                    border-gray-200
-
-                    bg-gray-50
-
-                    outline-none
-
-                    focus:bg-white
-                    focus:border-blue-500
-                    focus:ring-4
-                    focus:ring-blue-50
-
-                    transition-all
-
-                    dark:border-gray-700
-                    dark:bg-gray-800
-                    dark:text-white
-                    dark:placeholder:text-gray-500
-                    dark:focus:bg-gray-900
-    dark:focus:border-blue-400
-                  "
-                />
-
+            {navigation.map((item) =>
+              item.menu ? (
                 <button
-                  type="submit"
-                  className="
-                    absolute
-
-                    right-1.5
-                    top-1/2
-                    -translate-y-1/2
-
-                    h-8
-
-                    px-4
-
-                    rounded-md
-
-                    bg-blue-600
-                    text-white
-
-                    text-xs
-                    sm:text-sm
-
-                    font-semibold
-
-                    hover:bg-blue-700
-
-                    transition
-
-                    cursor-pointer
-                  "
-                >
-                  Search
-                </button>
-              </form>
-            </div>
-
-            {/* =================================================
-                RIGHT ACTIONS
-            ================================================= */}
-
-            <div
-              className="
-                flex
-                items-center
-
-                gap-1.5
-                sm:gap-2
-
-                ml-auto
-
-                shrink-0
-              "
-            >
-              {/* WISHLIST */}
-
-              <button
-                type="button"
-                onClick={() =>
-                  goTo("/wishlist")
-                }
-                aria-label="Wishlist"
-                className="
-                  relative
-
-                  h-10
-                  w-10
-                  sm:h-11
-                  sm:w-11
-
-                  shrink-0
-
-                  rounded-lg
-
-                  border
-                  border-gray-200
-
-                  bg-white
-
-                  flex
-                  items-center
-                  justify-center
-
-                  hover:border-red-200
-                  hover:bg-red-50
-                  hover:text-red-500
-
-                  dark:bg-gray-800
-                  dark:border-gray-700
-
-                  transition
-
-                  cursor-pointer
-                "
-              >
-                <Heart size={19} />
-
-                {wishlist?.products
-                  ?.length > 0 && (
-                  <span
-                    className="
-                      absolute
-
-                      -top-1
-                      -right-1
-
-                      min-w-5
-                      h-5
-
-                      px-1
-
-                      rounded-full
-
-                      bg-red-500
-                      text-white
-
-                      text-[10px]
-                      font-bold
-
-                      flex
-                      items-center
-                      justify-center
-
-                      border-2
-                      border-white
-
-                      dark:border-gray-900
-                    "
-                  >
-                    {
-                      wishlist.products
-                        .length
-                    }
-                  </span>
-                )}
-              </button>
-
-              {/* CART */}
-
-              <button
-                type="button"
-                onClick={() =>
-                  goTo("/cart")
-                }
-                aria-label="Shopping cart"
-                className="
-                  relative
-
-                  h-10
-                  w-10
-                  sm:h-11
-                  sm:w-11
-
-                  shrink-0
-
-                  rounded-lg
-
-                  border
-                  border-gray-200
-
-                  bg-white
-
-                  flex
-                  items-center
-                  justify-center
-
-                  hover:border-blue-200
-                  hover:bg-blue-50
-                  hover:text-blue-600
-
-                  dark:bg-gray-800
-                  dark:border-gray-700
-
-                  transition
-
-                  cursor-pointer
-                "
-              >
-                <ShoppingCart
-                  size={19}
-                />
-
-                {cart?.items
-                  ?.length > 0 && (
-                  <span
-                    className="
-                      absolute
-
-                      -top-1
-                      -right-1
-
-                      min-w-5
-                      h-5
-
-                      px-1
-
-                      rounded-full
-
-                      bg-blue-600
-                      text-white
-
-                      text-[10px]
-                      font-bold
-
-                      flex
-                      items-center
-                      justify-center
-
-                      border-2
-                      border-white
-
-                      dark:border-gray-900
-                    "
-                  >
-                    {cart.items.length}
-                  </span>
-                )}
-              </button>
-
-              {/* DESKTOP ACCOUNT */}
-
-              {isLoggedIn ? (
-                <button
+                  key={item.label}
                   type="button"
-                  onClick={() =>
-                    goTo("/profile")
+                  aria-expanded={
+                    activeDropdown === item.label
                   }
-                  className="
-                    hidden
-                    sm:flex
-
-                    items-center
-                    gap-2
-
-                    max-w-[180px]
-
-                    px-2.5
-                    py-2
-
-                    rounded-lg
-
-                    border
-                    border-gray-200
-
-                    bg-white
-
-                    hover:border-blue-300
-                    hover:bg-blue-50
-
-                    dark:bg-gray-800
-                    dark:border-gray-700
-
-                    transition
-
-                    cursor-pointer
-                  "
+                  onMouseEnter={() =>
+                    openDropdown(item.label)
+                  }
+                  onFocus={() =>
+                    openDropdown(item.label)
+                  }
+                  onClick={() =>
+                    openDropdown(item.label)
+                  }
+                  className={`flex items-center gap-1 whitespace-nowrap py-3 text-[15px] font-medium xl:text-base ${
+                    activeDropdown === item.label
+                      ? "text-app-primary"
+                      : "text-gray-900 hover:text-app-primary"
+                  }`}
                 >
-                  <div
-                    className="
-                      h-9
-                      w-9
+                  {item.label}
 
-                      rounded-lg
+                  {item.badge && (
+                    <span className="rounded-sm bg-app-primary px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+                      {item.badge}
+                    </span>
+                  )}
 
-                      bg-linear-to-br
-                      from-blue-500
-                      to-indigo-600
-
-                      text-white
-
-                      flex
-                      items-center
-                      justify-center
-
-                      shrink-0
-                    "
-                  >
-                    <User size={18} />
-                  </div>
-
-                  <div
-                    className="
-                      text-left
-                      min-w-0
-                    "
-                  >
-                    <p
-                      className="
-                        text-[10px]
-                        text-gray-500
-                        leading-none
-                        mb-1
-                      "
-                    >
-                      Welcome
-                    </p>
-
-                    <p
-                      className="
-                        text-sm
-                        font-semibold
-
-                        truncate
-
-                        text-gray-900
-
-                        dark:text-white
-                      "
-                    >
-                      {user?.firstName ||
-                        user?.name ||
-                        "My Account"}
-                    </p>
-                  </div>
-
-                  <ChevronRight
-                    size={15}
-                    className="
-                      text-gray-400
-                      shrink-0
-                    "
-                  />
+                  <ChevronDown size={14} />
                 </button>
               ) : (
-                <button
-                  type="button"
-                  onClick={() =>
-                    goTo("/login")
+                <NavLink
+                  key={item.label}
+                  to={item.to}
+                  end={item.end}
+                  className={({ isActive }) =>
+                    `flex items-center gap-1 whitespace-nowrap py-3 text-[15px] font-medium xl:text-base ${
+                      isActive
+                        ? "text-app-primary"
+                        : "text-gray-900 hover:text-app-primary"
+                    }`
                   }
-                  className="
-                    hidden
-                    sm:flex
-
-                    items-center
-                    gap-2
-
-                    px-3
-                    lg:px-4
-                    py-2.5
-
-                    rounded-lg
-
-                    bg-gray-900
-                    text-white
-
-                    text-sm
-                    font-semibold
-
-                    hover:bg-blue-600
-
-                    transition
-
-                    cursor-pointer
-
-                    shrink-0
-                  "
                 >
-                  <User size={18} />
+                  {item.label}
+                </NavLink>
+              )
+            )}
 
-                  <span>
-                    Login
-                  </span>
-                </button>
-              )}
+            {/* =================================================
+                DROPDOWN
+            ================================================== */}
 
-              {/* MOBILE ACCOUNT */}
-
-              <button
-                type="button"
-                onClick={() =>
-                  goTo(
-                    isLoggedIn
-                      ? "/profile"
-                      : "/login"
-                  )
-                }
-                aria-label="Account"
-                className="
-                  sm:hidden
-
-                  h-10
-                  w-10
-
-                  shrink-0
-
-                  rounded-lg
-
-                  bg-blue-50
-                  text-blue-600
-
-                  flex
-                  items-center
-                  justify-center
-
-                  dark:bg-blue-950/40
-                  dark:text-blue-400
-
-                  cursor-pointer
-                "
+            {activeDropdown && (
+              <div
+                className="fixed left-4 right-4 top-[126px] z-50 w-auto overflow-hidden rounded-sm border border-gray-100 bg-white shadow-[0_18px_55px_rgba(15,23,42,0.16)]"
+                onMouseEnter={clearDropdownTimer}
+                onMouseLeave={scheduleDropdownClose}
               >
-                {isLoggedIn &&
-                user?.firstName ? (
-                  <span className="font-bold text-sm">
-                    {user.firstName
-                      .charAt(0)
-                      .toUpperCase()}
-                  </span>
+                {/* PRODUCTS DROPDOWN */}
+
+                {activeDropdown === "Products" ? (
+                  <div className="grid grid-cols-5 bg-gray-50">
+
+                    <div className="flex flex-col justify-center bg-white px-7 py-8">
+                      <span className="text-xs font-bold uppercase tracking-[0.16em] text-app-primary">
+                        New collection
+                      </span>
+
+                      <h3 className="mt-3 text-2xl font-semibold text-gray-950">
+                        Find your next favorite
+                      </h3>
+
+                      <p className="mt-3 text-sm leading-6 text-gray-600">
+                        Explore useful tech and everyday
+                        essentials picked for you.
+                      </p>
+
+                      <Link
+                        to="/products"
+                        onClick={closeMenu}
+                        className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-app-primary"
+                      >
+                        Shop all products
+                        <ArrowRight size={16} />
+                      </Link>
+                    </div>
+
+                    <div className="col-span-4 grid grid-cols-4 gap-4 bg-gray-50 p-6">
+                      {featuredProducts.map(
+                        (product) => (
+                          <Link
+                            key={
+                              product._id ||
+                              product.id ||
+                              product.name
+                            }
+                            to={`/product/${
+                              product._id ||
+                              product.id
+                            }`}
+                            onClick={closeMenu}
+                            className="group rounded-md border border-gray-200 bg-white p-3 transition-shadow hover:shadow-md"
+                          >
+                            <div className="flex h-36 items-center justify-center bg-white">
+                              <img
+                                src={getHeaderImage(
+                                  product.images?.[0]
+                                )}
+                                alt={
+                                  product.name ||
+                                  "Product"
+                                }
+                                className="h-full w-full object-contain"
+                              />
+                            </div>
+
+                            <p className="mt-3 line-clamp-2 min-h-10 text-sm font-medium leading-5 text-gray-900 group-hover:text-app-primary">
+                              {product.name}
+                            </p>
+
+                            <p className="mt-2 font-semibold text-app-primary">
+                              ₹
+                              {Number(
+                                product.price || 0
+                              ).toLocaleString(
+                                "en-IN"
+                              )}
+                            </p>
+                          </Link>
+                        )
+                      )}
+                    </div>
+                  </div>
                 ) : (
-                  <User size={19} />
+                  /* CATEGORY / SHOP / DEALS DROPDOWN */
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2">
+
+                    {/* Categories */}
+
+                    <div className="px-7 py-7">
+                      <div className="mb-5 flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-gray-950">
+                          Shop by category
+                        </h3>
+
+                        <Link
+                          to="/categories"
+                          onClick={closeMenu}
+                          className="text-sm font-medium text-app-primary hover:underline"
+                        >
+                          View all
+                        </Link>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-5 xl:grid-cols-3">
+                        {rootCategories
+                          .slice(0, 9)
+                          .map((category) => {
+                            const id =
+                              getCategoryId(
+                                category
+                              );
+
+                            const children =
+                              categoryChildren[
+                                id
+                              ] ||
+                              category.children ||
+                              category.subcategories ||
+                              [];
+
+                            return (
+                              <div
+                                key={
+                                  id ||
+                                  getCategoryName(
+                                    category
+                                  )
+                                }
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    openSearch(
+                                      getCategoryName(
+                                        category
+                                      )
+                                    )
+                                  }
+                                  className="text-left text-sm font-semibold text-gray-900 hover:text-app-primary"
+                                >
+                                  {getCategoryName(
+                                    category
+                                  )}
+                                </button>
+
+                                <ul className="mt-2 space-y-1.5">
+                                  {(
+                                    Array.isArray(
+                                      children
+                                    )
+                                      ? children
+                                      : []
+                                  )
+                                    .slice(0, 4)
+                                    .map(
+                                      (child) => (
+                                        <li
+                                          key={
+                                            getCategoryId(
+                                              child
+                                            ) ||
+                                            getCategoryName(
+                                              child
+                                            )
+                                          }
+                                        >
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              openSearch(
+                                                getCategoryName(
+                                                  child
+                                                )
+                                              )
+                                            }
+                                            className="text-left text-sm text-gray-600 hover:text-app-primary"
+                                          >
+                                            {getCategoryName(
+                                              child
+                                            )}
+                                          </button>
+                                        </li>
+                                      )
+                                    )}
+                                </ul>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </div>
+
+                    {/* Featured products */}
+
+                    <div className="bg-gray-50 px-6 py-7">
+                      <div className="mb-5 flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-gray-950">
+                          {activeDropdown ===
+                          "Top Deals"
+                            ? "Featured deals"
+                            : "Best selling"}
+                        </h3>
+
+                        <Link
+                          to="/products"
+                          onClick={closeMenu}
+                          className="text-sm font-medium text-app-primary hover:underline"
+                        >
+                          Shop all
+                        </Link>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+                        {featuredProducts.map(
+                          (product) => (
+                            <Link
+                              key={
+                                product._id ||
+                                product.id ||
+                                product.name
+                              }
+                              to={`/product/${
+                                product._id ||
+                                product.id
+                              }`}
+                              onClick={closeMenu}
+                              className="group flex min-h-[112px] items-center gap-4 rounded-md border border-gray-100 bg-white p-3 hover:border-blue-100"
+                            >
+                              <img
+                                src={getHeaderImage(
+                                  product.images?.[0]
+                                )}
+                                alt={
+                                  product.name ||
+                                  "Product"
+                                }
+                                className="h-20 w-24 shrink-0 object-contain"
+                              />
+
+                              <span className="min-w-0">
+                                <span className="line-clamp-2 block text-sm leading-5 text-gray-900 group-hover:text-app-primary">
+                                  {product.name}
+                                </span>
+
+                                <span className="mt-2 block font-semibold text-app-primary">
+                                  ₹
+                                  {Number(
+                                    product.price ||
+                                      0
+                                  ).toLocaleString(
+                                    "en-IN"
+                                  )}
+                                </span>
+                              </span>
+                            </Link>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 )}
-              </button>
-            </div>
-          </div>
+              </div>
+            )}
+          </nav>
         </div>
 
-        {/* ===================================================
-            MOBILE SEARCH
-        =================================================== */}
+        {/* =================================================
+            RIGHT SIDE ACTIONS
+        ================================================== */}
 
-        <div
-          className="
-            md:hidden
+        <div className="ml-auto flex shrink-0 items-center gap-0.5 lg:ml-auto lg:gap-1">
 
-            px-3
-            sm:px-4
+          {/* Desktop Search */}
 
-            pb-3
-          "
-        >
           <form
             onSubmit={handleSearch}
-            className="relative"
+            role="search"
+            className="hidden xl:block"
           >
-            <Search
-              size={18}
-              className="
-                absolute
+            <label className="relative block">
+              <Search
+                size={16}
+                aria-hidden="true"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
 
-                left-3.5
-                top-1/2
-                -translate-y-1/2
-
-                text-gray-400
-              "
-            />
-
-                 <input
-                  type="text"
-                  value={search}
-                  placeholder="Search products, brands and more..."
-                  onChange={(e) =>
-                    setSearch(
-                      e.target.value
-                    )
-                  }
-                  className="
-                    w-full
-
-                    h-11
-
-                    pl-10
-                    pr-24
-
-                    rounded-lg
-
-                    border
-                    border-gray-200
-
-                    bg-gray-50
-
-                    outline-none
-
-                    focus:bg-white
-                    focus:border-blue-500
-                    focus:ring-4
-                    focus:ring-blue-50
-
-                    transition-all
-
-                    dark:border-gray-700
-                    dark:bg-gray-800
-                    dark:text-white
-                    dark:placeholder:text-gray-500
-                    dark:focus:bg-gray-900
-    dark:focus:border-blue-400
-                  "
-                />
-
-            <button
-              type="submit"
-              aria-label="Search"
-              className="
-                absolute
-
-                right-1.5
-                top-1/2
-                -translate-y-1/2
-
-                h-8
-                w-10
-
-                rounded-md
-
-                bg-blue-600
-                text-white
-
-                flex
-                items-center
-                justify-center
-
-                cursor-pointer
-              "
-            >
-              <Search size={17} />
-            </button>
+              <input
+                value={search}
+                onChange={(event) =>
+                  setSearch(event.target.value)
+                }
+                placeholder="Search"
+                aria-label="Search products"
+                className="h-10 w-72 rounded-full border border-gray-200 bg-gray-50 pl-9 pr-3 text-sm outline-none focus:border-app-primary focus:ring-2 focus:ring-app-primary/15"
+              />
+            </label>
           </form>
-        </div>
 
-        {/* ===================================================
-            DESKTOP / TABLET NAVBAR
-            CATEGORIES ARE DIRECTLY VISIBLE
-        =================================================== */}
+          {/* Account */}
 
-        <div
-          className="
-            hidden
-            md:block
-
-            border-t
-            border-gray-100
-            dark:border-gray-800
-
-            w-full
-            max-w-full
-            overflow-hidden
-          "
-        >
-          <div
-            className="
-              w-full
-              max-w-7xl
-              mx-auto
-
-              px-3
-              sm:px-4
-              lg:px-6
-            "
-          >
-            <div
-              className="
-                flex
-                items-center
-
-                h-[60px]
-
-                min-w-0
-                max-w-full
-              "
-            >
-              {/* =================================================
-                  HOME + PRODUCTS
-              ================================================= */}
-
-              <div
-                className="
-                  flex
-                  items-center
-
-                  shrink-0
-                "
+          {isLoggedIn ? (
+            <div className="group relative hidden sm:block">
+              <Link
+                to={"/profile"}
+                aria-label={`Account: ${
+                  displayName || "profile"
+                }`}
+                className="flex h-11 w-11 items-center justify-center text-gray-800 hover:text-app-primary"
               >
-                {navItems.map(
-                  (item) => (
-                    <AppNavItem
-                      key={item.name}
-                      name={item.name}
-                      icon={item.icon}
-                      active={isActive(
-                        item.path
-                      )}
-                      onClick={() =>
-                        goTo(
-                          item.path
-                        )
-                      }
-                    />
-                  )
-                )}
-              </div>
+                <UserRound
+                  size={23}
+                  strokeWidth={1.7}
+                />
+              </Link>
 
-              {/* =================================================
-                  DIVIDER
-              ================================================= */}
-
-              <div
-                className="
-                  h-8
-                  w-px
-
-                  mx-1
-
-                  bg-gray-200
-                  dark:bg-gray-700
-
-                  shrink-0
-                "
-              />
-
-              {/* =================================================
-                  SCROLLABLE CATEGORIES
-                  
-                  IMPORTANT:
-                  min-w-0 = prevents page width expansion
-                  flex-1 = uses only remaining width
-                  overflow-x-auto = categories scroll
-              ================================================= */}
-
-              <div
-                className="
-                  flex-1
-                  min-w-0
-
-                  overflow-x-auto
-                  overflow-y-hidden
-
-                  h-full
-
-                  scroll-smooth
-
-                  scrollbar-hide
-                "
-                style={{
-                  scrollbarWidth:
-                    "none",
-                  msOverflowStyle:
-                    "none",
-                  WebkitOverflowScrolling:
-                    "touch",
-                }}
-                onWheel={(e) => {
-                  /*
-                   * Desktop mouse-wheel support.
-                   * Vertical wheel movement is converted
-                   * into horizontal category scrolling.
-                   */
-                  if (
-                    Math.abs(
-                      e.deltaY
-                    ) >
-                    Math.abs(
-                      e.deltaX
-                    )
-                  ) {
-                    e.currentTarget.scrollLeft +=
-                      e.deltaY;
-                  }
-                }}
-              >
-                <div
-                  className="
-                    flex
-                    items-center
-
-                    h-full
-
-                    w-max
-
-                    gap-0
-                  "
+              <div className="invisible absolute right-0 top-full z-10 w-44 rounded-lg border border-gray-100 bg-white p-2 opacity-0 shadow-xl transition-all group-hover:visible group-hover:opacity-100">
+                <Link
+                  to="/profile"
+                  className="block rounded px-3 py-2 text-sm hover:bg-gray-50"
                 >
-                  {categories.map(
-                    (category) => (
-                      <CategoryNavItem
-                        key={
-                          category.slug
-                        }
-                        category={
-                          category
-                        }
-                      />
-                    )
-                  )}
-                </div>
+                  Profile
+                </Link>
+
+                <Link
+                  to="/orders"
+                  className="block rounded px-3 py-2 text-sm hover:bg-gray-50"
+                >
+                  Orders
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                >
+                  <LogOut size={14} />
+                  Log out
+                </button>
               </div>
-
-              {/* =================================================
-                  DASHBOARD
-              ================================================= */}
-
-              {(user?.role ===
-                "admin" ||
-                user?.role ===
-                  "vendor") && (
-                <>
-                  <div
-                    className="
-                      h-8
-                      w-px
-
-                      mx-1
-
-                      bg-gray-200
-                      dark:bg-gray-700
-
-                      shrink-0
-                    "
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      goTo(
-                        dashboardPath
-                      )
-                    }
-                    className={`
-                      relative
-
-                      flex
-                      flex-col
-                      items-center
-                      justify-center
-
-                      h-[58px]
-
-                      min-w-[76px]
-
-                      px-2
-
-                      shrink-0
-
-                      cursor-pointer
-
-                      transition-colors
-
-                      ${
-                        location.pathname.startsWith(
-                          dashboardPath
-                        )
-                          ? "text-blue-600"
-                          : "text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
-                      }
-                    `}
-                  >
-                    <LayoutDashboard 
-                      size={20}
-                      strokeWidth={
-                        location.pathname.startsWith(
-                          dashboardPath
-                        )
-                          ? 2.4
-                          : 1.9
-                      }
-                    />
-
-                    <span
-                      className="
-                        mt-1
-
-                        text-[11px]
-
-                        leading-none
-
-                        font-medium
-
-                        whitespace-nowrap
-                      "
-                    >
-                      Dashboard
-                    </span>
-
-                    {location.pathname.startsWith(
-                      dashboardPath
-                    ) && (
-                      <span
-                        className="
-                          absolute
-
-                          bottom-0
-                          left-1/2
-                          -translate-x-1/2
-
-                          h-[3px]
-                          w-5
-
-                          rounded-full
-
-                          bg-blue-600
-                        "
-                      />
-                    )}
-                  </button>
-                </>
-              )}
             </div>
-          </div>
+          ) : (
+            <Link
+              to="/login"
+              aria-label="Sign in"
+              className="hidden h-11 w-11 items-center justify-center text-gray-800 hover:text-app-primary sm:flex"
+            >
+              <UserRound
+                size={23}
+                strokeWidth={1.7}
+              />
+            </Link>
+          )}
+
+          {/* Wishlist */}
+
+          <IconLink
+            to="/wishlist"
+            label="Wishlist"
+            count={wishlistItems.length}
+          >
+            <Heart
+              size={23}
+              strokeWidth={1.7}
+            />
+          </IconLink>
+
+          {/* Cart */}
+
+          <IconLink
+            to="/cart"
+            label="Shopping cart"
+            count={cartItems.length}
+          >
+            <ShoppingBag
+              size={23}
+              strokeWidth={1.7}
+            />
+          </IconLink>
+
+          <Link
+            to="/cart"
+            className="hidden min-w-[64px] flex-col text-xs leading-tight sm:flex"
+          >
+            <span className="font-medium">
+              My Cart
+            </span>
+
+            <span className="mt-1 text-gray-500">
+              {cartItems.length} item
+              {cartItems.length === 1
+                ? ""
+                : "s"}
+            </span>
+          </Link>
         </div>
-      </header>
+      </div>
 
       {/* =====================================================
-          MOBILE SIDE MENU
-      ===================================================== */}
-
-      {mobileMenu && (
-        <div
-          className="
-            fixed
-            inset-0
-
-            z-[100]
-
-            lg:hidden
-          "
-        >
-          {/* OVERLAY */}
-
-          <div
-            onClick={() =>
-              setMobileMenu(false)
-            }
-            className="
-              absolute
-              inset-0
-
-              bg-black/40
-              backdrop-blur-sm
-            "
-          />
-
-          {/* DRAWER */}
-
-          <aside
-            className="
-              absolute
-
-              left-0
-              top-0
-              bottom-0
-
-              w-[min(320px,85vw)]
-
-              bg-white
-
-              shadow-2xl
-
-              overflow-y-auto
-              overscroll-contain
-
-              dark:bg-gray-900
-            "
-          >
-            {/* =================================================
-                DRAWER HEADER
-            ================================================= */}
-
-            <div
-              className="
-                h-18
-
-                px-4
-                sm:px-5
-
-                flex
-                items-center
-                justify-between
-
-                border-b
-                border-gray-100
-
-                dark:border-gray-800
-              "
-            >
-              <button
-                type="button"
-                onClick={() =>
-                  goTo("/")
-                }
-                className="cursor-pointer"
-              >
-                <div className="text-2xl font-black">
-                  <span className="text-gray-900 dark:text-white">
-                    E
-                  </span>
-
-                  <span className="text-blue-600">
-                    comStore
-                  </span>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  setMobileMenu(
-                    false
-                  )
-                }
-                aria-label="Close menu"
-                className="
-                  h-9
-                  w-9
-
-                  rounded-lg
-
-                  bg-gray-100
-                  text-gray-600
-
-                  flex
-                  items-center
-                  justify-center
-
-                  hover:bg-gray-200
-
-                  dark:bg-gray-800
-                  dark:text-gray-300
-
-                  transition
-
-                  cursor-pointer
-                "
-              >
-                <X size={19} />
-              </button>
-            </div>
-
-            {/* =================================================
-                DRAWER CONTENT
-            ================================================= */}
-
-            <div className="p-3 sm:p-4">
-              {/* NAVIGATION */}
-
-              <p
-                className="
-                  px-3
-                  mb-2
-
-                  text-[11px]
-                  font-bold
-                  uppercase
-                  tracking-wider
-
-                  text-gray-400
-                "
-              >
-                Navigation
-              </p>
-
-              <div className="space-y-1">
-                {navItems.map(
-                  (item) => {
-                    const Icon =
-                      item.icon;
-
-                    return (
-                      <button
-                        key={
-                          item.name
-                        }
-                        type="button"
-                        onClick={() =>
-                          goTo(
-                            item.path
-                          )
-                        }
-                        className={`
-                          w-full
-
-                          flex
-                          items-center
-                          gap-3
-
-                          px-4
-                          py-3
-
-                          rounded-xl
-
-                          text-sm
-                          font-semibold
-
-                          transition
-
-                          cursor-pointer
-
-                          ${
-                            isActive(
-                              item.path
-                            )
-                              ? "bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
-                              : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
-                          }
-                        `}
-                      >
-                        <Icon
-                          size={19}
-                        />
-
-                        <span>
-                          {
-                            item.name
-                          }
-                        </span>
-
-                        <ChevronRight
-                          size={
-                            16
-                          }
-                          className="ml-auto opacity-50"
-                        />
-                      </button>
-                    );
-                  }
-                )}
-
-                {/* Categories */}
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    goTo(
-                      "/categories"
-                    )
-                  }
-                  className={`
-                    w-full
-
-                    flex
-                    items-center
-                    gap-3
-
-                    px-4
-                    py-3
-
-                    rounded-xl
-
-                    text-sm
-                    font-semibold
-
-                    transition
-
-                    cursor-pointer
-
-                    ${
-                      location.pathname ===
-                      "/categories"
-                        ? "bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
-                        : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
-                    }
-                  `}
-                >
-                  <Grid2X2
-                    size={19}
-                  />
-
-                  <span>
-                    Categories
-                  </span>
-
-                  <ChevronRight
-                    size={16}
-                    className="ml-auto opacity-50"
-                  />
-                </button>
-              </div>
-
-              {/* =================================================
-                  CATEGORY LIST
-              ================================================= */}
-
-              <div
-                className="
-                  my-5
-
-                  border-t
-                  border-gray-100
-
-                  dark:border-gray-800
-                "
-              />
-
-              <p
-                className="
-                  px-3
-                  mb-2
-
-                  text-[11px]
-                  font-bold
-                  uppercase
-                  tracking-wider
-
-                  text-gray-400
-                "
-              >
-                Shop by Category
-              </p>
-
-              <div className="space-y-1">
-                {categories.map(
-                  (category) => {
-                    const Icon =
-                      category.icon;
-
-                    const active =
-                      isCategoryActive(
-                        category.slug
-                      );
-
-                    return (
-                      <button
-                        key={
-                          category.slug
-                        }
-                        type="button"
-                        onClick={() =>
-                          goToCategory(
-                            category.slug
-                          )
-                        }
-                        className={`
-                          w-full
-
-                          flex
-                          items-center
-                          gap-3
-
-                          px-4
-                          py-3
-
-                          rounded-xl
-
-                          text-sm
-                          font-medium
-
-                          transition
-
-                          cursor-pointer
-
-                          ${
-                            active
-                              ? "bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
-                              : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
-                          }
-                        `}
-                      >
-                        <span
-                          className="
-                            h-9
-                            w-9
-
-                            rounded-lg
-
-                            bg-gray-100
-
-                            flex
-                            items-center
-                            justify-center
-
-                            shrink-0
-
-                            dark:bg-gray-800
-                          "
-                        >
-                          <Icon
-                            size={17}
-                          />
-                        </span>
-
-                        <span>
-                          {
-                            category.name
-                          }
-                        </span>
-
-                        <ChevronRight
-                          size={
-                            15
-                          }
-                          className="ml-auto opacity-40"
-                        />
-                      </button>
-                    );
-                  }
-                )}
-              </div>
-
-              {/* =================================================
-                  MANAGEMENT
-              ================================================= */}
-
-              {(user?.role ===
-                "admin" ||
-                user?.role ===
-                  "vendor") && (
-                <>
-                  <div
-                    className="
-                      my-5
-
-                      border-t
-                      border-gray-100
-
-                      dark:border-gray-800
-                    "
-                  />
-
-                  <p
-                    className="
-                      px-3
-                      mb-2
-
-                      text-[11px]
-                      font-bold
-                      uppercase
-                      tracking-wider
-
-                      text-gray-400
-                    "
-                  >
-                    Management
-                  </p>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      goTo(
-                        dashboardPath
-                      )
-                    }
-                    className="
-                      w-full
-
-                      flex
-                      items-center
-                      gap-3
-
-                      px-4
-                      py-3
-
-                      rounded-xl
-
-                      text-sm
-                      font-semibold
-
-                      text-gray-600
-
-                      hover:bg-blue-50
-                      hover:text-blue-600
-
-                      dark:text-gray-300
-                      dark:hover:bg-gray-800
-
-                      transition
-
-                      cursor-pointer
-                    "
-                  >
-                    <span
-                      className="
-                        h-9
-                        w-9
-
-                        rounded-lg
-
-                        bg-gray-100
-
-                        flex
-                        items-center
-                        justify-center
-
-                        dark:bg-gray-800
-                      "
-                    >
-                      <LayoutDashboard
-                        size={18}
-                      />
-                    </span>
-
-                    <span>
-                      Dashboard
-                    </span>
-
-                    <ChevronRight
-                      size={16}
-                      className="ml-auto opacity-50"
-                    />
-                  </button>
-                </>
-              )}
-
-              {/* =================================================
-                  SHOPPING
-              ================================================= */}
-
-              <div
-                className="
-                  my-5
-
-                  border-t
-                  border-gray-100
-
-                  dark:border-gray-800
-                "
-              />
-
-              <p
-                className="
-                  px-3
-                  mb-2
-
-                  text-[11px]
-                  font-bold
-                  uppercase
-                  tracking-wider
-
-                  text-gray-400
-                "
-              >
-                Shopping
-              </p>
-
-              <div className="space-y-1">
-                {/* WISHLIST */}
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    goTo(
-                      "/wishlist"
-                    )
-                  }
-                  className="
-                    w-full
-
-                    flex
-                    items-center
-                    gap-3
-
-                    px-4
-                    py-3
-
-                    rounded-xl
-
-                    text-sm
-                    font-semibold
-
-                    text-gray-600
-
-                    hover:bg-red-50
-                    hover:text-red-500
-
-                    dark:text-gray-300
-                    dark:hover:bg-gray-800
-
-                    transition
-
-                    cursor-pointer
-                  "
-                >
-                  <Heart size={19} />
-
-                  <span>
-                    Wishlist
-                  </span>
-
-                  {wishlist?.products
-                    ?.length > 0 && (
-                    <span
-                      className="
-                        ml-auto
-
-                        min-w-6
-                        h-6
-
-                        px-1
-
-                        rounded-full
-
-                        bg-red-100
-                        text-red-600
-
-                        text-xs
-                        font-bold
-
-                        flex
-                        items-center
-                        justify-center
-                      "
-                    >
-                      {
-                        wishlist
-                          .products
-                          .length
-                      }
-                    </span>
-                  )}
-                </button>
-
-                {/* CART */}
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    goTo("/cart")
-                  }
-                  className="
-                    w-full
-
-                    flex
-                    items-center
-                    gap-3
-
-                    px-4
-                    py-3
-
-                    rounded-xl
-
-                    text-sm
-                    font-semibold
-
-                    text-gray-600
-
-                    hover:bg-blue-50
-                    hover:text-blue-600
-
-                    dark:text-gray-300
-                    dark:hover:bg-gray-800
-
-                    transition
-
-                    cursor-pointer
-                  "
-                >
-                  <ShoppingCart
-                    size={19}
-                  />
-
-                  <span>
-                    Cart
-                  </span>
-
-                  {cart?.items
-                    ?.length > 0 && (
-                    <span
-                      className="
-                        ml-auto
-
-                        min-w-6
-                        h-6
-
-                        px-1
-
-                        rounded-full
-
-                        bg-blue-100
-                        text-blue-600
-
-                        text-xs
-                        font-bold
-
-                        flex
-                        items-center
-                        justify-center
-                      "
-                    >
-                      {
-                        cart.items
-                          .length
-                      }
-                    </span>
-                  )}
-                </button>
-
-                {/* PROFILE / LOGIN */}
-
-                {isLoggedIn ? (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      goTo(
-                        "/profile"
-                      )
-                    }
-                    className="
-                      w-full
-
-                      flex
-                      items-center
-                      gap-3
-
-                      px-4
-                      py-3
-
-                      rounded-xl
-
-                      text-sm
-                      font-semibold
-
-                      text-gray-600
-
-                      hover:bg-blue-50
-                      hover:text-blue-600
-
-                      dark:text-gray-300
-                      dark:hover:bg-gray-800
-
-                      transition
-
-                      cursor-pointer
-                    "
-                  >
-                    <div
-                      className="
-                        h-8
-                        w-8
-
-                        rounded-lg
-
-                        bg-linear-to-br
-                        from-blue-500
-                        to-indigo-600
-
-                        text-white
-
-                        flex
-                        items-center
-                        justify-center
-
-                        text-xs
-                        font-bold
-                      "
-                    >
-                      {user?.firstName
-                        ?.charAt(0)
-                        ?.toUpperCase() || (
-                        <User
-                          size={16}
-                        />
-                      )}
-                    </div>
-
-                    <div className="text-left min-w-0">
-                      <p className="text-sm font-semibold truncate">
-                        {user?.firstName ||
-                          "My Profile"}
-                      </p>
-
-                      <p className="text-[10px] text-gray-400">
-                        View your account
-                      </p>
-                    </div>
-
-                    <ChevronRight
-                      size={16}
-                      className="ml-auto opacity-50 shrink-0"
-                    />
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      goTo("/login")
-                    }
-                    className="
-                      w-full
-
-                      flex
-                      items-center
-                      gap-3
-
-                      px-4
-                      py-3
-
-                      rounded-xl
-
-                      text-sm
-                      font-semibold
-
-                      text-gray-600
-
-                      hover:bg-gray-50
-
-                      dark:text-gray-300
-                      dark:hover:bg-gray-800
-
-                      transition
-
-                      cursor-pointer
-                    "
-                  >
-                    <User size={19} />
-
-                    <span>
-                      Login
-                    </span>
-
-                    <ChevronRight
-                      size={16}
-                      className="ml-auto opacity-50"
-                    />
-                  </button>
-                )}
-              </div>
-            </div>
-          </aside>
-        </div>
-      )}
-
-      {/* =====================================================
-          MOBILE BOTTOM NAVIGATION
-
-          Only important items are shown here.
-          Individual categories stay inside the menu.
-      ===================================================== */}
-
-      <nav
-        className="
-          md:hidden
-
-          fixed
-          left-0
-          right-0
-          bottom-0
-
-          z-40
-
-          w-full
-          max-w-full
-
-          bg-white/95
-          backdrop-blur-xl
-
-          border-t
-          border-gray-200
-
-          dark:bg-gray-900/95
-          dark:border-gray-800
-
-          pb-[env(safe-area-inset-bottom)]
-        "
+          MOBILE MENU
+      ====================================================== */}
+
+      <div
+        className={`lg:hidden ${
+          mobileMenuOpen
+            ? "block"
+            : "hidden"
+        }`}
       >
         <div
-          className="
-            h-[64px]
+          className="fixed inset-0 top-[126px] -z-10 bg-gray-950/25"
+          aria-hidden="true"
+        />
 
-            w-full
+        <div className="border-t border-gray-100 bg-white px-4 pb-6 pt-5 shadow-xl sm:px-6">
 
-            flex
-            items-center
-            justify-around
+          {/* Mobile search */}
 
-            px-1
-          "
-        >
-          {/* HOME */}
-
-          <AppNavItem
-            name="Home"
-            icon={Home}
-            active={isActive("/")}
-            onClick={() =>
-              goTo("/")
-            }
-          />
-
-          {/* PRODUCTS */}
-
-          <AppNavItem
-            name="Products"
-            icon={Package}
-            active={isActive(
-              "/products"
-            )}
-            onClick={() =>
-              goTo("/products")
-            }
-          />
-
-          {/* CATEGORIES */}
-
-          <AppNavItem
-            name="Categories"
-            icon={Grid2X2}
-            active={
-              location.pathname ===
-                "/categories" ||
-              !!activeCategory
-            }
-            onClick={() =>
-              goTo(
-                "/categories"
-              )
-            }
-          />
-
-          {/* MENU */}
-
-          <button
-            type="button"
-            onClick={() =>
-              setMobileMenu(true)
-            }
-            className="
-              flex
-              flex-col
-              items-center
-              justify-center
-
-              gap-1
-
-              h-14
-              min-w-[68px]
-
-              px-2
-
-              rounded-lg
-
-              text-gray-600
-              dark:text-gray-300
-
-              hover:text-blue-600
-
-              transition
-
-              cursor-pointer
-            "
+          <form
+            onSubmit={handleSearch}
+            role="search"
+            className="mb-4"
           >
-            <Menu size={20} />
+            <label className="relative block">
+              <Search
+                size={16}
+                aria-hidden="true"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+              />
 
-            <span
-              className="
-                text-[11px]
-                leading-none
-                font-medium
-              "
-            >
-              Menu
-            </span>
-          </button>
+              <input
+                value={search}
+                onChange={(event) =>
+                  setSearch(event.target.value)
+                }
+                placeholder="Search products"
+                aria-label="Search products"
+                className="h-11 w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 text-sm outline-none focus:border-app-primary"
+              />
+            </label>
+          </form>
+
+          <nav
+            aria-label="Mobile navigation"
+            className="grid gap-1"
+          >
+            {navigation.map((item) =>
+              item.menu ? (
+                <div key={item.label}>
+
+                  <button
+                    type="button"
+                    aria-expanded={
+                      mobileSubmenu ===
+                      item.label
+                    }
+                    onClick={() =>
+                      setMobileSubmenu(
+                        (open) =>
+                          open === item.label
+                            ? null
+                            : item.label
+                      )
+                    }
+                    className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-base font-medium text-gray-800 hover:bg-gray-50"
+                  >
+                    {item.label}
+
+                    <ChevronDown
+                      size={16}
+                      className={
+                        mobileSubmenu ===
+                        item.label
+                          ? "rotate-180"
+                          : ""
+                      }
+                    />
+                  </button>
+
+                  {mobileSubmenu ===
+                    item.label && (
+                    <div className="grid gap-1 pb-2 pl-3">
+                      {rootCategories.map(
+                        (category) => (
+                          <button
+                            key={
+                              getCategoryId(
+                                category
+                              ) ||
+                              getCategoryName(
+                                category
+                              )
+                            }
+                            type="button"
+                            onClick={() =>
+                              openSearch(
+                                getCategoryName(
+                                  category
+                                )
+                              )
+                            }
+                            className="rounded-lg px-3 py-2.5 text-left text-sm text-gray-700 hover:bg-blue-50 hover:text-app-primary"
+                          >
+                            {getCategoryName(
+                              category
+                            )}
+                          </button>
+                        )
+                      )}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <NavLink
+                  key={item.label}
+                  to={item.to}
+                  end={item.end}
+                  onClick={closeMenu}
+                  className={({ isActive }) =>
+                    `flex items-center justify-between rounded-lg px-3 py-3 text-base font-medium ${
+                      isActive
+                        ? "bg-blue-50 text-app-primary"
+                        : "text-gray-800 hover:bg-gray-50"
+                    }`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              )
+            )}
+
+            {/* Mobile auth */}
+
+            {isLoggedIn ? (
+              <>
+                <NavLink
+                  to="/profile"
+                  onClick={closeMenu}
+                  className="flex items-center gap-2 rounded-lg px-3 py-3 font-medium text-gray-800"
+                >
+                  <UserRound size={17} />
+                  Profile
+                </NavLink>
+
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 rounded-lg px-3 py-3 text-left font-medium text-red-600"
+                >
+                  <LogOut size={17} />
+                  Log out
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                onClick={closeMenu}
+                className="flex items-center gap-2 rounded-lg px-3 py-3 font-medium text-gray-800"
+              >
+                <LogIn size={17} />
+                Sign in
+              </Link>
+            )}
+          </nav>
         </div>
-      </nav>
-    </>
+      </div>
+    </header>
   );
 }
