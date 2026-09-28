@@ -672,7 +672,7 @@ export default function CategoriesPage() {
       return;
     }
 
-    navigate(`/${slug}`);
+    navigate(`/search?q=${slug}`);
   };
 
 
@@ -696,7 +696,7 @@ export default function CategoriesPage() {
      */
 
     navigate(
-      `/products?category=${encodeURIComponent(
+      `/search?q=${encodeURIComponent(
         slug.replace("/", "")
       )}`
     );

@@ -313,7 +313,10 @@ console.log("lemghg",wishlistItems)
 
   const handleSearch = (event) => {
     event.preventDefault();
-
+window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
     const query = search.trim();
 
     if (!query) return;

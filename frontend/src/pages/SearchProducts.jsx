@@ -25,7 +25,7 @@ export default function SearchPage() {
   const search = searchParams.get("q") || "";
 
   const {
-    product = [],
+    searchedproducts = [],
     pagination = {},
     loading = false,
     error = null,
@@ -149,7 +149,7 @@ export default function SearchPage() {
    */
 
   const categories = useMemo(() => {
-    const values = product
+    const values = searchedproducts
       .map((product) => {
         if (typeof product.category === "string") {
           return product.category;
@@ -160,7 +160,7 @@ export default function SearchPage() {
       .filter(Boolean);
 
     return [...new Set(values)];
-  }, [product]);
+  }, [searchedproducts]);
 
   /*
    * =========================================================
@@ -169,7 +169,7 @@ export default function SearchPage() {
    */
 
   const visibleProducts = useMemo(() => {
-    let result = [...product];
+    let result = [...searchedproducts];
 
     if (category !== "all") {
       result = result.filter((product) => {
@@ -233,7 +233,7 @@ export default function SearchPage() {
     }
 
     return result;
-  }, [product, category, price, sortBy]);
+  }, [searchedproducts, category, price, sortBy]);
 
   /*
    * =========================================================
@@ -365,7 +365,7 @@ export default function SearchPage() {
         {!loading &&
           !error &&
           search &&
-          product.length === 0 && (
+          searchedproducts.length === 0 && (
             <EmptySearch search={search} />
           )}
 
@@ -375,7 +375,7 @@ export default function SearchPage() {
 
         {!loading &&
           !error &&
-          product.length > 0 && (
+          searchedproducts.length > 0 && (
             <div className="pt-6">
 
               {/* =================================================

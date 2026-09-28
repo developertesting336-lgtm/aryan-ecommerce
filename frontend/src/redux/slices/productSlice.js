@@ -150,6 +150,7 @@ export const editProduct = createAsyncThunk( "admin/editProduct", async ({ id, d
 const initialState = {
   product: [],
 relatedProducts:[],
+searchedproducts:[],
 pagination: {
     page: 1,
     limit: 4,
@@ -366,7 +367,7 @@ const productSlice = createSlice({
   state.loading = false;
   state.error = null;
 
-   state.product = action.payload.products || [];
+   state.searchedproducts = action.payload.products || [];
  state.pagination = action.payload.pagination;
   console.log("searched products:", action.payload);
 })
@@ -377,7 +378,7 @@ const productSlice = createSlice({
   state.error =
     action.payload || "Failed to search products.";
 
-  state.product = [];
+ state.searchedproducts = [];
 });
 
   },
