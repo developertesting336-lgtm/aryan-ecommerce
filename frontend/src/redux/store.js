@@ -12,6 +12,20 @@ import adminReducer from "./slices/adminSlice";
 import vendorReducer from "./slices/vendorSlice";
 import couponReducer from "./slices/couponSlice";
 
+
+// =====================================================
+// HOMEPAGE CONTENT SLICES
+// =====================================================
+
+import homepageReducer from "./slices/content/homepage/homepageSlice";
+
+import heroReducer from "./slices/content/homepage/heroSlice";
+
+import promoCardReducer from "./slices/content/homepage/promoCardSlice";
+
+import promoGridReducer from "./slices/content/homepage/promoGridSlice";
+
+import shopByNeedReducer from "./slices/content/homepage/shopByNeedSlice";
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -25,5 +39,11 @@ export const store = configureStore({
     admin: adminReducer,
     vendor: vendorReducer,
     coupon: couponReducer,
+    
+    homepage: homepageReducer,
+    hero: heroReducer,
+    promoCard: promoCardReducer,
+    promoGrid: promoGridReducer,
+    shopByNeed: shopByNeedReducer,
   }
 }); 

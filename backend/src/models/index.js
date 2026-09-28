@@ -6,6 +6,18 @@ import { ProductRelation } from "./ProductRelation.model.js";
 import { Category } from "./category.model.js";
 import { Order,OrderItem,OrderAddress } from "./orders.model.js";
 import { Coupon,CouponUsage } from "./coupon.model.js";
+
+// Homepage Content Models
+import HeroSlide from "./content/homePage/HeroSlide.model.js";
+import PromoCard from "./content/homepage/PromoCard.model.js";
+import PromoGridItem from "./content/homepage/PromoGridItem.model.js";
+import ShopByNeed from "./content/homepage/ShopByNeed.model.js";
+
 export{
-    User,Product,Cart,Wishlist,ProductRelation,Category,Order,OrderItem,OrderAddress, Coupon,CouponUsage
+    User,Product,Cart,Wishlist,ProductRelation,Category,Order,OrderItem,OrderAddress, Coupon,CouponUsage,
+      // Homepage Content
+  HeroSlide,
+  PromoCard,
+  PromoGridItem,
+  ShopByNeed,
 }

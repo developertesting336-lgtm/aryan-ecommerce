@@ -55,7 +55,17 @@ import CategoryDetails from "../pages/admin/CategoryDetails";
 
 import EditProduct from "../pages/EditProduct";
 import AdminOrderDetails from "../pages/admin/AdminOrderDetails";
+// ============================================
+// ADMIN CONTENT / CMS
+// ============================================
 
+import AdminContent from "../pages/admin/AdminContent";
+
+// Homepage Content Management
+import HeroManagement from "../pages/admin/content/homepage/HeroManagement";
+import PromoCardsManagement from "../pages/admin/content/homepage/PromoCardsManagement";
+import PromoGridManagement from "../pages/admin/content/homepage/PromoGridManagement";
+import ShopByNeedManagement from "../pages/admin/content/homepage/ShopByNeedManagement";
 // coupons
 import Coupons from "../pages/vendor/coupons/Coupons";
 import CreateCoupon from "../pages/vendor/coupons/CreateCoupon";
@@ -201,6 +211,47 @@ function AppRoutes() {
             <Route path="coupons/:id" element={<CouponDetails />} />
 
             <Route path="coupons/:id/edit" element={<EditCoupon />} />
+             {/* ==================================================
+                CONTENT MANAGEMENT
+            ================================================== */}
+
+            {/* --------------------------------
+                /admin/content
+                Content CMS Dashboard
+            -------------------------------- */}
+
+            <Route
+              path="content"
+              element={<AdminContent />}
+            />
+
+            {/* --------------------------------
+                HOMEPAGE CONTENT
+            -------------------------------- */}
+
+            {/* /admin/content/hero */}
+            <Route
+              path="content/hero"
+              element={<HeroManagement />}
+            />
+
+            {/* /admin/content/promo-cards */}
+            <Route
+              path="content/promo-cards"
+              element={<PromoCardsManagement />}
+            />
+
+            {/* /admin/content/promo-grid */}
+            <Route
+              path="content/promo-grid"
+              element={<PromoGridManagement />}
+            />
+
+            {/* /admin/content/shop-by-need */}
+            <Route
+              path="content/shop-by-need"
+              element={<ShopByNeedManagement />}
+            />
           </Route>
 
           {/* -----------------------------
@@ -209,6 +260,8 @@ function AppRoutes() {
 
           <Route path="/create-category" element={<CreateCategory />} />
           <Route path="/categories/:id" element={<CategoryDetails />} />
+          
+          
         </Route>
 
         {/* ======================================================

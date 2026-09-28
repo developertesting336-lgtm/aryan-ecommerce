@@ -24,6 +24,7 @@ export const uploadOnCloudinary = async (localFilePath) => {
 
     const response =await cloudinary.uploader.upload(localFilePath, {
   folder: "aryan/products",
+  resource_type: "auto",
 });
     console.log(
       "File uploaded successfully:",

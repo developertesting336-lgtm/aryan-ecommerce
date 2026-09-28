@@ -36,7 +36,11 @@ export default function AdminSidebar({
       icon: <CouponIcon />,
       path: "/admin/coupons",
     },
-   
+     {
+    name: "Content",
+    icon: <ContentIcon />,
+    path: "/admin/content",
+  },
   ];
 
   return (
@@ -467,6 +471,24 @@ function CouponIcon() {
       <path d="M12 6v2" />
       <path d="M12 10v2" />
       <path d="M12 14v2" />
+    </svg>
+  );
+}
+
+function ContentIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+    >
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M7 8h10" />
+      <path d="M7 12h6" />
+      <path d="M7 16h8" />
     </svg>
   );
 }
