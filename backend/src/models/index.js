@@ -9,9 +9,9 @@ import { Coupon,CouponUsage } from "./coupon.model.js";
 
 // Homepage Content Models
 import HeroSlide from "./content/homePage/HeroSlide.model.js";
-import PromoCard from "./content/homepage/PromoCard.model.js";
-import PromoGridItem from "./content/homepage/PromoGridItem.model.js";
-import ShopByNeed from "./content/homepage/ShopByNeed.model.js";
+import PromoCard from "./content/homePage/promoCard.model.js";
+import PromoGridItem from "./content/homePage/PromoGridItem.model.js";
+import ShopByNeed from "./content/homePage/ShopByNeed.model.js";
 
 export{
     User,Product,Cart,Wishlist,ProductRelation,Category,Order,OrderItem,OrderAddress, Coupon,CouponUsage,
