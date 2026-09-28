@@ -11,13 +11,28 @@ export default function AddonProducts({
 }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+const API_URL = "http://localhost:3000";
 
   const [selected, setSelected] = useState([currentProduct._id]);
 const {relatedProducts} = useSelector((state)=> state.product)
 console.log("related",relatedProducts)
 console.log("currentProduct",currentProduct)
 console.log("products",products)
+const getImageUrl = (image) => {
+  if (!image) {
+    return "/1786052049893.webp";
+  }
 
+  if (
+    typeof image === "string" &&
+    (image.startsWith("http://") || image.startsWith("https://"))
+  ) {
+    return image;
+  }
+
+  return `${API_URL}/uploads/${image}`;
+};
+ 
 const addons = useMemo(() => {
   if (!Array.isArray(relatedProducts)) {
     return [];
@@ -75,7 +90,7 @@ const addons = useMemo(() => {
   if (!addons.length) {
     return null;
   }
-
+console.log("getImageUrl(currentProduct.image[0])",currentProduct)
   return (
     <section className="mt-8">
 
@@ -162,7 +177,7 @@ const addons = useMemo(() => {
               ">
 
                 <img
-                  src={`http://localhost:3000/uploads/${currentProduct.images?.[0]}`}
+                  src={getImageUrl(currentProduct?.images[0])}
                   alt={currentProduct.name}
                   className="
                     w-full
@@ -271,7 +286,7 @@ const addons = useMemo(() => {
               ">
 
                 <img
-                  src={`http://localhost:3000/uploads/${item.relatedProduct.images?.[0]}`}
+                  src={getImageUrl(item.relatedProduct?.images[0])}
                   alt={item.name}
                   className="
                     w-full
