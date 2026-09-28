@@ -2,7 +2,7 @@ import express from "express";
 
 import {
   getHomepage,
-} from "../../../controllers/content/homePage/homepage.controller.js";
+} from "../../../controllers/content/homepage/homepage.controller.js";
 
 const router = express.Router();
 
