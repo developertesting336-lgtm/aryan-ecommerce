@@ -585,9 +585,9 @@ const Hero = () => {
    * API call is handled by Redux thunk.
    * Hero component only dispatches the thunk.
    */
-  useEffect(() => {
-    dispatch(getHomepage());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(getHomepage());
+  // }, [dispatch]);
 
   /*
    * =========================================

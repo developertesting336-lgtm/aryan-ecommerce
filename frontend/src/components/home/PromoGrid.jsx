@@ -673,7 +673,7 @@ import { motion } from "motion/react";
 import gsap from "gsap";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getPromoGridItems } from "../../redux/slices/content/homepage/promoGridSlice";
+import { getHomepage } from "../../redux/slices/content/homepage/homepageSlice";
 
 // ======================================================
 // MAIN COMPONENT
@@ -702,19 +702,23 @@ const handleNavigate = (query) => {
   // REDUX STATE
   // ====================================================
 
+  // const {
+  //   promoGridItems = [],
+  //   loading,
+  //   error,
+  // } = useSelector((state) => state.promoGrid);
   const {
-    promoGridItems = [],
-    loading,
-    error,
-  } = useSelector((state) => state.promoGrid);
-
+     promoGridItems = [],
+    loading = false,
+    error = null,
+  } = useSelector((state) => state.homepage || {});
   // ====================================================
   // FETCH PROMO GRID DATA
   // ====================================================
 
-  useEffect(() => {
-    dispatch(getPromoGridItems());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(getHomepage());
+  // }, [dispatch]);
 
   // ====================================================
   // PREPARE ACTIVE + SORTED CARDS

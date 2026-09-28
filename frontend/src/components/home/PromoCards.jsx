@@ -452,7 +452,7 @@ import React, { useEffect, useMemo } from "react";
 import { motion } from "motion/react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { getPromoCards } from "../../redux/slices/content/homepage/promoCardSlice";
+import { getHomepage } from "../../redux/slices/content/homepage/homepageSlice";
 
 /*
 |--------------------------------------------------------------------------
@@ -927,7 +927,7 @@ export default function PromoCards({
     promoCards = [],
     loading = false,
     error = null,
-  } = useSelector((state) => state.promoCard || {});
+  } = useSelector((state) => state.homepage || {});
 
   /*
   |--------------------------------------------------------------------------
@@ -935,9 +935,9 @@ export default function PromoCards({
   |--------------------------------------------------------------------------
   */
 
-  useEffect(() => {
-    dispatch(getPromoCards());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(getHomepage());
+  // }, [dispatch]);
 
   /*
   |--------------------------------------------------------------------------

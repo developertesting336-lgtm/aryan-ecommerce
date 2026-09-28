@@ -715,18 +715,18 @@ export default function ShopByNeed() {
   // FETCH HOMEPAGE
   // ====================================================
 
-  useEffect(() => {
-    /*
-     * Load homepage data.
-     *
-     * shopByNeed will come from:
-     *
-     * state.homepage.shopByNeed
-     */
-    if (!shopByNeed.length) {
-      dispatch(getHomepage());
-    }
-  }, [dispatch, shopByNeed.length]);
+  // useEffect(() => {
+  //   /*
+  //    * Load homepage data.
+  //    *
+  //    * shopByNeed will come from:
+  //    *
+  //    * state.homepage.shopByNeed
+  //    */
+  //   if (!shopByNeed.length) {
+  //     dispatch(getHomepage());
+  //   }
+  // }, [dispatch, shopByNeed.length]);
 
   // ====================================================
   // ACTIVE + SORTED COLLECTIONS
