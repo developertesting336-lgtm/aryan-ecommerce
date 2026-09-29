@@ -121,7 +121,6 @@ const couponBasePath =
       state.wishlist.wishlist ??
       []
   );
-console.log("lemghg",wishlistItems)
   const isLoggedIn = Boolean(user);
 
   const dashboardPath =

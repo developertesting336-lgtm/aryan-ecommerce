@@ -10,6 +10,7 @@ import paymentRoutes from "./payment.routes.js";
 import adminRoutes from "./admin.routes.js";
 import vendorRoutes from "./vendor.routes.js"
 import couponRoutes from "./coupon.routes.js"
+import reviewRoutes from "./reviews.routes.js"
 
 // ============================================================
 // HOMEPAGE CONTENT ROUTES
@@ -53,6 +54,10 @@ const routes = [
     {
         path: `${api}/orders/`,
         route: ordersRoutes
+    },
+    {
+        path: `${api}/review/`,
+        route: reviewRoutes
     },
     {
         path: `${api}/payment/`,

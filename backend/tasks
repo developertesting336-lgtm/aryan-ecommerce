@@ -1693,3 +1693,219 @@ the coupon can discount
 discount
    ↓
 Actual money removed from the order
+
+
+
+
+Reviews schmema
+
+const reviewSchema = new Schema(
+  {
+    // --------------------------------------------------
+    // Relationships
+    // --------------------------------------------------
+
+    product: {
+      type: Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+      index: true,
+    },
+
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+
+    order: {
+      type: Schema.Types.ObjectId,
+      ref: "Order",
+      default: null,
+      index: true,
+    },
+
+    orderItem: {
+      type: Schema.Types.ObjectId,
+      ref: "OrderItem",
+      default: null,
+    },
+
+    // --------------------------------------------------
+    // Review Content
+    // --------------------------------------------------
+
+    rating: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5,
+      validate: {
+        validator: Number.isInteger,
+        message: "Rating must be a whole number between 1 and 5.",
+      },
+    },
+
+    title: {
+      type: String,
+      trim: true,
+      maxlength: 150,
+      default: "",
+    },
+
+    comment: {
+      type: String,
+      trim: true,
+      maxlength: 5000,
+      required: true,
+    },
+
+    // --------------------------------------------------
+    // Media
+    // --------------------------------------------------
+
+    images: [
+      {
+        url: {
+          type: String,
+          trim: true,
+        },
+
+        publicId: {
+          type: String,
+          trim: true,
+        },
+      },
+    ],
+
+    videos: [
+      {
+        url: {
+          type: String,
+          trim: true,
+        },
+
+        publicId: {
+          type: String,
+          trim: true,
+        },
+      },
+    ],
+
+    // --------------------------------------------------
+    // Purchase Verification
+    // --------------------------------------------------
+
+    isVerifiedPurchase: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+
+    // --------------------------------------------------
+    // Moderation
+    // --------------------------------------------------
+
+    status: {
+      type: String,
+      enum: [
+        "pending",
+        "approved",
+        "rejected",
+        "hidden",
+        "flagged",
+      ],
+      default: "pending",
+      index: true,
+    },
+
+    moderationReason: {
+      type: String,
+      trim: true,
+      maxlength: 500,
+      default: "",
+    },
+
+    moderatedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
+    moderatedAt: {
+      type: Date,
+      default: null,
+    },
+
+    // --------------------------------------------------
+    // Helpful Votes
+    // --------------------------------------------------
+
+    helpfulCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    notHelpfulCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    // --------------------------------------------------
+    // Reports
+    // --------------------------------------------------
+
+    reportCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    isReported: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+
+    // --------------------------------------------------
+    // Edit Tracking
+    // --------------------------------------------------
+
+    isEdited: {
+      type: Boolean,
+      default: false,
+    },
+
+    editedAt: {
+      type: Date,
+      default: null,
+    },
+
+    // --------------------------------------------------
+    // Soft Delete
+    // --------------------------------------------------
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
+
+    deletedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
