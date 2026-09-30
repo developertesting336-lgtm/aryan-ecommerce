@@ -542,82 +542,80 @@ const [currentImage, setCurrentImage] = useState(0);
             PRODUCT IMAGE
         ================================================= */}
 
-        <div
+    <div
   className="
     absolute
     inset-0
     z-10
     overflow-hidden
     touch-pan-y
+    flex
+    items-center
+    justify-center
   "
 >
   <AnimatePresence mode="wait" initial={false}>
     <motion.img
-    
-      key={currentImage}
-      src={productImages[currentImage]}
-      alt={`${name || "Product"} ${currentImage + 1}`}
-      draggable={false}
-      onError={(e) => {
-        e.currentTarget.onerror = null;
-        e.currentTarget.src =
-          "/1786052049893.webp";
-      }}
-      className="
-        h-full
-        w-full
-        select-none
-        object-cover
-        object-center
-      "
-      initial={{
-        opacity: 0,
-        x: 40,
-      }}
-      animate={{
-        opacity: 1,
-        x: 0,
-        scale: 1,
-      }}
-      exit={{
-        opacity: 0,
-        x: -40,
-      }}
-      whileHover={{
-        scale: 1.08,
-      }}
-      transition={{
-        duration: 0.35,
-        ease: "easeOut",
-      }}
-      drag="x"
-      dragConstraints={{
-        left: 0,
-        right: 0,
-      }}
-      dragElastic={0.15}
-      onDragEnd={(event, info) => {
-        const swipeDistance = info.offset.x;
+  key={currentImage}
+  src={productImages[currentImage]}
+  alt={`${name || "Product"} ${currentImage + 1}`}
+  draggable={false}
+  onError={(e) => {
+    e.currentTarget.onerror = null;
+    e.currentTarget.src = "/1786052049893.webp";
+  }}
+  className="
+    h-full
+    w-full
+    select-none
+    object-contain
+    object-center
+    p-3
+  "
+  initial={{
+    opacity: 0,
+    x: 40,
+  }}
+  animate={{
+    opacity: 1,
+    x: 0,
+    scale: 1,
+  }}
+  exit={{
+    opacity: 0,
+    x: -40,
+  }}
+  whileHover={{
+    scale: 1.25,
+  }}
+  transition={{
+    duration: 0.35,
+    ease: "easeOut",
+  }}
+  drag="x"
+  dragConstraints={{
+    left: 0,
+    right: 0,
+  }}
+  dragElastic={0.15}
+  onDragEnd={(event, info) => {
+    const swipeDistance = info.offset.x;
 
-        if (
-          swipeDistance < -50 &&
-          currentImage < productImages.length - 1
-        ) {
-          setCurrentImage(
-            (prev) => prev + 1
-          );
-        }
+    if (
+      swipeDistance < -50 &&
+      currentImage < productImages.length - 1
+    ) {
+      setCurrentImage((prev) => prev + 1);
+    }
 
-        if (
-          swipeDistance > 50 &&
-          currentImage > 0
-        ) {
-          setCurrentImage(
-            (prev) => prev - 1
-          );
-        }
-      }}
-    />
+    if (
+      swipeDistance > 50 &&
+      currentImage > 0
+    ) {
+      setCurrentImage((prev) => prev - 1);
+    }
+  }}
+/>
   </AnimatePresence>
 
   {/* IMAGE DOTS */}

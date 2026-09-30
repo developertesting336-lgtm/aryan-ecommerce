@@ -198,6 +198,7 @@ const initialState = {
 
   orderDetails: {
     orderItem: [],
+    reviews:[],
     orderAddress: null,
   },
 
