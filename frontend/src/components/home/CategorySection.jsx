@@ -376,7 +376,7 @@ const handleNavigate = (query) => {
             `electronics-${index}`,
 
           title: getTitleLines(name),
-
+          slug: category?.slug,
           image: getCategoryAsset(
             name,
             index
@@ -838,7 +838,7 @@ useEffect(() => {
                     <CategoryCard
                       category={category}
                       onSelect={() =>
-                       handleNavigate(category.title)
+                       handleNavigate(category.slug)
                       }
                     />
                   </div>

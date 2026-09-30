@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -8,6 +8,22 @@ import ProductCard from "../products/ProductCard";
 export default function FeaturedProducts() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // =====================================================
+  // SCROLL / LIMIT STATE
+  // =====================================================
+
+  const [limit, setLimit] = useState(8);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  const scrollRef = useRef(null);
+
+  // Prevent duplicate API calls
+  const isFetchingRef = useRef(false);
+
+  // Keep latest limit inside scroll event
+  const limitRef = useRef(8);
 
   // =====================================================
   // PRODUCTS FROM REDUX
@@ -21,22 +37,276 @@ export default function FeaturedProducts() {
 
   // =====================================================
   // FETCH PRODUCTS
+  //
+  // Initial:
+  // 8
+  //
+  // Scroll:
+  // 16
+  // 24
+  // 32
+  // ...
   // =====================================================
 
   useEffect(() => {
-    if (!Array.isArray(product) || product.length === 0) {
-      dispatch(getProducts());
+    const fetchProducts = async () => {
+      if (isFetchingRef.current) {
+        return;
+      }
+
+      // Don't fetch again when we know
+      // there are no more products.
+      if (!hasMore && limit > 8) {
+        return;
+      }
+
+      isFetchingRef.current = true;
+
+      if (limit > 8) {
+        setIsFetchingMore(true);
+      }
+
+      try {
+        console.log(
+          "Fetching products with limit:",
+          limit
+        );
+
+        const result = await dispatch(
+          getProducts({
+            limit,
+          })
+        );
+
+        console.log("API result:", result);
+
+        /*
+         * If getProducts is created with createAsyncThunk,
+         * result.payload normally contains the API response.
+         *
+         * We don't rely only on this for stopping because
+         * different APIs can have different response shapes.
+         */
+
+        let returnedProducts = [];
+
+        if (Array.isArray(result?.payload)) {
+          returnedProducts = result.payload;
+        } else if (
+          Array.isArray(result?.payload?.products)
+        ) {
+          returnedProducts = result.payload.products;
+        } else if (
+          Array.isArray(result?.payload?.data)
+        ) {
+          returnedProducts = result.payload.data;
+        }
+
+        console.log(
+          "Products returned from API:",
+          returnedProducts.length
+        );
+
+        /*
+         * If API returned fewer products than requested,
+         * there are no more products available.
+         *
+         * Example:
+         *
+         * limit = 24
+         * API returns 18
+         *
+         * Therefore:
+         * hasMore = false
+         */
+
+        if (
+          limit > 8 &&
+          returnedProducts.length > 0 &&
+          returnedProducts.length < limit
+        ) {
+          setHasMore(false);
+
+          console.log(
+            "No more products available."
+          );
+        }
+
+        /*
+         * If API returned ZERO products,
+         * definitely stop further requests.
+         */
+
+        if (
+          limit > 8 &&
+          returnedProducts.length === 0
+        ) {
+          setHasMore(false);
+
+          console.log(
+            "API returned no more products."
+          );
+        }
+
+        /*
+         * Initial request returned fewer than 8.
+         * That also means there are no more products.
+         */
+
+        if (
+          limit === 8 &&
+          returnedProducts.length < 8
+        ) {
+          setHasMore(false);
+
+          console.log(
+            "All available products loaded."
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Failed to fetch products:",
+          error
+        );
+      } finally {
+        isFetchingRef.current = false;
+        setIsFetchingMore(false);
+      }
+    };
+
+    fetchProducts();
+  }, [dispatch, limit, hasMore]);
+
+  // =====================================================
+  // ADDITIONAL SAFETY CHECK
+  //
+  // If Redux contains fewer products than requested,
+  // stop infinite loading.
+  //
+  // Example:
+  //
+  // limit = 24
+  // Redux has only 18
+  //
+  // => no more API requests
+  // =====================================================
+
+  useEffect(() => {
+    if (
+      limit > 8 &&
+      Array.isArray(product) &&
+      product.length < limit
+    ) {
+      setHasMore(false);
+
+      console.log(
+        "Stopping infinite scroll because product count",
+        product.length,
+        "is less than limit",
+        limit
+      );
     }
-  }, [dispatch, product.length]);
+  }, [product, limit]);
+
+  // =====================================================
+  // INFINITE SCROLL
+  // =====================================================
+
+  useEffect(() => {
+    const container = scrollRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    const handleScroll = () => {
+      // Already fetching
+      if (isFetchingRef.current) {
+        return;
+      }
+
+      // No more products
+      if (!hasMore) {
+        return;
+      }
+
+      const {
+        scrollTop,
+        scrollHeight,
+        clientHeight,
+      } = container;
+
+      const distanceFromBottom =
+        scrollHeight -
+        (scrollTop + clientHeight);
+
+      console.log("Scroll:", {
+        scrollTop,
+        scrollHeight,
+        clientHeight,
+        distanceFromBottom,
+        hasMore,
+        currentLimit: limitRef.current,
+      });
+
+      // Load more 200px before bottom
+      if (distanceFromBottom <= 200) {
+        const nextLimit =
+          limitRef.current + 8;
+
+        console.log(
+          "Loading more products:",
+          nextLimit
+        );
+
+        // Update ref immediately
+        limitRef.current = nextLimit;
+
+        // Update state
+        setLimit(nextLimit);
+      }
+    };
+
+    container.addEventListener(
+      "scroll",
+      handleScroll,
+      { passive: true }
+    );
+
+    return () => {
+      container.removeEventListener(
+        "scroll",
+        handleScroll
+      );
+    };
+  }, [loading, product.length, hasMore]);
 
   // =====================================================
   // FEATURED PRODUCTS
   // =====================================================
 
   const featuredProducts = Array.isArray(product)
-    ? product.slice(0, 10)
+    ? product
     : [];
-console.log("featuredProducts",featuredProducts)
+
+  // =====================================================
+  // DEBUG
+  // =====================================================
+
+  console.log("=================================");
+  console.log("Current limit:", limit);
+  console.log(
+    "Products:",
+    featuredProducts.length
+  );
+  console.log("Loading:", loading);
+  console.log(
+    "Fetching more:",
+    isFetchingMore
+  );
+  console.log("Has more:", hasMore);
+  console.log("=================================");
+
   // =====================================================
   // RENDER
   // =====================================================
@@ -71,8 +341,6 @@ console.log("featuredProducts",featuredProducts)
           sm:mb-8
         "
       >
-        {/* LEFT */}
-
         <div className="min-w-0">
           <p
             className="
@@ -113,8 +381,6 @@ console.log("featuredProducts",featuredProducts)
           </p>
         </div>
 
-        {/* VIEW ALL */}
-
         <button
           type="button"
           onClick={() => navigate("/products")}
@@ -135,104 +401,108 @@ console.log("featuredProducts",featuredProducts)
       </div>
 
       {/* =================================================
-          LOADING
+          INITIAL LOADING
       ================================================= */}
 
-      {loading && (
-        <div
-          className="
-            featured-products-scroll
-            max-h-[70vh]
-            overflow-y-auto
-            overflow-x-hidden
-            pr-1
-          "
-        >
+      {loading &&
+        featuredProducts.length === 0 && (
           <div
             className="
-              grid
-
-              grid-cols-1
-
-              min-[375px]:grid-cols-2
-
-              sm:grid-cols-3
-
-              md:grid-cols-4
-
-              lg:grid-cols-5
-
-              gap-3
-
-              min-[375px]:gap-3
-
-              sm:gap-4
-
-              lg:gap-5
+              featured-products-scroll
+              max-h-[70vh]
+              overflow-y-auto
+              overflow-x-hidden
+              pr-1
             "
           >
-            {Array.from({ length: 10 }).map((_, index) => (
-              <ProductSkeleton key={index} />
-            ))}
+            <div
+              className="
+                grid
+                grid-cols-1
+                min-[375px]:grid-cols-2
+                sm:grid-cols-3
+                md:grid-cols-4
+                lg:grid-cols-5
+                gap-3
+                min-[375px]:gap-3
+                sm:gap-4
+                lg:gap-5
+              "
+            >
+              {Array.from({ length: 10 }).map(
+                (_, index) => (
+                  <ProductSkeleton
+                    key={index}
+                  />
+                )
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* =================================================
           ERROR
       ================================================= */}
 
-      {!loading && error && (
-        <div
-          className="
-            rounded-2xl
-            border
-            border-red-100
-            bg-red-50
-            p-6
-            sm:p-8
-            text-center
-          "
-        >
-          <p
+      {!loading &&
+        error &&
+        featuredProducts.length === 0 && (
+          <div
             className="
-              font-semibold
-              text-red-600
+              rounded-2xl
+              border
+              border-red-100
+              bg-red-50
+              p-6
+              sm:p-8
+              text-center
             "
           >
-            Unable to load products
-          </p>
+            <p
+              className="
+                font-semibold
+                text-red-600
+              "
+            >
+              Unable to load products
+            </p>
 
-          <p
-            className="
-              mt-1
-              text-sm
-              text-gray-500
-            "
-          >
-            Please try again.
-          </p>
+            <p
+              className="
+                mt-1
+                text-sm
+                text-gray-500
+              "
+            >
+              Please try again.
+            </p>
 
-          <button
-            type="button"
-            onClick={() => dispatch(getProducts())}
-            className="
-              mt-4
-              rounded-xl
-              bg-red-500
-              px-5
-              py-2.5
-              text-sm
-              font-semibold
-              text-white
-              hover:bg-red-600
-              transition
-            "
-          >
-            Try Again
-          </button>
-        </div>
-      )}
+            <button
+              type="button"
+              onClick={() => {
+                limitRef.current = 8;
+
+                setLimit(8);
+
+                setHasMore(true);
+              }}
+              className="
+                mt-4
+                rounded-xl
+                bg-red-500
+                px-5
+                py-2.5
+                text-sm
+                font-semibold
+                text-white
+                hover:bg-red-600
+                transition
+              "
+            >
+              Try Again
+            </button>
+          </div>
+        )}
 
       {/* =================================================
           EMPTY
@@ -252,7 +522,13 @@ console.log("featuredProducts",featuredProducts)
               text-center
             "
           >
-            <p className="text-sm sm:text-base text-gray-500">
+            <p
+              className="
+                text-sm
+                sm:text-base
+                text-gray-500
+              "
+            >
               No products available right now.
             </p>
           </div>
@@ -262,61 +538,112 @@ console.log("featuredProducts",featuredProducts)
           PRODUCTS
       ================================================= */}
 
-      {!loading &&
-        !error &&
-        featuredProducts.length > 0 && (
+      {featuredProducts.length > 0 && (
+        <div
+          ref={scrollRef}
+          className="
+            featured-products-scroll
+            max-h-[70vh]
+            overflow-y-auto
+            overflow-x-hidden
+            pr-1
+            sm:pr-2
+          "
+        >
           <div
             className="
-              featured-products-scroll
-
-              max-h-[70vh]
-
-              overflow-y-auto
-
-              overflow-x-hidden
-
-              pr-1
-
-              sm:pr-2
+              grid
+              grid-cols-1
+              min-[375px]:grid-cols-2
+              sm:grid-cols-3
+              md:grid-cols-4
+              lg:grid-cols-5
+              gap-3
+              sm:gap-4
+              lg:gap-5
+              items-start
             "
           >
+            {featuredProducts.map((item) => (
+              <div
+                key={item._id}
+                className="
+                  min-w-0
+                  w-full
+                "
+              >
+                <ProductCard
+                  {...item}
+                  rating={
+                    item?.rating?.average
+                  }
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* =================================================
+              LOADING MORE
+          ================================================= */}
+
+          {isFetchingMore && hasMore && (
             <div
               className="
-                grid
-
-                grid-cols-1
-
-                min-[375px]:grid-cols-2
-
-                sm:grid-cols-3
-
-                md:grid-cols-4
-
-                lg:grid-cols-5
-
-                gap-3
-
-                sm:gap-4
-
-                lg:gap-5
-
-                items-start
+                flex
+                justify-center
+                items-center
+                py-6
+                text-sm
+                text-gray-500
               "
             >
-              {featuredProducts.map((item) => (
-                <div
-                  key={item._id}
+              <div
+                className="
+                  flex
+                  items-center
+                  gap-2
+                "
+              >
+                <span
                   className="
-                    min-w-0
-                    w-full
+                    h-4
+                    w-4
+                    animate-spin
+                    rounded-full
+                    border-2
+                    border-gray-300
+                    border-t-blue-600
                   "
-                >
-                  <ProductCard {...item} rating={item?.rating?.average}/>
-                </div>
-              ))}
+                />
+
+                <span>
+                  Loading more products...
+                </span>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* =================================================
+              NO MORE PRODUCTS
+          ================================================= */}
+
+          {!isFetchingMore &&
+            !hasMore &&
+            featuredProducts.length > 0 && (
+              <div
+                className="
+                  flex
+                  justify-center
+                  py-5
+                  text-sm
+                  text-gray-400
+                "
+              >
+                No more products available.
+              </div>
+            )}
+        </div>
+      )}
 
       {/* =================================================
           VIEW ALL
@@ -335,7 +662,9 @@ console.log("featuredProducts",featuredProducts)
           >
             <button
               type="button"
-              onClick={() => navigate("/products")}
+              onClick={() =>
+                navigate("/products")
+              }
               className="
                 rounded-xl
                 border
@@ -401,8 +730,6 @@ function ProductSkeleton() {
           sm:p-4
         "
       >
-        {/* CATEGORY */}
-
         <div
           className="
             h-3
@@ -412,8 +739,6 @@ function ProductSkeleton() {
             bg-gray-200
           "
         />
-
-        {/* PRODUCT NAME */}
 
         <div
           className="
@@ -435,8 +760,6 @@ function ProductSkeleton() {
           "
         />
 
-        {/* PRICE */}
-
         <div
           className="
             h-5
@@ -446,8 +769,6 @@ function ProductSkeleton() {
             bg-gray-200
           "
         />
-
-        {/* BUTTON */}
 
         <div
           className="
