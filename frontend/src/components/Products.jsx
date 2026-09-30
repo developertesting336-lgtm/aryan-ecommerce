@@ -29,7 +29,7 @@ useEffect(()=>{
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         {product?.map((pro, index) => (
-          <ProductCard key={pro._id} {...pro}   />
+          <ProductCard key={pro._id} {...pro} rating={pro?.rating?.average}  />
         ))}
 
         

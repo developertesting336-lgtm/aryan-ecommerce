@@ -158,12 +158,14 @@ console.log("orderitmmm",orderItem)
   // TOTALS
   // =====================================================
 
-  const subtotal = orderItem.reduce(
-    (total, item) =>
-      total + Number(item.total || 0),
-    0
-  );
-
+  // const subtotal = orderItem.reduce(
+  //   (total, item) =>
+  //     total + Number(item.total || 0),
+  //   0
+  // );
+const subtotal = Number(
+  orderItem?.[0]?.order?.subtotal ?? 0
+);
   const shippingCharge =
     orderItem?.[0]?.order?.shippingCharge ??
     orderDetails?.order?.shippingCharge ??
@@ -174,6 +176,11 @@ console.log("orderitmmm",orderItem)
     orderDetails?.order?.total ??
     subtotal + Number(shippingCharge);
 
+    const discount =
+  orderItem?.[0]?.order?.discount ??
+  orderDetails?.order?.discount ??
+  0;
+console.log("orderItem",orderItem)
   // =====================================================
   // ORDER STATUS
   // =====================================================
@@ -1369,9 +1376,8 @@ const handleUpdateRating = async (e) => {
                               <span className="font-semibold text-gray-900">
 
                                 ₹
-                                {item.total ||
-                                  (item.price || 0) *
-                                    (item.quantity || 1)}
+                                {Number(item.total || (item.price || 0) * (item.quantity || 1)).toFixed(2)}
+
 
                               </span>
 
@@ -1618,7 +1624,7 @@ const handleUpdateRating = async (e) => {
                     <span className="font-medium text-gray-900">
 
                       ₹
-                      {orderDetails?.order?.subtotal ??
+                      {orderDetails?.order?.total ??
                         subtotal}
 
                     </span>
@@ -1642,6 +1648,27 @@ const handleUpdateRating = async (e) => {
                       {Number(shippingCharge) === 0
                         ? "Free"
                         : `₹${shippingCharge}`}
+
+                    </span>
+
+                  </div>
+                  <div className="flex justify-between text-sm">
+
+                    <span className="text-gray-500">
+                      Discount
+                    </span>
+
+                    <span
+                      className={
+                        Number(discount) === 0
+                          ? "font-medium text-green-600"
+                          : "font-medium text-gray-900"
+                      }
+                    >
+
+                      {Number(discount) === 0
+                        ? 0
+                        : `₹${discount}`}
 
                     </span>
 

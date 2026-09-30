@@ -525,6 +525,7 @@ export default function SearchPage() {
                           mrp={product.mrp}
                           discount={product.discount}
                           category={product.category}
+                          rating={product?.rating?.average}
                         />
                       ))}
                     </div>

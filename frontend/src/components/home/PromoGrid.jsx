@@ -703,15 +703,20 @@ const handleNavigate = (query) => {
   // ====================================================
 
   // const {
-  //   promoGridItems = [],
+  //   promoGrid = [],
   //   loading,
   //   error,
   // } = useSelector((state) => state.promoGrid);
   const {
-     promoGridItems = [],
+     promoGrid = [],
     loading = false,
     error = null,
   } = useSelector((state) => state.homepage || {});
+  console.log("PROMO GRID STATE:", {
+  promoGrid,
+  loading,
+  error,
+});
   // ====================================================
   // FETCH PROMO GRID DATA
   // ====================================================
@@ -725,12 +730,12 @@ const handleNavigate = (query) => {
   // ====================================================
 
   const activePromoCards = useMemo(() => {
-    return [...promoGridItems]
+    return [...promoGrid]
       .filter((card) => card?.isActive === true)
       .sort((a, b) => {
         return Number(a?.order || 0) - Number(b?.order || 0);
       });
-  }, [promoGridItems]);
+  }, [promoGrid]);
 
   // ====================================================
   // GSAP ENTRANCE ANIMATION
@@ -1285,7 +1290,7 @@ const handleNavigate = (query) => {
   // LOADING
   // ====================================================
 
-  if (loading && !promoGridItems.length) {
+  if (loading && !promoGrid.length) {
     return (
       <section className="w-full bg-white px-4 py-8 sm:px-6 lg:px-8 lg:py-14">
         <div className="mx-auto grid w-full max-w-[1280px] grid-cols-1 gap-4 lg:grid-cols-2 lg:grid-rows-2">
@@ -1306,7 +1311,7 @@ const handleNavigate = (query) => {
   // ERROR
   // ====================================================
 
-  if (error && !promoGridItems.length) {
+  if (error && !promoGrid.length) {
     return (
       <section className="w-full bg-white px-4 py-10">
         <div className="mx-auto max-w-[1280px] rounded-2xl border border-red-100 bg-red-50 p-6 text-center">

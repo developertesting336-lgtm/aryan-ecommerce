@@ -1,4 +1,4 @@
-import { Product, User, Cart,Category, Coupon,Order,OrderItem,OrderAddress } from "../models/index.js";
+import { Product, User, Cart,Category, Coupon,Order,OrderItem,OrderAddress,Review } from "../models/index.js";
 import { ApiError, ApiResponse } from "../utils/apiResponse.js";
 import { generateSlug } from "../utils/common.js";
 import {OrderStatus,PaymentStatus} from "../config/constants.js"
@@ -1170,12 +1170,19 @@ export const getOrderItems = async(req,res)=>{
     if (!user) {
       throw new ApiError(404, "User not found");
     } 
-     const orderItem = await OrderItem.find({order:req.params._id}).populate("order","orderNumber createdAt fulfillmentStatus").populate("product","images");
+     const orderItem = await OrderItem.find({order:req.params._id}).populate("order","orderNumber createdAt fulfillmentStatus total shippingCharge discount subtotal").populate("product","images");
      const orderAddress = await OrderAddress.findOne({order:req.params._id})
+     const productIds = orderItem.map(item => item.product?._id).filter(Boolean);
+
+     const reviews = await Review.find({
+  product: { $in: productIds },
+   user: req.user._id
+});
+console.log("review",reviews)
      return res.status(200).json(
       new ApiResponse(
         200,
-        { orderdetails:{orderItem,orderAddress} },
+        { orderdetails:{orderItem,orderAddress,reviews} },
         "Product created successfully"
       )
     );

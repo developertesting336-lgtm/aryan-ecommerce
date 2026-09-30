@@ -62,7 +62,7 @@ console.log("admin details",orderItem)
 
   const [successMessage, setSuccessMessage] =
     useState("");
-
+console.log("adminorderItem",orderItem)
   // ==========================================================
   // ORDER
   // ==========================================================

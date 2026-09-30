@@ -18,6 +18,7 @@ export default function ProductGrid({ products = [] }) {
         <ProductCard
           key={product._id}
           {...product}
+          rating={product?.rating?.average}
         />
       ))}
     </div>
