@@ -5,6 +5,7 @@ import {
   ArrowRight,
   ChevronDown,
   Heart,
+  LayoutDashboard,
   LogIn,
   LogOut,
   Menu,
@@ -1055,6 +1056,14 @@ window.scrollTo({
                   <UserRound size={17} />
                   Profile
                 </NavLink>
+             {user?.role!=="user" &&  <NavLink
+                  to={user?.role==="admin"?"/admin/dashboard":"/vendor/dashboard"}
+                  onClick={closeMenu}
+                  className="flex items-center gap-2 rounded-lg px-3 py-3 font-medium text-gray-800"
+                >
+                  <LayoutDashboard size={17} />
+                  Dashboard
+                </NavLink>}
 
                 <button
                   type="button"
