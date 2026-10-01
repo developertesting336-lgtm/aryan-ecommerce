@@ -12,7 +12,7 @@ export const getVendorDashboard = createAsyncThunk(
   "vendor/getVendorDashboard",
   async (filter, { rejectWithValue }) => {
     try {
-      
+      console.log("----------vendor---------")
        const response = await getVendorDashboardApi(filter);
       console.log("resvend",response)
       return response.data;

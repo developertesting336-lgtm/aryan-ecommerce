@@ -113,7 +113,35 @@ console.log("edit uer",user)
         )
       : []
   );
+  const BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:3000";
+const getImageUrl = (image) => {
+  if (!image) {
+    return "/1786052049893.webp";
+  }
 
+  // Already a complete URL
+  if (
+    image.startsWith("http://") ||
+    image.startsWith("https://") ||
+    image.startsWith("blob:")
+  ) {
+    return image;
+  }
+
+  // Already starts with /uploads/
+  if (image.startsWith("/uploads/")) {
+    return `http://localhost:3000${image}`;
+  }
+
+  // Starts with uploads/
+  if (image.startsWith("uploads/")) {
+    return `http://localhost:3000/${image}`;
+  }
+
+  // Normal filename
+  return `${BASE_URL}${image}`;
+};
   /* =======================================================
      PAGE STATE
   ======================================================= */
@@ -256,33 +284,38 @@ console.log("edit uer",user)
       product.images || []
     ).map((image, index) => {
       if (typeof image === "string") {
-        return {
-          id: `${image}-${index}`,
-          _id: null,
-          url: image,
-          secure_url: image,
-          isNew: false,
-        };
-      }
+  return {
+    id: `${image}-${index}`,
+    _id: null,
+    url: image,
+    secure_url: image,
+    originalUrl: image,
+    isNew: false,
+  };
+}
 
-      return {
-        id:
-          image._id ||
-          image.id ||
-          image.url ||
-          `image-${index}`,
+return {
+  id:
+    image._id ||
+    image.id ||
+    image.url ||
+    `image-${index}`,
 
-        _id: image._id,
+  _id: image._id,
 
-        url:
-          image.url ||
-          image.secure_url,
+  url:
+    image.url ||
+    image.secure_url,
 
-        secure_url:
-          image.secure_url,
+  secure_url:
+    image.secure_url,
 
-        isNew: false,
-      };
+  originalUrl:
+    image.url ||
+    image.secure_url,
+
+  isNew: false,
+};
     });
 
     setImages(productImages);
@@ -1919,6 +1952,9 @@ console.log("edit uer",user)
                         image.url ||
                         image.secure_url;
 
+                        const finalImageSrc = image.isNew
+                             ? imageSrc
+                             : getImageUrl(imageSrc);
                       return (
                         <div
                           key={
@@ -1930,9 +1966,7 @@ console.log("edit uer",user)
                           {imageSrc ? (
                             <img
                               src={
-                                image.isNew
-                                  ? imageSrc
-                                  : `http://localhost:3000/uploads/${imageSrc}`
+                               finalImageSrc
                               }
                               alt="Product"
                               className="h-full w-full object-cover"
@@ -2141,12 +2175,12 @@ console.log("edit uer",user)
 
                       <img
                         src={
-                          images[0].isNew
-                            ? images[0].preview
-                            : `http://localhost:3000/uploads/${
-                                images[0].url ||
-                                images[0].secure_url
-                              }`
+                         images[0].isNew
+        ? images[0].preview
+        : getImageUrl(
+            images[0].url ||
+            images[0].secure_url
+          )
                         }
                         alt={
                           formData.name ||

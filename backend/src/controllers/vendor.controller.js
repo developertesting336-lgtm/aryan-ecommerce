@@ -406,7 +406,7 @@ const cancelledOrders = getcancelledOrders[0]?.count || 0;
     ]);
 
     // SALES OVERVIEW
-        const requestedRange = req.query.filter || "7days";
+        const requestedRange = req.query.filter || "year";
     
         const validRanges = ["today", "7days", "30days", "year"];
     
@@ -431,13 +431,7 @@ const cancelledOrders = getcancelledOrders[0]?.count || 0;
         } else if (range === "year") {
           startDate = new Date(now.getFullYear(), 0, 1);
         }
-    // find({
-    //       fulfillmentStatus: FulfillmentStatus.DELIVERED,
-    //       createdAt: {
-    //         $gte: startDate,
-    //         $lte: endDate,
-    //       },
-    //     }).select("total createdAt");
+ 
         const salesOverview = await OrderItem.aggregate([
           {
         $lookup: {
@@ -475,8 +469,8 @@ const cancelledOrders = getcancelledOrders[0]?.count || 0;
   },
 },
       {
-        $unwind: "$orderdetails",
-      },
+    $unwind: "$orderdetails",
+  },
       {$project:{
         total:"$orderdetails.total",
         createdAt:"$orderdetails.createdAt"
