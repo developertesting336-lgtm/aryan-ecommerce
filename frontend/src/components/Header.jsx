@@ -21,16 +21,45 @@ import {
   getRootCategories,
 } from "../redux/slices/categorySlice";
 
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import {
+  Link,
+  NavLink,
+  useNavigate,
+} from "react-router-dom";
+
 import { logout } from "../redux/slices/authSlice";
 
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
 const navigation = [
-  { label: "Home", to: "/", end: true },
-  { label: "Shop", to: "/products", menu: true },
-  { label: "Categories", to: "/categories", menu: true, badge: "NEW" },
-  { label: "Products", to: "/products", menu: true },
-  // { label: "Top Deals", to: "/products", menu: true }, 
+  {
+    label: "Home",
+    to: "/",
+    end: true,
+  },
+  {
+    label: "Shop",
+    to: "/products",
+    menu: true,
+  },
+  {
+    label: "Categories",
+    to: "/categories",
+    menu: true,
+    badge: "NEW",
+  },
+  {
+    label: "Products",
+    to: "/products",
+    menu: true,
+  },
 ];
+
+/* =========================================================
+   CATEGORY HELPERS
+========================================================= */
 
 const getCategoryId = (category) =>
   category?._id || category?.id;
@@ -41,6 +70,10 @@ const getCategoryName = (category) =>
   category?.categoryName ||
   "Category";
 
+/* =========================================================
+   PRODUCT IMAGE HELPER
+========================================================= */
+
 const getHeaderImage = (image) => {
   const path =
     typeof image === "string"
@@ -49,20 +82,30 @@ const getHeaderImage = (image) => {
         image?.secure_url ||
         image?.preview;
 
-  if (!path) return "/1786052049893.webp";
+  if (!path) {
+    return "/1786052049893.webp";
+  }
 
   if (/^(https?:|blob:)/i.test(path)) {
     return path;
   }
 
   const backendOrigin = new URL(
-    import.meta.env.VITE_BACKEND_URL || window.location.origin
+    import.meta.env.VITE_BACKEND_URL ||
+      window.location.origin
   ).origin;
 
-  const cleanPath = path.replace(/^\/?uploads\/?/, "");
+  const cleanPath = path.replace(
+    /^\/?uploads\/?/,
+    ""
+  );
 
   return `${backendOrigin}/uploads/${cleanPath}`;
 };
+
+/* =========================================================
+   COUNT BADGE
+========================================================= */
 
 function CountBadge({ children }) {
   return (
@@ -72,7 +115,16 @@ function CountBadge({ children }) {
   );
 }
 
-function IconLink({ to, label, count, children }) {
+/* =========================================================
+   ICON LINK
+========================================================= */
+
+function IconLink({
+  to,
+  label,
+  count,
+  children,
+}) {
   return (
     <Link
       to={to}
@@ -90,51 +142,72 @@ function IconLink({ to, label, count, children }) {
   );
 }
 
+/* =========================================================
+   NAVBAR
+========================================================= */
+
 export default function Navbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const menuRef = useRef(null);
 
-  // Used to delay dropdown closing and cancel it
-  // when the mouse enters the dropdown.
   const dropdownCloseTimer = useRef(null);
 
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState(null);
-  const [mobileSubmenu, setMobileSubmenu] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] =
+    useState(false);
+
+  const [activeDropdown, setActiveDropdown] =
+    useState(null);
+
+  const [mobileSubmenu, setMobileSubmenu] =
+    useState(null);
+
   const [search, setSearch] = useState("");
 
-  const { user } = useSelector((state) => state.auth);
+  /* =====================================================
+     AUTH
+  ===================================================== */
 
-const couponBasePath =
-  user?.role === "admin"
-    ? "/admin/"
-    : "/vendor/";
-
-  const cartItems = useSelector(
-    (state) => state.cart.cart?.items ?? []
+  const { user } = useSelector(
+    (state) => state.auth
   );
 
-  const wishlistItems = useSelector(
-    (state) =>
-      state.wishlist.wishlist?.products ??
-      state.wishlist.wishlist ??
-      []
-  );
   const isLoggedIn = Boolean(user);
 
-  const dashboardPath =
+  const couponBasePath =
     user?.role === "admin"
-      ? "/admin/dashboard"
-      : user?.role === "vendor"
-      ? "/vendor/dashboard"
-      : "/profile";
+      ? "/admin"
+      : "/vendor";
 
   const displayName =
     user?.firstName ||
     user?.name ||
     user?.email?.split("@")[0];
+
+  /* =====================================================
+     CART
+  ===================================================== */
+
+  const cartItems = useSelector(
+    (state) =>
+      state.cart?.cart?.items ?? []
+  );
+
+  /* =====================================================
+     WISHLIST
+  ===================================================== */
+
+  const wishlistItems = useSelector(
+    (state) =>
+      state.wishlist?.wishlist?.products ??
+      state.wishlist?.wishlist ??
+      []
+  );
+
+  /* =====================================================
+     PRODUCTS
+  ===================================================== */
 
   const products = useSelector((state) =>
     Array.isArray(state.product?.product)
@@ -143,31 +216,62 @@ const couponBasePath =
   );
 
   const productLoading = useSelector(
-    (state) => state.product?.loading ?? false
+    (state) =>
+      state.product?.loading ?? false
   );
 
+  /*
+   * IMPORTANT:
+   * This is the SAME product list used by
+   * the desktop dropdown.
+   *
+   * Mobile uses this exact same array.
+   */
+  const featuredProducts = products.slice(
+    0,
+    4
+  );
+
+  /* =====================================================
+     CATEGORIES
+  ===================================================== */
+
   const rootCategories = useSelector(
-    (state) => state.category?.rootCategories ?? []
+    (state) =>
+      state.category?.rootCategories ?? []
   );
 
   const categoryChildren = useSelector(
-    (state) => state.category?.children ?? {}
+    (state) =>
+      state.category?.children ?? {}
   );
 
   const categoryLoading = useSelector(
-    (state) => state.category?.loading ?? false
+    (state) =>
+      state.category?.loading ?? false
   );
 
-  const featuredProducts = products.slice(0, 4);
-
-  // --------------------------------------------------
-  // Dropdown data loading
-  // --------------------------------------------------
+  /* =====================================================
+     LOAD DROPDOWN DATA
+  ===================================================== */
 
   useEffect(() => {
-    if (!activeDropdown) return;
+    /*
+     * Desktop dropdown OR mobile drawer is opened.
+     * Load the same data for both.
+     */
 
-    if (!products.length && !productLoading) {
+    if (
+      !activeDropdown &&
+      !mobileMenuOpen
+    ) {
+      return;
+    }
+
+    if (
+      !products.length &&
+      !productLoading
+    ) {
       dispatch(
         getProducts({
           page: 1,
@@ -176,11 +280,15 @@ const couponBasePath =
       );
     }
 
-    if (!rootCategories.length && !categoryLoading) {
+    if (
+      !rootCategories.length &&
+      !categoryLoading
+    ) {
       dispatch(getRootCategories());
     }
   }, [
     activeDropdown,
+    mobileMenuOpen,
     categoryLoading,
     dispatch,
     productLoading,
@@ -188,13 +296,25 @@ const couponBasePath =
     rootCategories.length,
   ]);
 
+  /* =====================================================
+     LOAD CATEGORY CHILDREN
+  ===================================================== */
+
   useEffect(() => {
-    if (!activeDropdown || !rootCategories.length) {
+    if (
+      !activeDropdown &&
+      !mobileMenuOpen
+    ) {
+      return;
+    }
+
+    if (!rootCategories.length) {
       return;
     }
 
     rootCategories.forEach((category) => {
-      const categoryId = getCategoryId(category);
+      const categoryId =
+        getCategoryId(category);
 
       if (
         categoryId &&
@@ -203,97 +323,123 @@ const couponBasePath =
           categoryId
         )
       ) {
-        dispatch(getCategoryChildren(categoryId));
+        dispatch(
+          getCategoryChildren(categoryId)
+        );
       }
     });
   }, [
     activeDropdown,
+    mobileMenuOpen,
     categoryChildren,
     dispatch,
     rootCategories,
   ]);
 
-  // --------------------------------------------------
-  // Mobile menu outside click
-  // --------------------------------------------------
+  /* =====================================================
+     MOBILE BODY SCROLL LOCK
+  ===================================================== */
 
   useEffect(() => {
-    if (!mobileMenuOpen) return undefined;
+    if (!mobileMenuOpen) {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+      return;
+    }
 
-    const closeOnOutsideClick = (event) => {
-      if (!menuRef.current?.contains(event.target)) {
-        setMobileMenuOpen(false);
-      }
+    const originalOverflow =
+      document.body.style.overflow;
+
+    const originalTouchAction =
+      document.body.style.touchAction;
+
+    /*
+     * Prevent the page behind the drawer from scrolling.
+     */
+    document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+
+    return () => {
+      document.body.style.overflow =
+        originalOverflow;
+
+      document.body.style.touchAction =
+        originalTouchAction;
     };
+  }, [mobileMenuOpen]);
+
+  /* =====================================================
+     MOBILE OUTSIDE CLICK + ESCAPE
+  ===================================================== */
+
+  useEffect(() => {
+    if (!mobileMenuOpen) {
+      return undefined;
+    }
 
     const closeOnEscape = (event) => {
       if (event.key === "Escape") {
         setMobileMenuOpen(false);
+        setMobileSubmenu(null);
       }
     };
-
-    document.addEventListener(
-      "mousedown",
-      closeOnOutsideClick
-    );
 
     document.addEventListener(
       "keydown",
       closeOnEscape
     );
 
-    document.body.style.overflow = "hidden";
-
     return () => {
-      document.removeEventListener(
-        "mousedown",
-        closeOnOutsideClick
-      );
-
       document.removeEventListener(
         "keydown",
         closeOnEscape
       );
-
-      document.body.style.overflow = "";
     };
   }, [mobileMenuOpen]);
 
-  // --------------------------------------------------
-  // Dropdown hover handling
-  // --------------------------------------------------
+  /* =====================================================
+     DROPDOWN TIMER
+  ===================================================== */
 
   const clearDropdownTimer = () => {
     if (dropdownCloseTimer.current) {
-      clearTimeout(dropdownCloseTimer.current);
+      clearTimeout(
+        dropdownCloseTimer.current
+      );
+
       dropdownCloseTimer.current = null;
     }
   };
 
   const openDropdown = (label) => {
     clearDropdownTimer();
+
     setActiveDropdown(label);
   };
 
   const scheduleDropdownClose = () => {
     clearDropdownTimer();
 
-    dropdownCloseTimer.current = setTimeout(() => {
-      setActiveDropdown(null);
-      dropdownCloseTimer.current = null;
-    }, 250);
+    dropdownCloseTimer.current =
+      setTimeout(() => {
+        setActiveDropdown(null);
+        dropdownCloseTimer.current = null;
+      }, 250);
   };
 
-  // Cleanup timer when component unmounts
+  /* =====================================================
+     CLEANUP DROPDOWN TIMER
+  ===================================================== */
+
   useEffect(() => {
     return () => {
       clearDropdownTimer();
     };
   }, []);
 
-  // --------------------------------------------------
-  // General actions
-  // --------------------------------------------------
+  /* =====================================================
+     CLOSE MENU
+  ===================================================== */
 
   const closeMenu = () => {
     clearDropdownTimer();
@@ -303,31 +449,70 @@ const couponBasePath =
     setMobileSubmenu(null);
   };
 
+  /* =====================================================
+     OPEN MOBILE MENU
+  ===================================================== */
+
+  const toggleMobileMenu = () => {
+    clearDropdownTimer();
+
+    setMobileMenuOpen(
+      (open) => !open
+    );
+
+    setActiveDropdown(null);
+
+    if (mobileMenuOpen) {
+      setMobileSubmenu(null);
+    }
+  };
+
+  /* =====================================================
+     OPEN SEARCH
+  ===================================================== */
+
   const openSearch = (query) => {
     closeMenu();
 
     navigate(
-      `/search?q=${encodeURIComponent(query)}`
+      `/search?q=${encodeURIComponent(
+        query
+      )}`
     );
   };
+
+  /* =====================================================
+     SEARCH
+  ===================================================== */
 
   const handleSearch = (event) => {
     event.preventDefault();
-window.scrollTo({
+
+    const query = search.trim();
+
+    if (!query) {
+      return;
+    }
+
+    window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
-    const query = search.trim();
-
-    if (!query) return;
 
     setSearch("");
+
     closeMenu();
 
     navigate(
-      `/search?q=${encodeURIComponent(query)}`
+      `/search?q=${encodeURIComponent(
+        query
+      )}`
     );
   };
+
+  /* =====================================================
+     LOGOUT
+  ===================================================== */
 
   const handleLogout = () => {
     dispatch(logout());
@@ -337,14 +522,28 @@ window.scrollTo({
     navigate("/");
   };
 
+  /* =====================================================
+     MOBILE SUBMENU
+  ===================================================== */
+
+  const toggleMobileSubmenu = (
+    label
+  ) => {
+    setMobileSubmenu((current) =>
+      current === label
+        ? null
+        : label
+    );
+  };
+
   return (
     <header
       ref={menuRef}
       className="sticky top-0 z-50 w-full bg-white text-gray-950 shadow-sm"
     >
-      {/* =====================================================
+      {/* =================================================
           TOP BAR
-      ====================================================== */}
+      ================================================= */}
 
       <div className="bg-app-primary text-white">
         <div className="mx-auto flex min-h-[42px] max-w-[1440px] items-center justify-center px-4 text-center sm:justify-between sm:px-6 lg:px-8">
@@ -377,14 +576,19 @@ window.scrollTo({
               Help Center
             </Link>
 
-       {  user?.role!=="user" &&  <button
-              type="button"
-              className="flex items-center gap-1 px-5 hover:text-blue-200"
-              onClick={()=>navigate(`${couponBasePath}/`)}
-            >
-              Dashboard
-              {/* <ChevronDown size={14} /> */}
-            </button>}
+            {user?.role !== "user" && (
+              <button
+                type="button"
+                className="flex items-center gap-1 px-5 hover:text-blue-200"
+                onClick={() =>
+                  navigate(
+                    `${couponBasePath}/`
+                  )
+                }
+              >
+                Dashboard
+              </button>
+            )}
 
             <button
               type="button"
@@ -397,13 +601,13 @@ window.scrollTo({
         </div>
       </div>
 
-      {/* =====================================================
+      {/* =================================================
           MAIN HEADER
-      ====================================================== */}
+      ================================================= */}
 
       <div className="mx-auto flex min-h-[84px] max-w-[1440px] items-center gap-3 px-4 sm:px-6 lg:px-8">
 
-        {/* Mobile menu button */}
+        {/* MOBILE MENU BUTTON */}
 
         <button
           type="button"
@@ -412,12 +616,10 @@ window.scrollTo({
               ? "Close menu"
               : "Open menu"
           }
-          aria-expanded={mobileMenuOpen}
-          onClick={() =>
-            setMobileMenuOpen(
-              (open) => !open
-            )
+          aria-expanded={
+            mobileMenuOpen
           }
+          onClick={toggleMobileMenu}
           className="flex h-10 w-10 shrink-0 items-center justify-center text-gray-800 hover:text-app-primary lg:hidden"
         >
           {mobileMenuOpen ? (
@@ -427,7 +629,9 @@ window.scrollTo({
           )}
         </button>
 
-        {/* Logo */}
+        {/* =================================================
+            LOGO
+        ================================================= */}
 
         <Link
           to="/"
@@ -448,13 +652,17 @@ window.scrollTo({
         </Link>
 
         {/* =================================================
-            DESKTOP NAVIGATION + DROPDOWN
-        ================================================== */}
+            DESKTOP NAVIGATION
+        ================================================= */}
 
         <div
           className="relative ml-auto hidden lg:flex xl:ml-16"
-          onMouseEnter={clearDropdownTimer}
-          onMouseLeave={scheduleDropdownClose}
+          onMouseEnter={
+            clearDropdownTimer
+          }
+          onMouseLeave={
+            scheduleDropdownClose
+          }
         >
           <nav
             aria-label="Primary navigation"
@@ -466,19 +674,27 @@ window.scrollTo({
                   key={item.label}
                   type="button"
                   aria-expanded={
-                    activeDropdown === item.label
+                    activeDropdown ===
+                    item.label
                   }
                   onMouseEnter={() =>
-                    openDropdown(item.label)
+                    openDropdown(
+                      item.label
+                    )
                   }
                   onFocus={() =>
-                    openDropdown(item.label)
+                    openDropdown(
+                      item.label
+                    )
                   }
                   onClick={() =>
-                    openDropdown(item.label)
+                    openDropdown(
+                      item.label
+                    )
                   }
                   className={`flex items-center gap-1 whitespace-nowrap py-3 text-[15px] font-medium xl:text-base ${
-                    activeDropdown === item.label
+                    activeDropdown ===
+                    item.label
                       ? "text-app-primary"
                       : "text-gray-900 hover:text-app-primary"
                   }`}
@@ -491,14 +707,18 @@ window.scrollTo({
                     </span>
                   )}
 
-                  <ChevronDown size={14} />
+                  <ChevronDown
+                    size={14}
+                  />
                 </button>
               ) : (
                 <NavLink
                   key={item.label}
                   to={item.to}
                   end={item.end}
-                  className={({ isActive }) =>
+                  className={({
+                    isActive,
+                  }) =>
                     `flex items-center gap-1 whitespace-nowrap py-3 text-[15px] font-medium xl:text-base ${
                       isActive
                         ? "text-app-primary"
@@ -512,18 +732,23 @@ window.scrollTo({
             )}
 
             {/* =================================================
-                DROPDOWN
-            ================================================== */}
+                DESKTOP DROPDOWN
+            ================================================= */}
 
             {activeDropdown && (
               <div
-                className="fixed left-4 right-4 top-[126px] z-50 w-auto overflow-hidden rounded-sm border border-gray-100 bg-white shadow-[0_18px_55px_rgba(15,23,42,0.16)]"
-                onMouseEnter={clearDropdownTimer}
-                onMouseLeave={scheduleDropdownClose}
+                className="fixed left-4 right-4 top-[126px] z-50 max-h-[calc(100vh-140px)] w-auto overflow-y-auto overflow-x-hidden rounded-sm border border-gray-100 bg-white shadow-[0_18px_55px_rgba(15,23,42,0.16)]"
+                onMouseEnter={
+                  clearDropdownTimer
+                }
+                onMouseLeave={
+                  scheduleDropdownClose
+                }
               >
                 {/* PRODUCTS DROPDOWN */}
 
-                {activeDropdown === "Products" ? (
+                {activeDropdown ===
+                "Products" ? (
                   <div className="grid grid-cols-5 bg-gray-50">
 
                     <div className="flex flex-col justify-center bg-white px-7 py-8">
@@ -532,21 +757,28 @@ window.scrollTo({
                       </span>
 
                       <h3 className="mt-3 text-2xl font-semibold text-gray-950">
-                        Find your next favorite
+                        Find your next
+                        favorite
                       </h3>
 
                       <p className="mt-3 text-sm leading-6 text-gray-600">
-                        Explore useful tech and everyday
-                        essentials picked for you.
+                        Explore useful
+                        tech and everyday
+                        essentials picked
+                        for you.
                       </p>
 
                       <Link
                         to="/products"
-                        onClick={closeMenu}
+                        onClick={
+                          closeMenu
+                        }
                         className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-app-primary"
                       >
                         Shop all products
-                        <ArrowRight size={16} />
+                        <ArrowRight
+                          size={16}
+                        />
                       </Link>
                     </div>
 
@@ -563,13 +795,16 @@ window.scrollTo({
                               product._id ||
                               product.id
                             }`}
-                            onClick={closeMenu}
+                            onClick={
+                              closeMenu
+                            }
                             className="group rounded-md border border-gray-200 bg-white p-3 transition-shadow hover:shadow-md"
                           >
                             <div className="flex h-36 items-center justify-center bg-white">
                               <img
                                 src={getHeaderImage(
-                                  product.images?.[0]
+                                  product
+                                    .images?.[0]
                                 )}
                                 alt={
                                   product.name ||
@@ -580,13 +815,16 @@ window.scrollTo({
                             </div>
 
                             <p className="mt-3 line-clamp-2 min-h-10 text-sm font-medium leading-5 text-gray-900 group-hover:text-app-primary">
-                              {product.name}
+                              {
+                                product.name
+                              }
                             </p>
 
                             <p className="mt-2 font-semibold text-app-primary">
                               ₹
                               {Number(
-                                product.price || 0
+                                product.price ||
+                                  0
                               ).toLocaleString(
                                 "en-IN"
                               )}
@@ -597,21 +835,24 @@ window.scrollTo({
                     </div>
                   </div>
                 ) : (
-                  /* CATEGORY / SHOP / DEALS DROPDOWN */
+                  /* SHOP / CATEGORIES */
 
                   <div className="grid grid-cols-1 lg:grid-cols-2">
 
-                    {/* Categories */}
+                    {/* CATEGORIES */}
 
                     <div className="px-7 py-7">
                       <div className="mb-5 flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-gray-950">
-                          Shop by category
+                          Shop by
+                          category
                         </h3>
 
                         <Link
                           to="/categories"
-                          onClick={closeMenu}
+                          onClick={
+                            closeMenu
+                          }
                           className="text-sm font-medium text-app-primary hover:underline"
                         >
                           View all
@@ -621,105 +862,113 @@ window.scrollTo({
                       <div className="grid grid-cols-2 gap-x-6 gap-y-5 xl:grid-cols-3">
                         {rootCategories
                           .slice(0, 9)
-                          .map((category) => {
-                            const id =
-                              getCategoryId(
-                                category
-                              );
+                          .map(
+                            (
+                              category
+                            ) => {
+                              const id =
+                                getCategoryId(
+                                  category
+                                );
 
-                            const children =
-                              categoryChildren[
-                                id
-                              ] ||
-                              category.children ||
-                              category.subcategories ||
-                              [];
+                              const children =
+                                categoryChildren[
+                                  id
+                                ] ||
+                                category.children ||
+                                category.subcategories ||
+                                [];
 
-                            return (
-                              <div
-                                key={
-                                  id ||
-                                  getCategoryName(
-                                    category
-                                  )
-                                }
-                              >
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    openSearch(
-                                      getCategoryName(
-                                        category
-                                      )
+                              return (
+                                <div
+                                  key={
+                                    id ||
+                                    getCategoryName(
+                                      category
                                     )
                                   }
-                                  className="text-left text-sm font-semibold text-gray-900 hover:text-app-primary"
                                 >
-                                  {getCategoryName(
-                                    category
-                                  )}
-                                </button>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      openSearch(
+                                        getCategoryName(
+                                          category
+                                        )
+                                      )
+                                    }
+                                    className="text-left text-sm font-semibold text-gray-900 hover:text-app-primary"
+                                  >
+                                    {getCategoryName(
+                                      category
+                                    )}
+                                  </button>
 
-                                <ul className="mt-2 space-y-1.5">
-                                  {(
-                                    Array.isArray(
-                                      children
+                                  <ul className="mt-2 space-y-1.5">
+                                    {(
+                                      Array.isArray(
+                                        children
+                                      )
+                                        ? children
+                                        : []
                                     )
-                                      ? children
-                                      : []
-                                  )
-                                    .slice(0, 4)
-                                    .map(
-                                      (child) => (
-                                        <li
-                                          key={
-                                            getCategoryId(
-                                              child
-                                            ) ||
-                                            getCategoryName(
-                                              child
-                                            )
-                                          }
-                                        >
-                                          <button
-                                            type="button"
-                                            onClick={() =>
-                                              openSearch(
-                                                getCategoryName(
-                                                  child
-                                                )
+                                      .slice(
+                                        0,
+                                        4
+                                      )
+                                      .map(
+                                        (
+                                          child
+                                        ) => (
+                                          <li
+                                            key={
+                                              getCategoryId(
+                                                child
+                                              ) ||
+                                              getCategoryName(
+                                                child
                                               )
                                             }
-                                            className="text-left text-sm text-gray-600 hover:text-app-primary"
                                           >
-                                            {getCategoryName(
-                                              child
-                                            )}
-                                          </button>
-                                        </li>
-                                      )
-                                    )}
-                                </ul>
-                              </div>
-                            );
-                          })}
+                                            <button
+                                              type="button"
+                                              onClick={() =>
+                                                openSearch(
+                                                  getCategoryName(
+                                                    child
+                                                  )
+                                                )
+                                              }
+                                              className="text-left text-sm text-gray-600 hover:text-app-primary"
+                                            >
+                                              {getCategoryName(
+                                                child
+                                              )}
+                                            </button>
+                                          </li>
+                                        )
+                                      )}
+                                  </ul>
+                                </div>
+                              );
+                            }
+                          )}
                       </div>
                     </div>
 
-                    {/* Featured products */}
+                    {/* BEST SELLING */}
 
                     <div className="bg-gray-50 px-6 py-7">
                       <div className="mb-5 flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-gray-950">
-                          {activeDropdown ===
-                          "Top Deals"
-                            ? "Featured deals"
-                            : "Best selling"}
+                          Best selling
                         </h3>
 
                         <Link
                           to="/products"
-                          onClick={closeMenu}
+                          onClick={
+                            closeMenu
+                          }
                           className="text-sm font-medium text-app-primary hover:underline"
                         >
                           Shop all
@@ -739,12 +988,15 @@ window.scrollTo({
                                 product._id ||
                                 product.id
                               }`}
-                              onClick={closeMenu}
+                              onClick={
+                                closeMenu
+                              }
                               className="group flex min-h-[112px] items-center gap-4 rounded-md border border-gray-100 bg-white p-3 hover:border-blue-100"
                             >
                               <img
                                 src={getHeaderImage(
-                                  product.images?.[0]
+                                  product
+                                    .images?.[0]
                                 )}
                                 alt={
                                   product.name ||
@@ -755,7 +1007,9 @@ window.scrollTo({
 
                               <span className="min-w-0">
                                 <span className="line-clamp-2 block text-sm leading-5 text-gray-900 group-hover:text-app-primary">
-                                  {product.name}
+                                  {
+                                    product.name
+                                  }
                                 </span>
 
                                 <span className="mt-2 block font-semibold text-app-primary">
@@ -781,12 +1035,12 @@ window.scrollTo({
         </div>
 
         {/* =================================================
-            RIGHT SIDE ACTIONS
-        ================================================== */}
+            RIGHT ACTIONS
+        ================================================= */}
 
-        <div className="ml-auto flex shrink-0 items-center gap-0.5 lg:ml-auto lg:gap-1">
+        <div className="ml-auto flex shrink-0 items-center gap-0.5 lg:gap-1">
 
-          {/* Desktop Search */}
+          {/* DESKTOP SEARCH */}
 
           <form
             onSubmit={handleSearch}
@@ -803,7 +1057,9 @@ window.scrollTo({
               <input
                 value={search}
                 onChange={(event) =>
-                  setSearch(event.target.value)
+                  setSearch(
+                    event.target.value
+                  )
                 }
                 placeholder="Search"
                 aria-label="Search products"
@@ -812,14 +1068,15 @@ window.scrollTo({
             </label>
           </form>
 
-          {/* Account */}
+          {/* ACCOUNT */}
 
           {isLoggedIn ? (
             <div className="group relative hidden sm:block">
               <Link
-                to={"/profile"}
+                to="/profile"
                 aria-label={`Account: ${
-                  displayName || "profile"
+                  displayName ||
+                  "profile"
                 }`}
                 className="flex h-11 w-11 items-center justify-center text-gray-800 hover:text-app-primary"
               >
@@ -846,10 +1103,14 @@ window.scrollTo({
 
                 <button
                   type="button"
-                  onClick={handleLogout}
+                  onClick={
+                    handleLogout
+                  }
                   className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
                 >
-                  <LogOut size={14} />
+                  <LogOut
+                    size={14}
+                  />
                   Log out
                 </button>
               </div>
@@ -867,12 +1128,14 @@ window.scrollTo({
             </Link>
           )}
 
-          {/* Wishlist */}
+          {/* WISHLIST */}
 
           <IconLink
             to="/wishlist"
             label="Wishlist"
-            count={wishlistItems.length}
+            count={
+              wishlistItems.length
+            }
           >
             <Heart
               size={23}
@@ -880,12 +1143,14 @@ window.scrollTo({
             />
           </IconLink>
 
-          {/* Cart */}
+          {/* CART */}
 
           <IconLink
             to="/cart"
             label="Shopping cart"
-            count={cartItems.length}
+            count={
+              cartItems.length
+            }
           >
             <ShoppingBag
               size={23}
@@ -912,181 +1177,568 @@ window.scrollTo({
       </div>
 
       {/* =====================================================
-          MOBILE MENU
+          MOBILE DRAWER
       ====================================================== */}
 
-      <div
-        className={`lg:hidden ${
-          mobileMenuOpen
-            ? "block"
-            : "hidden"
-        }`}
-      >
-        <div
-          className="fixed inset-0 top-[126px] -z-10 bg-gray-950/25"
-          aria-hidden="true"
-        />
+      {mobileMenuOpen && (
+        <>
+          {/* BACKDROP */}
 
-        <div className="border-t border-gray-100 bg-white px-4 pb-6 pt-5 shadow-xl sm:px-6">
+          <button
+            type="button"
+            aria-label="Close mobile menu"
+            onClick={closeMenu}
+            className="fixed inset-x-0 bottom-0 top-[126px] z-[55] bg-gray-950/30 lg:hidden"
+          />
 
-          {/* Mobile search */}
+          {/* DRAWER */}
 
-          <form
-            onSubmit={handleSearch}
-            role="search"
-            className="mb-4"
+          <aside
+            className="
+              fixed
+              inset-x-0
+              bottom-0
+              top-[126px]
+              z-[60]
+              flex
+              min-h-0
+              flex-col
+              overflow-hidden
+              border-t
+              border-gray-100
+              bg-white
+              shadow-2xl
+              lg:hidden
+            "
+            aria-label="Mobile navigation menu"
           >
-            <label className="relative block">
-              <Search
-                size={16}
-                aria-hidden="true"
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
-              />
+            {/* =========================================
+                DRAWER HEADER / SEARCH
+            ========================================== */}
 
-              <input
-                value={search}
-                onChange={(event) =>
-                  setSearch(event.target.value)
-                }
-                placeholder="Search products"
-                aria-label="Search products"
-                className="h-11 w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 text-sm outline-none focus:border-app-primary"
-              />
-            </label>
-          </form>
+            <div className="shrink-0 border-b border-gray-100 bg-white px-4 pb-4 pt-4 sm:px-6">
 
-          <nav
-            aria-label="Mobile navigation"
-            className="grid gap-1"
-          >
-            {navigation.map((item) =>
-              item.menu ? (
-                <div key={item.label}>
+              <form
+                onSubmit={handleSearch}
+                role="search"
+              >
+                <label className="relative block">
+                  <Search
+                    size={16}
+                    aria-hidden="true"
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+                  />
 
-                  <button
-                    type="button"
-                    aria-expanded={
-                      mobileSubmenu ===
-                      item.label
-                    }
-                    onClick={() =>
-                      setMobileSubmenu(
-                        (open) =>
-                          open === item.label
-                            ? null
-                            : item.label
+                  <input
+                    value={search}
+                    onChange={(event) =>
+                      setSearch(
+                        event.target.value
                       )
                     }
-                    className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-base font-medium text-gray-800 hover:bg-gray-50"
-                  >
-                    {item.label}
+                    placeholder="Search products"
+                    aria-label="Search products"
+                    className="h-11 w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 text-sm outline-none focus:border-app-primary focus:ring-2 focus:ring-app-primary/10"
+                  />
+                </label>
+              </form>
+            </div>
 
-                    <ChevronDown
-                      size={16}
-                      className={
-                        mobileSubmenu ===
-                        item.label
-                          ? "rotate-180"
-                          : ""
-                      }
-                    />
-                  </button>
+            {/* =========================================
+                SCROLLABLE SIDEBAR CONTENT
+            ========================================== */}
 
-                  {mobileSubmenu ===
-                    item.label && (
-                    <div className="grid gap-1 pb-2 pl-3">
-                      {rootCategories.map(
-                        (category) => (
-                          <button
-                            key={
-                              getCategoryId(
-                                category
-                              ) ||
-                              getCategoryName(
-                                category
-                              )
-                            }
-                            type="button"
-                            onClick={() =>
-                              openSearch(
-                                getCategoryName(
-                                  category
-                                )
-                              )
-                            }
-                            className="rounded-lg px-3 py-2.5 text-left text-sm text-gray-700 hover:bg-blue-50 hover:text-app-primary"
-                          >
-                            {getCategoryName(
-                              category
-                            )}
-                          </button>
-                        )
-                      )}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <NavLink
-                  key={item.label}
-                  to={item.to}
-                  end={item.end}
-                  onClick={closeMenu}
-                  className={({ isActive }) =>
-                    `flex items-center justify-between rounded-lg px-3 py-3 text-base font-medium ${
-                      isActive
-                        ? "bg-blue-50 text-app-primary"
-                        : "text-gray-800 hover:bg-gray-50"
-                    }`
-                  }
-                >
-                  {item.label}
-                </NavLink>
-              )
-            )}
-
-            {/* Mobile auth */}
-
-            {isLoggedIn ? (
-              <>
-                <NavLink
-                  to="/profile"
-                  onClick={closeMenu}
-                  className="flex items-center gap-2 rounded-lg px-3 py-3 font-medium text-gray-800"
-                >
-                  <UserRound size={17} />
-                  Profile
-                </NavLink>
-             {user?.role!=="user" &&  <NavLink
-                  to={user?.role==="admin"?"/admin/dashboard":"/vendor/dashboard"}
-                  onClick={closeMenu}
-                  className="flex items-center gap-2 rounded-lg px-3 py-3 font-medium text-gray-800"
-                >
-                  <LayoutDashboard size={17} />
-                  Dashboard
-                </NavLink>}
-
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 rounded-lg px-3 py-3 text-left font-medium text-red-600"
-                >
-                  <LogOut size={17} />
-                  Log out
-                </button>
-              </>
-            ) : (
-              <Link
-                to="/login"
-                onClick={closeMenu}
-                className="flex items-center gap-2 rounded-lg px-3 py-3 font-medium text-gray-800"
+            <div
+              className="
+                min-h-0
+                flex-1
+                overflow-y-auto
+                overflow-x-hidden
+                overscroll-y-contain
+                px-4
+                py-3
+                sm:px-6
+              "
+              style={{
+                WebkitOverflowScrolling:
+                  "touch",
+                touchAction: "pan-y",
+              }}
+            >
+              <nav
+                aria-label="Mobile navigation"
+                className="grid gap-1"
               >
-                <LogIn size={17} />
-                Sign in
-              </Link>
-            )}
-          </nav>
+                {navigation.map((item) =>
+                  item.menu ? (
+                    <div
+                      key={item.label}
+                      className="min-w-0"
+                    >
+                      {/* MENU BUTTON */}
+
+                      <button
+                        type="button"
+                        aria-expanded={
+                          mobileSubmenu ===
+                          item.label
+                        }
+                        onClick={() =>
+                          toggleMobileSubmenu(
+                            item.label
+                          )
+                        }
+                        className="
+                          flex
+                          w-full
+                          items-center
+                          justify-between
+                          rounded-lg
+                          px-3
+                          py-3
+                          text-left
+                          text-base
+                          font-medium
+                          text-gray-800
+                          transition
+                          hover:bg-gray-50
+                          active:bg-gray-100
+                        "
+                      >
+                        <span className="flex items-center gap-2">
+                          {item.label}
+
+                          {item.badge && (
+                            <span className="rounded-sm bg-app-primary px-1.5 py-0.5 text-[9px] font-bold leading-none text-white">
+                              {item.badge}
+                            </span>
+                          )}
+                        </span>
+
+                        <ChevronDown
+                          size={16}
+                          className={`shrink-0 transition-transform duration-200 ${
+                            mobileSubmenu ===
+                            item.label
+                              ? "rotate-180 text-app-primary"
+                              : ""
+                          }`}
+                        />
+                      </button>
+
+                      {/* =================================
+                          SHOP
+                      ================================== */}
+
+                      {mobileSubmenu ===
+                        item.label &&
+                        item.label ===
+                          "Shop" && (
+                          <div className="min-w-0 pb-4 pl-3">
+
+                            {/* CATEGORIES */}
+
+                            <div className="grid gap-1">
+                              {rootCategories.map(
+                                (
+                                  category
+                                ) => (
+                                  <button
+                                    key={
+                                      getCategoryId(
+                                        category
+                                      ) ||
+                                      getCategoryName(
+                                        category
+                                      )
+                                    }
+                                    type="button"
+                                    onClick={() =>
+                                      openSearch(
+                                        getCategoryName(
+                                          category
+                                        )
+                                      )
+                                    }
+                                    className="
+                                      rounded-lg
+                                      px-3
+                                      py-2.5
+                                      text-left
+                                      text-sm
+                                      text-gray-700
+                                      transition
+                                      hover:bg-blue-50
+                                      hover:text-app-primary
+                                      active:bg-blue-50
+                                    "
+                                  >
+                                    {getCategoryName(
+                                      category
+                                    )}
+                                  </button>
+                                )
+                              )}
+                            </div>
+
+                            {/* BEST SELLING */}
+
+                            <MobileBestSelling
+                              products={
+                                featuredProducts
+                              }
+                              onClose={
+                                closeMenu
+                              }
+                            />
+                          </div>
+                        )}
+
+                      {/* =================================
+                          PRODUCTS
+                      ================================== */}
+
+                      {mobileSubmenu ===
+                        item.label &&
+                        item.label ===
+                          "Products" && (
+                          <div className="min-w-0 pb-4 pl-3">
+                            <MobileBestSelling
+                              products={
+                                featuredProducts
+                              }
+                              onClose={
+                                closeMenu
+                              }
+                            />
+                          </div>
+                        )}
+
+                      {/* =================================
+                          CATEGORIES
+                      ================================== */}
+
+                      {mobileSubmenu ===
+                        item.label &&
+                        item.label ===
+                          "Categories" && (
+                          <div className="min-w-0 pb-4 pl-3">
+                            <div className="grid gap-1">
+                              {rootCategories.map(
+                                (
+                                  category
+                                ) => (
+                                  <button
+                                    key={
+                                      getCategoryId(
+                                        category
+                                      ) ||
+                                      getCategoryName(
+                                        category
+                                      )
+                                    }
+                                    type="button"
+                                    onClick={() =>
+                                      openSearch(
+                                        getCategoryName(
+                                          category
+                                        )
+                                      )
+                                    }
+                                    className="
+                                      rounded-lg
+                                      px-3
+                                      py-2.5
+                                      text-left
+                                      text-sm
+                                      text-gray-700
+                                      transition
+                                      hover:bg-blue-50
+                                      hover:text-app-primary
+                                      active:bg-blue-50
+                                    "
+                                  >
+                                    {getCategoryName(
+                                      category
+                                    )}
+                                  </button>
+                                )
+                              )}
+                            </div>
+                          </div>
+                        )}
+                    </div>
+                  ) : (
+                    <NavLink
+                      key={item.label}
+                      to={item.to}
+                      end={item.end}
+                      onClick={
+                        closeMenu
+                      }
+                      className={({
+                        isActive,
+                      }) =>
+                        `flex items-center justify-between rounded-lg px-3 py-3 text-base font-medium ${
+                          isActive
+                            ? "bg-blue-50 text-app-primary"
+                            : "text-gray-800 hover:bg-gray-50"
+                        }`
+                      }
+                    >
+                      {item.label}
+                    </NavLink>
+                  )
+                )}
+
+                {/* =====================================
+                    MOBILE AUTH
+                ====================================== */}
+
+                <div className="my-2 border-t border-gray-100" />
+
+                {isLoggedIn ? (
+                  <>
+                    <NavLink
+                      to="/profile"
+                      onClick={
+                        closeMenu
+                      }
+                      className="flex items-center gap-2 rounded-lg px-3 py-3 font-medium text-gray-800 hover:bg-gray-50"
+                    >
+                      <UserRound
+                        size={17}
+                      />
+                      Profile
+                    </NavLink>
+
+                    {user?.role !==
+                      "user" && (
+                      <NavLink
+                        to={
+                          user?.role ===
+                          "admin"
+                            ? "/admin/dashboard"
+                            : "/vendor/dashboard"
+                        }
+                        onClick={
+                          closeMenu
+                        }
+                        className="flex items-center gap-2 rounded-lg px-3 py-3 font-medium text-gray-800 hover:bg-gray-50"
+                      >
+                        <LayoutDashboard
+                          size={17}
+                        />
+                        Dashboard
+                      </NavLink>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={
+                        handleLogout
+                      }
+                      className="flex items-center gap-2 rounded-lg px-3 py-3 text-left font-medium text-red-600 hover:bg-red-50"
+                    >
+                      <LogOut
+                        size={17}
+                      />
+                      Log out
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    to="/login"
+                    onClick={
+                      closeMenu
+                    }
+                    className="flex items-center gap-2 rounded-lg px-3 py-3 font-medium text-gray-800 hover:bg-gray-50"
+                  >
+                    <LogIn
+                      size={17}
+                    />
+                    Sign in
+                  </Link>
+                )}
+              </nav>
+            </div>
+          </aside>
+        </>
+      )}
+    </header>
+  );
+}
+
+/* =========================================================
+   MOBILE BEST SELLING COMPONENT
+========================================================= */
+
+function MobileBestSelling({
+  products,
+  onClose,
+}) {
+  return (
+    <section className="mt-5 min-w-0 border-t border-gray-100 pt-4">
+      {/* HEADER */}
+
+      <div className="mb-3 flex items-center justify-between pr-3">
+        <h3 className="text-base font-semibold text-gray-950">
+          Best selling
+        </h3>
+
+        <Link
+          to="/products"
+          onClick={onClose}
+          className="shrink-0 text-xs font-semibold text-app-primary hover:underline"
+        >
+          Shop all
+        </Link>
+      </div>
+
+      {/* =============================================
+          HORIZONTAL PRODUCT SCROLLER
+      ============================================== */}
+
+      <div
+        className="
+          mobile-product-scroller
+          w-full
+          max-w-full
+          overflow-x-auto
+          overflow-y-hidden
+          overscroll-x-contain
+          pr-3
+          pb-4
+        "
+        style={{
+          WebkitOverflowScrolling:
+            "touch",
+          touchAction: "pan-x",
+          scrollbarWidth: "thin",
+        }}
+      >
+        {/* IMPORTANT:
+            w-max forces content to be wider
+            than the viewport so horizontal
+            scrolling can actually happen.
+        */}
+
+        <div className="flex w-max gap-3">
+          {products.map((product) => (
+            <Link
+              key={
+                product._id ||
+                product.id ||
+                product.name
+              }
+              to={`/product/${
+                product._id ||
+                product.id
+              }`}
+              onClick={onClose}
+              draggable={false}
+              className="
+                group
+                block
+                w-[165px]
+                shrink-0
+                overflow-hidden
+                rounded-lg
+                border
+                border-gray-100
+                bg-white
+                p-3
+                transition
+                active:scale-[0.98]
+                hover:border-blue-200
+                hover:shadow-md
+                sm:w-[185px]
+              "
+            >
+              {/* PRODUCT IMAGE */}
+
+              <div
+                className="
+                  flex
+                  h-28
+                  w-full
+                  items-center
+                  justify-center
+                  overflow-hidden
+                  rounded-md
+                  bg-gray-50
+                  sm:h-32
+                "
+              >
+                <img
+                  src={getHeaderImage(
+                    product.images?.[0]
+                  )}
+                  alt={
+                    product.name ||
+                    "Product"
+                  }
+                  draggable={false}
+                  className="
+                    h-full
+                    w-full
+                    select-none
+                    object-contain
+                    transition-transform
+                    duration-200
+                    group-hover:scale-105
+                  "
+                />
+              </div>
+
+              {/* PRODUCT NAME */}
+
+              <p
+                className="
+                  mt-3
+                  line-clamp-2
+                  min-h-[40px]
+                  text-xs
+                  font-medium
+                  leading-5
+                  text-gray-900
+                  group-hover:text-app-primary
+                  sm:text-sm
+                "
+              >
+                {product.name}
+              </p>
+
+              {/* PRODUCT PRICE */}
+
+              <p
+                className="
+                  mt-2
+                  text-sm
+                  font-semibold
+                  text-app-primary
+                  sm:text-base
+                "
+              >
+                ₹
+                {Number(
+                  product.price || 0
+                ).toLocaleString(
+                  "en-IN"
+                )}
+              </p>
+            </Link>
+          ))}
+
+          {/* EMPTY STATE */}
+
+          {!products.length && (
+            <div className="w-full py-6 pr-3 text-center text-sm text-gray-500">
+              No products available.
+            </div>
+          )}
         </div>
       </div>
-    </header>
+    </section>
   );
 }

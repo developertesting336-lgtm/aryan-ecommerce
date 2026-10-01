@@ -334,6 +334,13 @@ const [currentImage, setCurrentImage] = useState(0);
     }
   };
 
+
+// =====================================================
+// IMAGE ZOOM
+// =====================================================
+
+
+
   // =====================================================
   // PRODUCT DETAILS
   // =====================================================
@@ -542,19 +549,27 @@ const [currentImage, setCurrentImage] = useState(0);
             PRODUCT IMAGE
         ================================================= */}
 
-    <div
+
+{/* =================================================
+    PRODUCT IMAGE
+================================================= */}
+
+<div
   className="
     absolute
     inset-0
     z-10
     overflow-hidden
-    touch-pan-y
     flex
     items-center
     justify-center
   "
+ 
 >
-  <AnimatePresence mode="wait" initial={false}>
+  <AnimatePresence
+    mode="wait"
+    initial={false}
+  >
     <motion.img
   key={currentImage}
   src={productImages[currentImage]}
@@ -562,7 +577,8 @@ const [currentImage, setCurrentImage] = useState(0);
   draggable={false}
   onError={(e) => {
     e.currentTarget.onerror = null;
-    e.currentTarget.src = "/1786052049893.webp";
+    e.currentTarget.src =
+      "/1786052049893.webp";
   }}
   className="
     h-full
@@ -571,6 +587,7 @@ const [currentImage, setCurrentImage] = useState(0);
     object-contain
     object-center
     p-3
+    will-change-transform
   "
   initial={{
     opacity: 0,
@@ -579,18 +596,26 @@ const [currentImage, setCurrentImage] = useState(0);
   animate={{
     opacity: 1,
     x: 0,
-    scale: 1,
   }}
   exit={{
     opacity: 0,
     x: -40,
   }}
   whileHover={{
-    scale: 1.25,
+    scale: 1.15,
   }}
   transition={{
-    duration: 0.35,
-    ease: "easeOut",
+    opacity: {
+      duration: 0.2,
+    },
+    x: {
+      duration: 0.35,
+      ease: "easeOut",
+    },
+    scale: {
+      duration: 0.35,
+      ease: [0.22, 1, 0.36, 1],
+    },
   }}
   drag="x"
   dragConstraints={{
@@ -618,34 +643,53 @@ const [currentImage, setCurrentImage] = useState(0);
 />
   </AnimatePresence>
 
-  {/* IMAGE DOTS */}
+  {/* =================================================
+      IMAGE DOTS
+  ================================================= */}
 
   {productImages.length > 1 && (
     <div
       className="
-        pointer-events-none
         absolute
         bottom-3
         left-1/2
-        z-30
+        z-40
         flex
         -translate-x-1/2
         items-center
         gap-1.5
+        rounded-full
+        bg-white/90
+        px-2.5
+        py-1.5
+        shadow-sm
+        backdrop-blur-sm
       "
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
     >
       {productImages.map((_, index) => (
-        <span
+        <button
           key={index}
+          type="button"
+          aria-label={`View image ${index + 1}`}
+          onClick={(e) => {
+            e.stopPropagation();
+
+            setCurrentImage(index);
+            setImageZoom(false);
+          }}
           className={`
             h-1.5
             rounded-full
+            cursor-pointer
             transition-all
             duration-300
             ${
               currentImage === index
                 ? "w-4 bg-blue-600"
-                : "w-1.5 bg-slate-400/70"
+                : "w-1.5 bg-slate-400 hover:bg-slate-600"
             }
           `}
         />
@@ -655,24 +699,13 @@ const [currentImage, setCurrentImage] = useState(0);
 </div>
 
 
+
+
         {/* =================================================
             BOTTOM FADE
         ================================================= */}
 
-        <div
-          className="
-            pointer-events-none
-            absolute
-            bottom-0
-            left-0
-            right-0
-            z-20
-            h-12
-            bg-gradient-to-t
-            from-slate-100/70
-            to-transparent
-          "
-        />
+  
       </div>
 
       {/* =================================================
