@@ -29,7 +29,6 @@ export const getHomepage = async (req, res) => {
         .sort({ order: 1 })
         .lean(),
     ]);
-console.log("promoGrid",promoGrid)
     return res.status(200).json({
       success: true,
       data: {

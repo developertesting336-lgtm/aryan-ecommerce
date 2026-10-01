@@ -1,10 +1,25 @@
-import { Product, User, Cart,Category, Coupon,Order,OrderItem,OrderAddress,Review } from "../models/index.js";
+import {
+  Product,
+  User,
+  Cart,
+  Category,
+  Coupon,
+  Order,
+  OrderItem,
+  OrderAddress,
+  Review,
+} from "../models/index.js";
 import { ApiError, ApiResponse } from "../utils/apiResponse.js";
 import { generateSlug } from "../utils/common.js";
-import {OrderStatus,PaymentStatus} from "../config/constants.js"
+import { OrderStatus, PaymentStatus } from "../config/constants.js";
 import mongoose from "mongoose";
 import { sendEmailtoUser } from "../utils/mail.js";
-import {calculateDiscountForOrder,couponUsage,validateCoupon,calculateDiscount} from "./coupon.controller.js"
+import {
+  calculateDiscountForOrder,
+  couponUsage,
+  validateCoupon,
+  calculateDiscount,
+} from "./coupon.controller.js";
 
 function createOrderNumber() {
   const now = new Date();
@@ -73,16 +88,11 @@ export const createOrder = async (req, res) => {
 
       itemsToOrder = cart.items.filter(
         (item) =>
-          item.product &&
-          item.product._id.toString() ===
-            productId.toString()
+          item.product && item.product._id.toString() === productId.toString(),
       );
 
       if (itemsToOrder.length === 0) {
-        throw new ApiError(
-          404,
-          "Product not found in cart"
-        );
+        throw new ApiError(404, "Product not found in cart");
       }
 
       // -------------------------------------------------
@@ -92,14 +102,8 @@ export const createOrder = async (req, res) => {
       if (quantity !== undefined) {
         const parsedQuantity = Number(quantity);
 
-        if (
-          !Number.isInteger(parsedQuantity) ||
-          parsedQuantity < 1
-        ) {
-          throw new ApiError(
-            400,
-            "Invalid quantity"
-          );
+        if (!Number.isInteger(parsedQuantity) || parsedQuantity < 1) {
+          throw new ApiError(400, "Invalid quantity");
         }
 
         itemsToOrder[0].quantity = parsedQuantity;
@@ -117,32 +121,18 @@ export const createOrder = async (req, res) => {
     // =====================================================
 
     if (itemsToOrder.length === 0) {
-      throw new ApiError(
-        400,
-        "No products to order"
-      );
+      throw new ApiError(400, "No products to order");
     }
 
     for (const item of itemsToOrder) {
       if (!item.product) {
-        throw new ApiError(
-          404,
-          "One or more products no longer exist"
-        );
+        throw new ApiError(404, "One or more products no longer exist");
       }
 
-      const parsedQuantity = Number(
-        item.quantity
-      );
+      const parsedQuantity = Number(item.quantity);
 
-      if (
-        !Number.isInteger(parsedQuantity) ||
-        parsedQuantity < 1
-      ) {
-        throw new ApiError(
-          400,
-          `Invalid quantity for ${item.product.name}`
-        );
+      if (!Number.isInteger(parsedQuantity) || parsedQuantity < 1) {
+        throw new ApiError(400, `Invalid quantity for ${item.product.name}`);
       }
     }
 
@@ -150,21 +140,13 @@ export const createOrder = async (req, res) => {
     // 5. CALCULATE ORDER SUBTOTAL
     // =====================================================
 
-    const subtotal = itemsToOrder.reduce(
-      (total, item) => {
-        const itemSubtotal =
-          Number(item.product.price) *
-          Number(item.quantity);
+    const subtotal = itemsToOrder.reduce((total, item) => {
+      const itemSubtotal = Number(item.product.price) * Number(item.quantity);
 
-        return total + itemSubtotal;
-      },
-      0
-    );
+      return total + itemSubtotal;
+    }, 0);
 
-    console.log(
-      "ORDER SUBTOTAL:",
-      subtotal
-    );
+    console.log("ORDER SUBTOTAL:", subtotal);
 
     // =====================================================
     // 6. CALCULATE COUPON
@@ -173,34 +155,22 @@ export const createOrder = async (req, res) => {
     let couponResult = null;
 
     if (code?.trim()) {
-      couponResult =
-        await calculateDiscountForOrder(
-          user,
-          code,
-          itemsToOrder
-        );
+      couponResult = await calculateDiscountForOrder(user, code, itemsToOrder);
     }
 
     // =====================================================
     // 7. GET COUPON RESULT
     // =====================================================
 
-    const discount = Number(
-      couponResult?.discountAmount || 0
-    );
+    const discount = Number(couponResult?.discountAmount || 0);
 
-    const couponCode =
-      couponResult?.couponCode || "";
+    const couponCode = couponResult?.couponCode || "";
 
-    const couponId =
-      couponResult?.coupon || null;
+    const couponId = couponResult?.coupon || null;
 
-    const eligibleItems =
-      couponResult?.eligibleItems || [];
+    const eligibleItems = couponResult?.eligibleItems || [];
 
-    const eligibleAmount = Number(
-      couponResult?.eligibleAmount || 0
-    );
+    const eligibleAmount = Number(couponResult?.eligibleAmount || 0);
 
     console.log({
       subtotal,
@@ -214,28 +184,19 @@ export const createOrder = async (req, res) => {
     // 8. CALCULATE DISCOUNTED SUBTOTAL
     // =====================================================
 
-    const discountedSubtotal = Math.max(
-      0,
-      subtotal - discount
-    );
+    const discountedSubtotal = Math.max(0, subtotal - discount);
 
     // =====================================================
     // 9. CALCULATE SHIPPING
     // =====================================================
 
-    const shippingCharge =
-      discountedSubtotal > 500
-        ? 0
-        : 150;
+    const shippingCharge = discountedSubtotal > 500 ? 0 : 150;
 
     // =====================================================
     // 10. CALCULATE FINAL TOTAL
     // =====================================================
 
-    const total =
-      subtotal +
-      shippingCharge -
-      discount;
+    const total = subtotal + shippingCharge - discount;
 
     console.log({
       subtotal,
@@ -270,67 +231,50 @@ export const createOrder = async (req, res) => {
     // because calculateDiscountForOrder() returned them.
 
     const eligibleProductIds = new Set(
-      eligibleItems.map((item) =>
-        item.product._id.toString()
-      )
+      eligibleItems.map((item) => item.product._id.toString()),
     );
 
     // =====================================================
     // 13. CREATE ORDER ITEMS
     // =====================================================
 
-    const orderItems = itemsToOrder.map(
-      (item) => {
-        const itemSubtotal =
-          Number(item.product.price) *
-          Number(item.quantity);
+    const orderItems = itemsToOrder.map((item) => {
+      const itemSubtotal = Number(item.product.price) * Number(item.quantity);
 
-        const isCouponEligible =
-          eligibleProductIds.has(
-            item.product._id.toString()
-          );
+      const isCouponEligible = eligibleProductIds.has(
+        item.product._id.toString(),
+      );
 
-        let itemDiscount = 0;
+      let itemDiscount = 0;
 
-        // -------------------------------------------------
-        // Allocate total coupon discount proportionally
-        // -------------------------------------------------
+      // -------------------------------------------------
+      // Allocate total coupon discount proportionally
+      // -------------------------------------------------
 
-        if (
-          isCouponEligible &&
-          eligibleAmount > 0
-        ) {
-          itemDiscount =
-            discount *
-            (itemSubtotal /
-              eligibleAmount);
-        }
-
-        const itemTotal =
-          itemSubtotal - itemDiscount;
-
-        return {
-          order: order._id,
-          product: item.product._id,
-          productName:
-            item.product.name,
-          price: item.product.price,
-          quantity: item.quantity,
-          total: itemTotal,
-          vendor: item.product.vendor,
-          discount: itemDiscount,
-          couponCode,
-        };
+      if (isCouponEligible && eligibleAmount > 0) {
+        itemDiscount = discount * (itemSubtotal / eligibleAmount);
       }
-    );
+
+      const itemTotal = itemSubtotal - itemDiscount;
+
+      return {
+        order: order._id,
+        product: item.product._id,
+        productName: item.product.name,
+        price: item.product.price,
+        quantity: item.quantity,
+        total: itemTotal,
+        vendor: item.product.vendor,
+        discount: itemDiscount,
+        couponCode,
+      };
+    });
 
     // =====================================================
     // 14. INSERT ORDER ITEMS
     // =====================================================
 
-    await OrderItem.insertMany(
-      orderItems
-    );
+    await OrderItem.insertMany(orderItems);
 
     // =====================================================
     // 15. CREATE SHIPPING ADDRESS
@@ -360,9 +304,7 @@ export const createOrder = async (req, res) => {
 
       cart.items = cart.items.filter(
         (item) =>
-          item.product &&
-          item.product._id.toString() !==
-            productId.toString()
+          item.product && item.product._id.toString() !== productId.toString(),
       );
     } else {
       // -------------------------------------------------
@@ -376,14 +318,11 @@ export const createOrder = async (req, res) => {
     // 17. RECALCULATE CART TOTAL
     // =====================================================
 
-    cart.totalPrice =
-      cart.items.reduce(
-        (total, item) =>
-          total +
-          Number(item.product.price) *
-            Number(item.quantity),
-        0
-      );
+    cart.totalPrice = cart.items.reduce(
+      (total, item) =>
+        total + Number(item.product.price) * Number(item.quantity),
+      0,
+    );
 
     // =====================================================
     // 18. SAVE ORDER + CART
@@ -398,10 +337,7 @@ export const createOrder = async (req, res) => {
     // =====================================================
 
     if (couponId) {
-      await couponUsage(
-        couponId,
-        order
-      );
+      await couponUsage(couponId, order);
     }
 
     // =====================================================
@@ -414,24 +350,18 @@ export const createOrder = async (req, res) => {
         {
           order,
         },
-        "Order created successfully"
-      )
+        "Order created successfully",
+      ),
     );
   } catch (error) {
-    console.log(
-      "Create order error:",
-      error
-    );
+    console.log("Create order error:", error);
 
-    return res.status(
-      error.statusCode || 500
-    ).json({
+    return res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });
   }
 };
-
 
 // export const createOrder = async (req, res) => {
 //   try {
@@ -896,8 +826,6 @@ export const createOrder = async (req, res) => {
 //   }
 // };
 
-
-
 // export const createOrder = async (req, res) => {
 //   try {
 //     const {
@@ -918,7 +846,7 @@ export const createOrder = async (req, res) => {
 //     if (!user) {
 //       throw new ApiError(404, "User not found");
 //     }
-    
+
 // console.log("order body",productId,code)
 //     const cart = await Cart.findOne({
 //       user: req.user._id,
@@ -970,8 +898,6 @@ export const createOrder = async (req, res) => {
 // // ------------------------------
 // // console.log("getvendorProducts",getvendorProducts(itemsToOrder))
 
-
-
 // const calculatedItems = await Promise.all(
 //   itemsToOrder.map(async (item) => {
 //     const itemSubtotal =
@@ -1011,7 +937,7 @@ export const createOrder = async (req, res) => {
 
 // const shippingCharge =
 //   discountedSubtotal > 500 ? 0 : 150;
-  
+
 // const couponCode =
 //   calculatedItems.find((item) => item.couponCode)?.couponCode || "";
 
@@ -1045,7 +971,6 @@ export const createOrder = async (req, res) => {
 //       total
 //     });
 
-
 //     // -----------------------------
 //     // Create Order Items
 //     // -----------------------------
@@ -1068,9 +993,6 @@ export const createOrder = async (req, res) => {
 //     couponCode,
 //   })
 // );
-
-
-
 
 //     await OrderItem.insertMany(orderItems);
 
@@ -1115,7 +1037,7 @@ export const createOrder = async (req, res) => {
 // await order.save();
 //     await cart.save();
 //      await couponUsage(coupon,order)
-     
+
 //     return res.status(201).json(
 //       new ApiResponse(
 //         201,
@@ -1133,97 +1055,91 @@ export const createOrder = async (req, res) => {
 //   }
 // };
 
-
-
-export const getOrders = async(req,res)=>{
-    try {
-        const user = await User.findById(req.user._id);
+export const getOrders = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
 
     if (!user) {
       throw new ApiError(404, "User not found");
-    } 
-     const order = await Order.find({user:req.user._id}).sort({createdAt:-1});
+    }
+    const order = await Order.find({ user: req.user._id }).sort({
+      createdAt: -1,
+    });
 
-     return res.status(200).json(
-      new ApiResponse(
-        200,
-        { order },
-        "Product created successfully"
-      )
-    );
-} catch (error) {
-         console.log("Get products error:", error);
+    return res
+      .status(200)
+      .json(new ApiResponse(200, { order }, "Product created successfully"));
+  } catch (error) {
+    console.log("Get products error:", error);
     return res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });
-    }
-}
+  }
+};
 
+export const getOrderItems = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
 
-
-
-export const getOrderItems = async(req,res)=>{
-    try {
-        const user = await User.findById(req.user._id);
-     
     if (!user) {
       throw new ApiError(404, "User not found");
-    } 
-     const orderItem = await OrderItem.find({order:req.params._id}).populate("order","orderNumber createdAt fulfillmentStatus total shippingCharge discount subtotal").populate("product","images");
-     const orderAddress = await OrderAddress.findOne({order:req.params._id})
-     const productIds = orderItem.map(item => item.product?._id).filter(Boolean);
-
-     const reviews = await Review.find({
-  product: { $in: productIds },
-   user: req.user._id
-});
-console.log("review",reviews)
-     return res.status(200).json(
-      new ApiResponse(
-        200,
-        { orderdetails:{orderItem,orderAddress,reviews} },
-        "Product created successfully"
+    }
+    const orderItem = await OrderItem.find({ order: req.params._id })
+      .populate(
+        "order",
+        "orderNumber createdAt fulfillmentStatus total shippingCharge discount subtotal",
       )
-    );
-} catch (error) {
-         console.log("Get products error:", error);
+      .populate("product", "images");
+    const orderAddress = await OrderAddress.findOne({ order: req.params._id });
+    const productIds = orderItem
+      .map((item) => item.product?._id)
+      .filter(Boolean);
+
+    const reviews = await Review.find({
+      product: { $in: productIds },
+      user: req.user._id,
+    });
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { orderdetails: { orderItem, orderAddress, reviews } },
+          "Product created successfully",
+        ),
+      );
+  } catch (error) {
+    console.log("Get products error:", error);
     return res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });
-    }
-}
+  }
+};
 
-
-
-
-export const getOrderStatus = async(req,res)=>{
-    try {
-        const user = await User.findById(req.user._id);
+export const getOrderStatus = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
 
     if (!user) {
       throw new ApiError(404, "User not found");
-    } 
-     const order = await Order.findOne({user:req.user._id}).select("orderNumber status paymentStatus fulfillmentStatus");
-
-     return res.status(200).json(
-      new ApiResponse(
-        200,
-        { order },
-        "Product created successfully"
-      )
+    }
+    const order = await Order.findOne({ user: req.user._id }).select(
+      "orderNumber status paymentStatus fulfillmentStatus",
     );
-} catch (error) {
-         console.log("Get products error:", error);
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, { order }, "Product created successfully"));
+  } catch (error) {
+    console.log("Get products error:", error);
     return res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });
-    }
-}
-
-
+  }
+};
 
 // export const updateOrderStatus = async(req,res)=>{
 //     try {
@@ -1232,11 +1148,11 @@ export const getOrderStatus = async(req,res)=>{
 
 //     if (!user) {
 //       throw new ApiError(404, "User not found");
-//     } 
+//     }
 //      const order = await Order.findOneAndUpdate({_id:req.params._id},
 //         {status:status}, {new:true}
 //      ).select("orderNumber status paymentStatus fulfillmentStatus");
-       
+
 //      return res.status(200).json(
 //       new ApiResponse(
 //         200,
@@ -1253,74 +1169,63 @@ export const getOrderStatus = async(req,res)=>{
 //     }
 // }
 
-
-
-
-export const getOrderByStatus = async(req,res)=>{
-    try {
-        const {status} = req.query
-        const user = await User.findById(req.user._id);
-
-    if (!user) {
-      throw new ApiError(404, "User not found");
-    } 
-     const order = await Order.find({status});
-     return res.status(200).json(
-      new ApiResponse(
-        200,
-        { order },
-        "Product created successfully"
-      )
-    );
-} catch (error) {
-         console.log("Get products error:", error);
-    return res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message,
-    });
-    }
-}
-
-
-export const cancelOrder = async(req,res)=>{
-    try {
-        // const {status} = req.body
-        const user = await User.findById(req.user._id);
-
-    if (!user) {
-      throw new ApiError(404, "User not found");
-    } 
-    
-     const order = await Order.findOneAndUpdate({user:req.user._id,status:{ $in:[ "PENDING", "PROCESSING"]}},
-        {status:"CANCELLED"}, {new:true}
-     )
-   if (!order) {
-  throw new ApiError(
-    400,
-    `Order cannot be cancelled because its current status is confirmed, shipped, completed, or cancelled.`
-  );
-} 
-       
-     return res.status(200).json(
-      new ApiResponse(
-        200,
-        { order },
-        "Product created successfully"
-      )
-    );
-} catch (error) {
-         console.log("Get products error:", error);
-    return res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message,
-    });
-    }
-}
-
-
-export const updateOrderStatus = async (req,res) => {
+export const getOrderByStatus = async (req, res) => {
   try {
-   const { id } = req.params;
+    const { status } = req.query;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+    const order = await Order.find({ status });
+    return res
+      .status(200)
+      .json(new ApiResponse(200, { order }, "Product created successfully"));
+  } catch (error) {
+    console.log("Get products error:", error);
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const cancelOrder = async (req, res) => {
+  try {
+    // const {status} = req.body
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    const order = await Order.findOneAndUpdate(
+      { user: req.user._id, status: { $in: ["PENDING", "PROCESSING"] } },
+      { status: "CANCELLED" },
+      { new: true },
+    );
+    if (!order) {
+      throw new ApiError(
+        400,
+        `Order cannot be cancelled because its current status is confirmed, shipped, completed, or cancelled.`,
+      );
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, { order }, "Product created successfully"));
+  } catch (error) {
+    console.log("Get products error:", error);
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
     const { fulfillmentStatus } = req.body;
 
     // Validate status
@@ -1338,14 +1243,13 @@ export const updateOrderStatus = async (req,res) => {
     const currentStatus = order.fulfillmentStatus;
 
     // Get allowed next statuses
-    const allowedStatuses =
-      fulfillmentTransitions[currentStatus];
+    const allowedStatuses = fulfillmentTransitions[currentStatus];
 
     // Invalid current status
     if (!allowedStatuses) {
       throw new ApiError(
         400,
-        `Invalid current fulfillment status: ${currentStatus}`
+        `Invalid current fulfillment status: ${currentStatus}`,
       );
     }
 
@@ -1353,7 +1257,7 @@ export const updateOrderStatus = async (req,res) => {
     if (!allowedStatuses.includes(fulfillmentStatus)) {
       throw new ApiError(
         400,
-        `Cannot change fulfillment status from ${currentStatus} to ${fulfillmentStatus}`
+        `Cannot change fulfillment status from ${currentStatus} to ${fulfillmentStatus}`,
       );
     }
 
@@ -1367,7 +1271,6 @@ export const updateOrderStatus = async (req,res) => {
       message: `Fulfillment status changed from ${currentStatus} to ${fulfillmentStatus}`,
       order,
     });
-
   } catch (error) {
     console.log("error", error);
 
@@ -1376,34 +1279,25 @@ export const updateOrderStatus = async (req,res) => {
       message: error.message,
     });
   }
-}
+};
 
-
-export const getOrderById = async(req,res)=>{
-    try {
-      const {id} = req.params
-        const order = await Order.findById(id);
+export const getOrderById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const order = await Order.findById(id);
 
     if (!order) {
       throw new ApiError(404, "User not found");
-    } 
+    }
 
-     return res.status(200).json(
-      new ApiResponse(
-        200,
-        { order },
-        "Product created successfully"
-      )
-    );
-} catch (error) {
-         console.log("Get products error:", error);
+    return res
+      .status(200)
+      .json(new ApiResponse(200, { order }, "Product created successfully"));
+  } catch (error) {
+    console.log("Get products error:", error);
     return res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });
-    }
-}
-
-
-
-
+  }
+};

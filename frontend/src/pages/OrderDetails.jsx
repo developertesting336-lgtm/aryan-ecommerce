@@ -32,7 +32,9 @@ import {
 } from "../redux/slices/orderSlice";
 
 import {
-  createReview,updateReview,getReviewById
+  createReview,
+  updateReview,
+  getReviewById,
 } from "../redux/slices/reviewsSlice";
 
 export default function OrderDetails() {
@@ -44,63 +46,46 @@ export default function OrderDetails() {
   // ORDER STATE
   // =====================================================
 
-  const {
-    orderDetails,
-    loading,
-    error,
-  } = useSelector((state) => state.order);
+  const { orderDetails, loading, error } = useSelector((state) => state.order);
 
   // =====================================================
   // REVIEW STATE
   // =====================================================
 
-const {
-  createLoading: reviewLoading,
-  updateLoading: updateReviewLoading,
-  error: reviewError,
-} = useSelector((state) => state.review);
+  const {
+    createLoading: reviewLoading,
+    updateLoading: updateReviewLoading,
+    error: reviewError,
+  } = useSelector((state) => state.review);
   // =====================================================
   // LOCAL STATE
   // =====================================================
-  const [getReviewLoading, setGetReviewLoading] =
-  useState(false);
-const [updateRatingModal, setUpdateRatingModal] =
-  useState(false);
+  const [getReviewLoading, setGetReviewLoading] = useState(false);
+  const [updateRatingModal, setUpdateRatingModal] = useState(false);
 
-const [selectedReview, setSelectedReview] =
-  useState(null);
+  const [selectedReview, setSelectedReview] = useState(null);
 
-const [updateRating, setUpdateRating] =
-  useState(0);
+  const [updateRating, setUpdateRating] = useState(0);
 
-const [updateHoverRating, setUpdateHoverRating] =
-  useState(0);
+  const [updateHoverRating, setUpdateHoverRating] = useState(0);
 
-  const [cancelLoading, setCancelLoading] =
-    useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
 
-  const [reviewModal, setReviewModal] =
-    useState(false);
+  const [reviewModal, setReviewModal] = useState(false);
 
-  const [selectedProduct, setSelectedProduct] =
-    useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const [rating, setRating] =
-    useState(0);
+  const [rating, setRating] = useState(0);
 
-  const [reviewText, setReviewText] =
-    useState("");
+  const [reviewText, setReviewText] = useState("");
 
-  const [hoverRating, setHoverRating] =
-    useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
 
   // Review image files
-  const [reviewImages, setReviewImages] =
-    useState([]);
+  const [reviewImages, setReviewImages] = useState([]);
 
   // Review image previews
-  const [reviewImagePreviews, setReviewImagePreviews] =
-    useState([]);
+  const [reviewImagePreviews, setReviewImagePreviews] = useState([]);
 
   // =====================================================
   // ORDER DATA
@@ -108,10 +93,12 @@ const [updateHoverRating, setUpdateHoverRating] =
 
   const {
     orderItem = [],
+    reviews = [],
     orderAddress = null,
   } = orderDetails || {};
 
-console.log("orderitmmm",orderItem)
+  console.log("orderitmmm", orderItem);
+  console.log("reviews", reviews);
   // =====================================================
   // API URL
   // =====================================================
@@ -129,10 +116,7 @@ console.log("orderitmmm",orderItem)
 
     if (
       typeof image === "string" &&
-      (
-        image.startsWith("http://") ||
-        image.startsWith("https://")
-      )
+      (image.startsWith("http://") || image.startsWith("https://"))
     ) {
       return image;
     }
@@ -163,9 +147,7 @@ console.log("orderitmmm",orderItem)
   //     total + Number(item.total || 0),
   //   0
   // );
-const subtotal = Number(
-  orderItem?.[0]?.order?.subtotal ?? 0
-);
+  const subtotal = Number(orderItem?.[0]?.order?.subtotal ?? 0);
   const shippingCharge =
     orderItem?.[0]?.order?.shippingCharge ??
     orderDetails?.order?.shippingCharge ??
@@ -176,11 +158,9 @@ const subtotal = Number(
     orderDetails?.order?.total ??
     subtotal + Number(shippingCharge);
 
-    const discount =
-  orderItem?.[0]?.order?.discount ??
-  orderDetails?.order?.discount ??
-  0;
-console.log("orderItem",orderItem)
+  const discount =
+    orderItem?.[0]?.order?.discount ?? orderDetails?.order?.discount ?? 0;
+  console.log("orderItem", orderItem);
   // =====================================================
   // ORDER STATUS
   // =====================================================
@@ -196,9 +176,7 @@ console.log("orderItem",orderItem)
     orderDetails?.order?.fullfilledstatus ??
     "CONFIRMED";
 
-  const normalizedStatus = String(rawStatus)
-    .trim()
-    .toUpperCase();
+  const normalizedStatus = String(rawStatus).trim().toUpperCase();
 
   // =====================================================
   // CANCEL CONDITION
@@ -215,9 +193,40 @@ console.log("orderItem",orderItem)
   // REVIEW CONDITION
   // =====================================================
 
-  const canReview =
-    normalizedStatus === "DELIVERED";
+  const canReview = normalizedStatus === "DELIVERED";
+  const getItemProductId = (item) => {
+    return (
+      item?.product?._id ||
+      item?.product?.id ||
+      item?.product ||
+      item?.productId
+    );
+  };
 
+  const getReviewProductId = (review) => {
+    return (
+      review?.product?._id ||
+      review?.product?.id ||
+      review?.product ||
+      review?.productId
+    );
+  };
+
+  const getItemReview = (item) => {
+    const productId = getItemProductId(item);
+
+    if (!productId || !Array.isArray(reviews)) {
+      return null;
+    }
+
+    return (
+      reviews.find((review) => {
+        const reviewProductId = getReviewProductId(review);
+
+        return String(reviewProductId) === String(productId);
+      }) || null
+    );
+  };
   // =====================================================
   // STATUS CONFIG
   // =====================================================
@@ -232,48 +241,42 @@ console.log("orderItem",orderItem)
         return {
           label: "Confirmed",
           icon: CheckCircle2,
-          className:
-            "bg-blue-50 text-blue-600 border-blue-100",
+          className: "bg-blue-50 text-blue-600 border-blue-100",
         };
 
       case "PENDING":
         return {
           label: "Pending",
           icon: Clock3,
-          className:
-            "bg-gray-100 text-gray-600 border-gray-200",
+          className: "bg-gray-100 text-gray-600 border-gray-200",
         };
 
       case "PROCESSING":
         return {
           label: "Processing",
           icon: Clock3,
-          className:
-            "bg-yellow-50 text-yellow-600 border-yellow-100",
+          className: "bg-yellow-50 text-yellow-600 border-yellow-100",
         };
 
       case "UNFULFILLED":
         return {
           label: "Unfulfilled",
           icon: Clock3,
-          className:
-            "bg-orange-50 text-orange-600 border-orange-100",
+          className: "bg-orange-50 text-orange-600 border-orange-100",
         };
 
       case "SHIPPED":
         return {
           label: "Shipped",
           icon: Truck,
-          className:
-            "bg-purple-50 text-purple-600 border-purple-100",
+          className: "bg-purple-50 text-purple-600 border-purple-100",
         };
 
       case "DELIVERED":
         return {
           label: "Delivered",
           icon: CheckCircle2,
-          className:
-            "bg-green-50 text-green-600 border-green-100",
+          className: "bg-green-50 text-green-600 border-green-100",
         };
 
       case "CANCELLED":
@@ -281,25 +284,21 @@ console.log("orderItem",orderItem)
         return {
           label: "Cancelled",
           icon: XCircle,
-          className:
-            "bg-red-50 text-red-600 border-red-100",
+          className: "bg-red-50 text-red-600 border-red-100",
         };
 
       default:
         return {
           label: value || "Pending",
           icon: Clock3,
-          className:
-            "bg-gray-100 text-gray-600 border-gray-200",
+          className: "bg-gray-100 text-gray-600 border-gray-200",
         };
     }
   };
 
-  const statusConfig =
-    getStatusConfig(rawStatus);
+  const statusConfig = getStatusConfig(rawStatus);
 
-  const StatusIcon =
-    statusConfig.icon;
+  const StatusIcon = statusConfig.icon;
 
   // =====================================================
   // DATE
@@ -310,14 +309,11 @@ console.log("orderItem",orderItem)
       return "Date unavailable";
     }
 
-    return new Date(date).toLocaleDateString(
-      "en-IN",
-      {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }
-    );
+    return new Date(date).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
   };
 
   // =====================================================
@@ -330,7 +326,7 @@ console.log("orderItem",orderItem)
     }
 
     const confirmed = window.confirm(
-      "Are you sure you want to cancel this order?"
+      "Are you sure you want to cancel this order?",
     );
 
     if (!confirmed) {
@@ -340,28 +336,18 @@ console.log("orderItem",orderItem)
     try {
       setCancelLoading(true);
 
-      await dispatch(
-        cancelOrder(orderId)
-      ).unwrap();
+      await dispatch(cancelOrder(orderId)).unwrap();
 
-      await dispatch(
-        getOrderItems(orderId)
-      ).unwrap();
-
+      await dispatch(getOrderItems(orderId)).unwrap();
     } catch (err) {
-      console.error(
-        "Cancel order error:",
-        err
-      );
+      console.error("Cancel order error:", err);
 
       const message =
         typeof err === "string"
           ? err
-          : err?.message ||
-            err?.error ||
-            "Unable to cancel the order.";
+          : err?.message || err?.error || "Unable to cancel the order.";
 
-     showError(message);
+      showError(message);
     } finally {
       setCancelLoading(false);
     }
@@ -373,17 +359,12 @@ console.log("orderItem",orderItem)
 
   const handleOpenReview = (item) => {
     const productId =
-      item?.product?._id ||
-      item?.product?.id ||
-      item?.productId;
+      item?.product?._id || item?.product?.id || item?.productId;
 
     if (!productId) {
-      console.error(
-        "Product ID not found:",
-        item
-      );
+      console.error("Product ID not found:", item);
 
-      showError("Unable to find product information.");;
+      showError("Unable to find product information.");
 
       return;
     }
@@ -402,121 +383,105 @@ console.log("orderItem",orderItem)
     setReviewModal(true);
   };
 
- const handleOpenUpdateRating = async (item) => {
-  const reviewId =
-    item?.reviewId ||
-    item?.review?._id ||
-    item?.review?.id;
+  const handleOpenUpdateRating = async (item) => {
+    const reviewFromOrder = getItemReview(item);
 
-  if (!reviewId) {
-    showError("Review information not found.");
-    return;
-  }
+    const reviewId = reviewFromOrder?._id || reviewFromOrder?.id;
 
-  try {
-    setGetReviewLoading(true);
-
-    const response = await dispatch(
-      getReviewById(reviewId)
-    ).unwrap();
-
-    console.log("GET REVIEW BY ID RESPONSE:", response);
-
-    const review =
-      response?.data?.review ||
-      response?.review ||
-      response?.data ||
-      response;
-
-    if (!review?._id) {
-      showError("Review not found.");
+    if (!reviewId) {
+      showError("Review information not found.");
       return;
     }
 
-    setSelectedReview(review);
+    try {
+      setGetReviewLoading(true);
 
-    setUpdateRating(Number(review.rating) || 0);
+      const response = await dispatch(getReviewById(reviewId)).unwrap();
 
-    setUpdateHoverRating(0);
+      console.log("GET REVIEW BY ID RESPONSE:", response);
 
-    setUpdateRatingModal(true);
-  } catch (err) {
-    console.error("Get review by ID error:", err);
+      const review =
+        response?.data?.review ||
+        response?.review ||
+        response?.data ||
+        response;
 
-    const message =
-      typeof err === "string"
-        ? err
-        : err?.message ||
-          err?.error ||
-          "Failed to load review.";
+      if (!review?._id && !review?.id) {
+        showError("Review not found.");
+        return;
+      }
 
-    showError(message);
-  } finally {
-    setGetReviewLoading(false);
-  }
-};
+      setSelectedReview(review);
+
+      setUpdateRating(Number(review.rating) || 0);
+
+      setUpdateHoverRating(0);
+
+      setUpdateRatingModal(true);
+    } catch (err) {
+      console.error("Get review by ID error:", err);
+
+      const message =
+        typeof err === "string"
+          ? err
+          : err?.message || err?.error || "Failed to load review.";
+
+      showError(message);
+    } finally {
+      setGetReviewLoading(false);
+    }
+  };
   // =====================================================
   // CLOSE REVIEW MODAL
   // =====================================================
-const handleCloseUpdateRating = () => {
-  if (updateReviewLoading) {
-    return;
-  }
+  const handleCloseUpdateRating = () => {
+    if (updateReviewLoading) {
+      return;
+    }
 
-  setUpdateRatingModal(false);
-  setSelectedReview(null);
-  setUpdateRating(0);
-  setUpdateHoverRating(0);
-};
-const handleUpdateRating = async (e) => {
-  e.preventDefault();
+    setUpdateRatingModal(false);
+    setSelectedReview(null);
+    setUpdateRating(0);
+    setUpdateHoverRating(0);
+  };
+  const handleUpdateRating = async (e) => {
+    e.preventDefault();
 
-  if (!selectedReview?._id) {
-    showError("Review information not found.");
-    return;
-  }
+    const reviewId = selectedReview?._id || selectedReview?.id;
 
-  if (!updateRating) {
-    showError("Please select a rating.");
-    return;
-  }
+    if (!reviewId) {
+      showError("Unable to find review information.");
+      return;
+    }
 
-  try {
-    await dispatch(
-      updateReview({
-        id: selectedReview._id,
-        reviewData: {
-          rating: updateRating,
-        },
-      })
-    ).unwrap();
+    if (!updateRating) {
+      showError("Please select a rating.");
+      return;
+    }
 
-    // Refresh order data
-    await dispatch(
-      getOrderItems(orderId)
-    ).unwrap();
+    try {
+      await dispatch(
+        updateReview({
+          id: reviewId,
+          reviewData: {
+            rating: updateRating,
+          },
+        }),
+      ).unwrap();
 
-    handleCloseUpdateRating();
+      await dispatch(getOrderItems(orderId));
 
-    showSuccess(
-      "Rating updated successfully!"
-    );
-  } catch (err) {
-    console.error(
-      "Update rating error:",
-      err
-    );
+      setUpdateRatingModal(false);
+      setSelectedReview(null);
+      setUpdateRating(0);
 
-    const message =
-      typeof err === "string"
-        ? err
-        : err?.message ||
-          err?.error ||
-          "Failed to update rating.";
+      showSuccess("Rating updated successfully!");
+    } catch (error) {
+      console.error("Update rating error:", error);
 
-    showError(message);
-  }
-};
+      showError(error?.message || error?.error || "Failed to update rating.");
+    }
+  };
   const handleCloseReview = () => {
     if (reviewLoading) {
       return;
@@ -545,19 +510,14 @@ const handleUpdateRating = async (e) => {
   // =====================================================
 
   const handleReviewImages = (e) => {
-    const files = Array.from(
-      e.target.files || []
-    );
+    const files = Array.from(e.target.files || []);
 
     if (!files.length) {
       return;
     }
 
     // Maximum 5 images total
-    if (
-      reviewImages.length + files.length >
-      5
-    ) {
+    if (reviewImages.length + files.length > 5) {
       showError("You can upload a maximum of 5 images.");
 
       e.target.value = "";
@@ -575,11 +535,8 @@ const handleUpdateRating = async (e) => {
       }
 
       // 5 MB maximum
-      if (
-        file.size >
-        5 * 1024 * 1024
-      ) {
-       showError(`${file.name} is larger than 5 MB.`);
+      if (file.size > 5 * 1024 * 1024) {
+        showError(`${file.name} is larger than 5 MB.`);
 
         continue;
       }
@@ -593,21 +550,14 @@ const handleUpdateRating = async (e) => {
     }
 
     // Create preview URLs
-    const newPreviews =
-      validFiles.map((file) => ({
-        file,
-        url: URL.createObjectURL(file),
-      }));
+    const newPreviews = validFiles.map((file) => ({
+      file,
+      url: URL.createObjectURL(file),
+    }));
 
-    setReviewImages((previous) => [
-      ...previous,
-      ...validFiles,
-    ]);
+    setReviewImages((previous) => [...previous, ...validFiles]);
 
-    setReviewImagePreviews((previous) => [
-      ...previous,
-      ...newPreviews,
-    ]);
+    setReviewImagePreviews((previous) => [...previous, ...newPreviews]);
 
     // Allow selecting same file again
     e.target.value = "";
@@ -619,25 +569,17 @@ const handleUpdateRating = async (e) => {
 
   const removeReviewImage = (index) => {
     setReviewImages((previous) =>
-      previous.filter(
-        (_, imageIndex) =>
-          imageIndex !== index
-      )
+      previous.filter((_, imageIndex) => imageIndex !== index),
     );
 
     setReviewImagePreviews((previous) => {
       const image = previous[index];
 
       if (image?.url) {
-        URL.revokeObjectURL(
-          image.url
-        );
+        URL.revokeObjectURL(image.url);
       }
 
-      return previous.filter(
-        (_, imageIndex) =>
-          imageIndex !== index
-      );
+      return previous.filter((_, imageIndex) => imageIndex !== index);
     });
   };
 
@@ -659,12 +601,12 @@ const handleUpdateRating = async (e) => {
     }
 
     if (!reviewText.trim()) {
-       showError("Please write your review.");
+      showError("Please write your review.");
       return;
     }
 
     if (reviewText.trim().length < 5) {
-     showError("Review must contain at least 5 characters.");
+      showError("Review must contain at least 5 characters.");
 
       return;
     }
@@ -683,58 +625,37 @@ const handleUpdateRating = async (e) => {
       const formData = new FormData();
 
       // Backend expects rating
-      formData.append(
-        "rating",
-        String(rating)
-      );
+      formData.append("rating", String(rating));
 
       // Backend expects description
-      formData.append(
-        "description",
-        reviewText.trim()
-      );
+      formData.append("description", reviewText.trim());
 
       // Add images
       reviewImages.forEach((file) => {
-        formData.append(
-          "images",
-          file
-        );
+        formData.append("images", file);
       });
 
-      console.log(
-        "Submitting review:",
-        {
-          productId:
-            selectedProduct.productId,
-          rating,
-          description:
-            reviewText.trim(),
-          imageCount:
-            reviewImages.length,
-        }
-      );
+      console.log("Submitting review:", {
+        productId: selectedProduct.productId,
+        rating,
+        description: reviewText.trim(),
+        imageCount: reviewImages.length,
+      });
 
       await dispatch(
         createReview({
-          productId:
-            selectedProduct.productId,
+          productId: selectedProduct.productId,
 
-          reviewData:
-            formData,
-        })
+          reviewData: formData,
+        }),
       ).unwrap();
-
+      await dispatch(getOrderItems(orderId)).unwrap();
       // Release preview URLs
-      reviewImagePreviews.forEach(
-        (image) => {
-          if (image?.url) {
-            URL.revokeObjectURL(
-              image.url
-            );
-          }
+      reviewImagePreviews.forEach((image) => {
+        if (image?.url) {
+          URL.revokeObjectURL(image.url);
         }
-      );
+      });
 
       // Reset
       setReviewModal(false);
@@ -747,22 +668,14 @@ const handleUpdateRating = async (e) => {
       setReviewImages([]);
       setReviewImagePreviews([]);
 
-      showSuccess(
-        "Review submitted successfully!"
-      );
-
+      showSuccess("Review submitted successfully!");
     } catch (err) {
-      console.error(
-        "Create review error:",
-        err
-      );
+      console.error("Create review error:", err);
 
       const message =
         typeof err === "string"
           ? err
-          : err?.message ||
-            err?.error ||
-            "Failed to submit review.";
+          : err?.message || err?.error || "Failed to submit review.";
 
       showError(message);
     }
@@ -775,76 +688,51 @@ const handleUpdateRating = async (e) => {
   if (loading) {
     return (
       <main className="min-h-screen bg-gray-50">
-
         <section className="bg-white border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7">
-
             <div className="h-5 w-32 bg-gray-200 rounded" />
 
             <div className="h-8 w-56 bg-gray-200 rounded mt-4" />
-
           </div>
         </section>
 
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
             <div className="lg:col-span-2 space-y-5">
-
               <div className="bg-white rounded-2xl border border-gray-100 p-6 animate-pulse">
-
                 <div className="h-5 w-40 bg-gray-200 rounded" />
 
                 <div className="space-y-4 mt-6">
-
                   {[1, 2, 3].map((item) => (
-                    <div
-                      key={item}
-                      className="flex gap-4"
-                    >
-
+                    <div key={item} className="flex gap-4">
                       <div className="w-20 h-20 bg-gray-100 rounded-xl" />
 
                       <div className="flex-1">
-
                         <div className="h-4 w-40 bg-gray-200 rounded" />
 
                         <div className="h-3 w-24 bg-gray-100 rounded mt-3" />
 
                         <div className="h-4 w-20 bg-gray-200 rounded mt-3" />
-
                       </div>
-
                     </div>
                   ))}
-
                 </div>
-
               </div>
-
             </div>
 
             <div className="bg-white rounded-2xl border border-gray-100 p-6 animate-pulse">
-
               <div className="h-5 w-32 bg-gray-200 rounded" />
 
               <div className="space-y-4 mt-6">
-
                 <div className="h-4 w-full bg-gray-100 rounded" />
 
                 <div className="h-4 w-full bg-gray-100 rounded" />
 
                 <div className="h-8 w-full bg-gray-200 rounded" />
-
               </div>
-
             </div>
-
           </div>
-
         </section>
-
       </main>
     );
   }
@@ -856,16 +744,11 @@ const handleUpdateRating = async (e) => {
   if (error) {
     return (
       <main className="min-h-screen bg-gray-50">
-
         <section className="bg-white border-b">
-
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7">
-
             <button
               type="button"
-              onClick={() =>
-                navigate("/orders")
-              }
+              onClick={() => navigate("/orders")}
               className="
                 flex
                 items-center
@@ -876,21 +759,14 @@ const handleUpdateRating = async (e) => {
                 transition
               "
             >
-
               <ArrowLeft size={17} />
-
               Back to Orders
-
             </button>
-
           </div>
-
         </section>
 
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-
           <div className="max-w-md mx-auto text-center">
-
             <div
               className="
                 w-16
@@ -914,17 +790,12 @@ const handleUpdateRating = async (e) => {
             <p className="mt-2 text-sm text-gray-500">
               {typeof error === "string"
                 ? error
-                : error?.message ||
-                  "Something went wrong."}
+                : error?.message || "Something went wrong."}
             </p>
 
             <button
               type="button"
-              onClick={() =>
-                dispatch(
-                  getOrderItems(orderId)
-                )
-              }
+              onClick={() => dispatch(getOrderItems(orderId))}
               className="
                 mt-5
                 inline-flex
@@ -941,17 +812,11 @@ const handleUpdateRating = async (e) => {
                 transition
               "
             >
-
               <RefreshCw size={16} />
-
               Try Again
-
             </button>
-
           </div>
-
         </section>
-
       </main>
     );
   }
@@ -963,20 +828,15 @@ const handleUpdateRating = async (e) => {
   return (
     <>
       <main className="min-h-screen bg-gray-50">
-
         {/* ==================================================
             HEADER
         ================================================== */}
 
         <section className="bg-white border-b">
-
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7">
-
             <button
               type="button"
-              onClick={() =>
-                navigate("/orders")
-              }
+              onClick={() => navigate("/orders")}
               className="
                 flex
                 items-center
@@ -988,30 +848,20 @@ const handleUpdateRating = async (e) => {
                 mb-4
               "
             >
-
               <ArrowLeft size={17} />
-
               Back to Orders
-
             </button>
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-
               <div>
-
-                <p className="text-sm text-gray-500">
-                  Order Details
-                </p>
+                <p className="text-sm text-gray-500">Order Details</p>
 
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
-
                   #
                   {orderItem?.[0]?.order?.orderNumber ||
                     orderDetails?.order?.orderNumber ||
                     orderId}
-
                 </h1>
-
               </div>
 
               <div
@@ -1030,17 +880,12 @@ const handleUpdateRating = async (e) => {
                   ${statusConfig.className}
                 `}
               >
-
                 <StatusIcon size={17} />
 
                 {statusConfig.label}
-
               </div>
-
             </div>
-
           </div>
-
         </section>
 
         {/* ==================================================
@@ -1048,15 +893,12 @@ const handleUpdateRating = async (e) => {
         ================================================== */}
 
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
             {/* ==================================================
                 LEFT
             ================================================== */}
 
             <div className="lg:col-span-2 space-y-6">
-
               {/* ==================================================
                   ORDER INFORMATION
               ================================================== */}
@@ -1072,9 +914,7 @@ const handleUpdateRating = async (e) => {
                   sm:p-6
                 "
               >
-
                 <div className="flex items-center gap-3">
-
                   <div
                     className="
                       w-10
@@ -1091,7 +931,6 @@ const handleUpdateRating = async (e) => {
                   </div>
 
                   <div>
-
                     <h2 className="text-lg font-semibold text-gray-900">
                       Order Information
                     </h2>
@@ -1099,9 +938,7 @@ const handleUpdateRating = async (e) => {
                     <p className="text-sm text-gray-500 mt-1">
                       Details about your order
                     </p>
-
                   </div>
-
                 </div>
 
                 <div
@@ -1116,56 +953,33 @@ const handleUpdateRating = async (e) => {
                     border-gray-100
                   "
                 >
-
                   <div className="flex items-center gap-3">
-
-                    <CalendarDays
-                      size={18}
-                      className="text-gray-400"
-                    />
+                    <CalendarDays size={18} className="text-gray-400" />
 
                     <div>
-
-                      <p className="text-xs text-gray-500">
-                        Order Date
-                      </p>
+                      <p className="text-xs text-gray-500">Order Date</p>
 
                       <p className="text-sm font-medium text-gray-900 mt-1">
-
                         {formatDate(
                           orderItem?.[0]?.order?.createdAt ||
-                          orderDetails?.order?.createdAt
+                            orderDetails?.order?.createdAt,
                         )}
-
                       </p>
-
                     </div>
-
                   </div>
 
                   <div className="flex items-center gap-3">
-
-                    <Truck
-                      size={18}
-                      className="text-gray-400"
-                    />
+                    <Truck size={18} className="text-gray-400" />
 
                     <div>
-
-                      <p className="text-xs text-gray-500">
-                        Delivery
-                      </p>
+                      <p className="text-xs text-gray-500">Delivery</p>
 
                       <p className="text-sm font-medium text-gray-900 mt-1">
                         Standard Delivery
                       </p>
-
                     </div>
-
                   </div>
-
                 </div>
-
               </div>
 
               {/* ==================================================
@@ -1182,11 +996,8 @@ const handleUpdateRating = async (e) => {
                   overflow-hidden
                 "
               >
-
                 <div className="p-5 sm:p-6 border-b border-gray-100">
-
                   <div className="flex items-center gap-3">
-
                     <div
                       className="
                         w-10
@@ -1203,33 +1014,21 @@ const handleUpdateRating = async (e) => {
                     </div>
 
                     <div>
-
                       <h2 className="text-lg font-semibold text-gray-900">
                         Ordered Items
                       </h2>
 
                       <p className="text-sm text-gray-500 mt-1">
-
                         {orderItem.length}{" "}
-
-                        {orderItem.length === 1
-                          ? "item"
-                          : "items"}
-
+                        {orderItem.length === 1 ? "item" : "items"}
                       </p>
-
                     </div>
-
                   </div>
-
                 </div>
 
                 <div className="divide-y divide-gray-100">
-
                   {orderItem.length === 0 ? (
-
                     <div className="p-10 text-center">
-
                       <ShoppingBag
                         size={30}
                         className="mx-auto text-gray-300"
@@ -1238,13 +1037,9 @@ const handleUpdateRating = async (e) => {
                       <p className="text-sm text-gray-500 mt-3">
                         No order items found.
                       </p>
-
                     </div>
-
                   ) : (
-
                     orderItem.map((item) => (
-
                       <div
                         key={item._id}
                         className="
@@ -1256,7 +1051,6 @@ const handleUpdateRating = async (e) => {
                           gap-4
                         "
                       >
-
                         {/* PRODUCT IMAGE */}
 
                         <div
@@ -1276,80 +1070,47 @@ const handleUpdateRating = async (e) => {
                             justify-center
                           "
                         >
-
                           {item.product?.images?.[0] ? (
-
                             <img
-                              src={getImageUrl(
-                                item.product.images[0]
-                              )}
-                              alt={
-                                item.productName ||
-                                "Product"
-                              }
+                              src={getImageUrl(item.product.images[0])}
+                              alt={item.productName || "Product"}
                               className="
                                 w-full
                                 h-full
                                 object-cover
                               "
                             />
-
                           ) : (
-
-                            <Package
-                              size={25}
-                              className="text-gray-300"
-                            />
-
+                            <Package size={25} className="text-gray-300" />
                           )}
-
                         </div>
 
                         {/* PRODUCT DETAILS */}
 
                         <div className="flex-1 min-w-0">
-
                           <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
-
                             <div>
-
                               <h3 className="font-semibold text-gray-900">
-
                                 {item.productName ||
                                   item.product?.name ||
                                   "Product"}
-
                               </h3>
 
                               <p className="text-sm text-gray-500 mt-1">
-
                                 Quantity:{" "}
-
                                 <span className="font-medium text-gray-700">
                                   {item.quantity}
                                 </span>
-
                               </p>
-
                             </div>
 
                             <div className="sm:text-right">
-
-                              <p className="text-sm text-gray-500">
-                                Price
-                              </p>
+                              <p className="text-sm text-gray-500">Price</p>
 
                               <p className="text-base font-semibold text-gray-900 mt-1">
-
-                                ₹
-                                {item.price ||
-                                  item.product?.price ||
-                                  0}
-
+                                ₹{item.price || item.product?.price || 0}
                               </p>
-
                             </div>
-
                           </div>
 
                           <div
@@ -1366,61 +1127,31 @@ const handleUpdateRating = async (e) => {
                               border-gray-100
                             "
                           >
-
                             <div className="flex justify-between sm:justify-start gap-2">
-
                               <span className="text-sm text-gray-500">
                                 Item Total
                               </span>
 
                               <span className="font-semibold text-gray-900">
-
                                 ₹
-                                {Number(item.total || (item.price || 0) * (item.quantity || 1)).toFixed(2)}
-
-
+                                {Number(
+                                  item.total ||
+                                    (item.price || 0) * (item.quantity || 1),
+                                ).toFixed(2)}
                               </span>
-
                             </div>
 
                             {/* REVIEW BUTTON */}
 
-  {canReview && (
-  item?.reviewId ||
-  item?.review?._id ||
-  item?.review?.id ? (
-    <button
-      type="button"
-      onClick={() => handleOpenUpdateRating(item)}
-      className="
-        inline-flex
-        items-center
-        justify-center
-        gap-2
-        h-10
-        px-4
-        rounded-xl
-        bg-yellow-500
-        hover:bg-yellow-600
-        text-white
-        text-sm
-        font-semibold
-        transition
-        shadow-sm
-      "
-    >
-      <Star
-        size={16}
-        fill="currentColor"
-      />
+                            {canReview &&
+                              (() => {
+                                const itemReview = getItemReview(item);
 
-      Update Rating
-    </button>
-  ) : (
-    <button
-      type="button"
-      onClick={() => handleOpenReview(item)}
-      className="
+                                return itemReview ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenUpdateRating(item)}
+                                    className="
         inline-flex
         items-center
         justify-center
@@ -1429,36 +1160,49 @@ const handleUpdateRating = async (e) => {
         px-4
         rounded-xl
         bg-blue-600
-        hover:bg-sky-500
+        hover:bg-blue-700
         text-white
         text-sm
         font-semibold
         transition
         shadow-sm
       "
-    >
-      <Star
-        size={16}
-        fill="currentColor"
-      />
-
-      Review Product
-    </button>
-  )
-)}
-
+                                  >
+                                    <Star size={16} fill="currentColor" />
+                                    Update Rating
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenReview(item)}
+                                    className="
+        inline-flex
+        items-center
+        justify-center
+        gap-2
+        h-10
+        px-4
+        rounded-xl
+        bg-blue-600
+        hover:bg-blue-700
+        text-white
+        text-sm
+        font-semibold
+        transition
+        shadow-sm
+      "
+                                  >
+                                    <Star size={16} fill="currentColor" />
+                                    Review Product
+                                  </button>
+                                );
+                              })()}
                           </div>
-
                         </div>
-
                       </div>
-
                     ))
-
                   )}
-
                 </div>
-
               </div>
 
               {/* ==================================================
@@ -1466,7 +1210,6 @@ const handleUpdateRating = async (e) => {
               ================================================== */}
 
               {orderAddress && (
-
                 <div
                   className="
                     bg-white
@@ -1478,9 +1221,7 @@ const handleUpdateRating = async (e) => {
                     sm:p-6
                   "
                 >
-
                   <div className="flex items-center gap-3">
-
                     <div
                       className="
                         w-10
@@ -1497,7 +1238,6 @@ const handleUpdateRating = async (e) => {
                     </div>
 
                     <div>
-
                       <h2 className="text-lg font-semibold text-gray-900">
                         Shipping Address
                       </h2>
@@ -1505,22 +1245,14 @@ const handleUpdateRating = async (e) => {
                       <p className="text-sm text-gray-500 mt-1">
                         Delivery address for this order
                       </p>
-
                     </div>
-
                   </div>
 
                   <div className="mt-6 p-4 rounded-xl bg-gray-50">
-
                     <div className="flex items-start gap-3">
-
-                      <User
-                        size={18}
-                        className="text-gray-400 mt-0.5"
-                      />
+                      <User size={18} className="text-gray-400 mt-0.5" />
 
                       <div>
-
                         <p className="text-sm font-semibold text-gray-900">
                           {orderAddress.name}
                         </p>
@@ -1530,10 +1262,7 @@ const handleUpdateRating = async (e) => {
                         </p>
 
                         <p className="text-sm text-gray-600">
-
-                          {orderAddress.city},{" "}
-                          {orderAddress.state}
-
+                          {orderAddress.city}, {orderAddress.state}
                         </p>
 
                         <p className="text-sm text-gray-600">
@@ -1543,13 +1272,10 @@ const handleUpdateRating = async (e) => {
                         <p className="text-sm text-gray-600">
                           {orderAddress.country}
                         </p>
-
                       </div>
-
                     </div>
 
                     {orderAddress.phone && (
-
                       <div
                         className="
                           flex
@@ -1561,26 +1287,16 @@ const handleUpdateRating = async (e) => {
                           border-gray-200
                         "
                       >
-
-                        <Phone
-                          size={17}
-                          className="text-gray-400"
-                        />
+                        <Phone size={17} className="text-gray-400" />
 
                         <span className="text-sm text-gray-700">
                           {orderAddress.phone}
                         </span>
-
                       </div>
-
                     )}
-
                   </div>
-
                 </div>
-
               )}
-
             </div>
 
             {/* ==================================================
@@ -1588,7 +1304,6 @@ const handleUpdateRating = async (e) => {
             ================================================== */}
 
             <div>
-
               <div
                 className="
                   bg-white
@@ -1600,42 +1315,25 @@ const handleUpdateRating = async (e) => {
                   lg:top-6
                 "
               >
-
                 <div className="p-5 sm:p-6 border-b border-gray-100">
-
                   <h2 className="text-lg font-semibold text-gray-900">
                     Order Summary
                   </h2>
 
-                  <p className="text-sm text-gray-500 mt-1">
-                    Payment summary
-                  </p>
-
+                  <p className="text-sm text-gray-500 mt-1">Payment summary</p>
                 </div>
 
                 <div className="p-5 sm:p-6 space-y-4">
-
                   <div className="flex justify-between text-sm">
-
-                    <span className="text-gray-500">
-                      Subtotal
-                    </span>
+                    <span className="text-gray-500">Subtotal</span>
 
                     <span className="font-medium text-gray-900">
-
-                      ₹
-                      {orderDetails?.order?.total ??
-                        subtotal}
-
+                      ₹{orderDetails?.order?.total ?? subtotal}
                     </span>
-
                   </div>
 
                   <div className="flex justify-between text-sm">
-
-                    <span className="text-gray-500">
-                      Shipping
-                    </span>
+                    <span className="text-gray-500">Shipping</span>
 
                     <span
                       className={
@@ -1644,19 +1342,13 @@ const handleUpdateRating = async (e) => {
                           : "font-medium text-gray-900"
                       }
                     >
-
                       {Number(shippingCharge) === 0
                         ? "Free"
                         : `₹${shippingCharge}`}
-
                     </span>
-
                   </div>
                   <div className="flex justify-between text-sm">
-
-                    <span className="text-gray-500">
-                      Discount
-                    </span>
+                    <span className="text-gray-500">Discount</span>
 
                     <span
                       className={
@@ -1665,31 +1357,18 @@ const handleUpdateRating = async (e) => {
                           : "font-medium text-gray-900"
                       }
                     >
-
-                      {Number(discount) === 0
-                        ? 0
-                        : `₹${discount}`}
-
+                      {Number(discount) === 0 ? 0 : `₹${discount}`}
                     </span>
-
                   </div>
 
                   <div className="pt-4 border-t border-gray-100">
-
                     <div className="flex justify-between items-center">
-
-                      <span className="font-semibold text-gray-900">
-                        Total
-                      </span>
+                      <span className="font-semibold text-gray-900">Total</span>
 
                       <span className="text-xl font-bold text-gray-900">
-
                         ₹{orderTotal}
-
                       </span>
-
                     </div>
-
                   </div>
 
                   {/* STATUS */}
@@ -1702,23 +1381,18 @@ const handleUpdateRating = async (e) => {
                       bg-gray-50
                     "
                   >
-
                     <div className="flex items-center gap-3">
-
                       <StatusIcon
                         size={19}
                         className={
                           statusConfig.className
                             .split(" ")
-                            .find((item) =>
-                              item.startsWith("text-")
-                            ) ||
+                            .find((item) => item.startsWith("text-")) ||
                           "text-blue-600"
                         }
                       />
 
                       <div>
-
                         <p className="text-sm font-medium text-gray-900">
                           {statusConfig.label}
                         </p>
@@ -1726,17 +1400,13 @@ const handleUpdateRating = async (e) => {
                         <p className="text-xs text-gray-500 mt-0.5">
                           Current order status
                         </p>
-
                       </div>
-
                     </div>
-
                   </div>
 
                   {/* CANCEL ORDER */}
 
                   {canCancel && (
-
                     <button
                       type="button"
                       onClick={handleCancelOrder}
@@ -1762,39 +1432,25 @@ const handleUpdateRating = async (e) => {
                         disabled:cursor-not-allowed
                       "
                     >
-
                       {cancelLoading ? (
-
                         <>
-                          <Loader2
-                            size={17}
-                            className="animate-spin"
-                          />
-
+                          <Loader2 size={17} className="animate-spin" />
                           Cancelling...
                         </>
-
                       ) : (
-
                         <>
                           <Ban size={17} />
-
                           Cancel Order
                         </>
-
                       )}
-
                     </button>
-
                   )}
 
                   {/* BACK */}
 
                   <button
                     type="button"
-                    onClick={() =>
-                      navigate("/orders")
-                    }
+                    onClick={() => navigate("/orders")}
                     className="
                       w-full
                       h-11
@@ -1814,23 +1470,14 @@ const handleUpdateRating = async (e) => {
                       gap-2
                     "
                   >
-
                     <ArrowLeft size={17} />
-
                     Back to Orders
-
                   </button>
-
                 </div>
-
               </div>
-
             </div>
-
           </div>
-
         </section>
-
       </main>
 
       {/* ======================================================
@@ -1838,7 +1485,6 @@ const handleUpdateRating = async (e) => {
       ====================================================== */}
 
       {reviewModal && selectedProduct && (
-
         <div
           className="
             fixed
@@ -1850,7 +1496,6 @@ const handleUpdateRating = async (e) => {
             p-4
           "
         >
-
           {/* BACKDROP */}
 
           <div
@@ -1879,7 +1524,6 @@ const handleUpdateRating = async (e) => {
               flex-col
             "
           >
-
             {/* ==================================================
                 MODAL HEADER
             ================================================== */}
@@ -1896,9 +1540,7 @@ const handleUpdateRating = async (e) => {
                 border-gray-100
               "
             >
-
               <div>
-
                 <h2 className="text-xl font-bold text-gray-900">
                   Review Product
                 </h2>
@@ -1906,7 +1548,6 @@ const handleUpdateRating = async (e) => {
                 <p className="text-sm text-gray-500 mt-1">
                   Share your experience with this product
                 </p>
-
               </div>
 
               <button
@@ -1927,11 +1568,8 @@ const handleUpdateRating = async (e) => {
                   disabled:opacity-50
                 "
               >
-
                 <X size={20} />
-
               </button>
-
             </div>
 
             {/* ==================================================
@@ -1939,11 +1577,9 @@ const handleUpdateRating = async (e) => {
             ================================================== */}
 
             <div className="overflow-y-auto">
-
               {/* PRODUCT */}
 
               <div className="px-6 pt-6">
-
                 <div
                   className="
                     flex
@@ -1956,7 +1592,6 @@ const handleUpdateRating = async (e) => {
                     border-gray-100
                   "
                 >
-
                   <div
                     className="
                       w-16
@@ -1969,15 +1604,9 @@ const handleUpdateRating = async (e) => {
                       shrink-0
                     "
                   >
-
                     {selectedProduct?.product?.images?.[0] ? (
-
                       <img
-                        src={getImageUrl(
-                          selectedProduct
-                            ?.product
-                            ?.images?.[0]
-                        )}
+                        src={getImageUrl(selectedProduct?.product?.images?.[0])}
                         alt={
                           selectedProduct?.productName ||
                           selectedProduct?.product?.name ||
@@ -1989,9 +1618,7 @@ const handleUpdateRating = async (e) => {
                           object-cover
                         "
                       />
-
                     ) : (
-
                       <div
                         className="
                           w-full
@@ -2002,120 +1629,73 @@ const handleUpdateRating = async (e) => {
                           bg-gray-50
                         "
                       >
-
-                        <Package
-                          size={22}
-                          className="text-gray-300"
-                        />
-
+                        <Package size={22} className="text-gray-300" />
                       </div>
-
                     )}
-
                   </div>
 
                   <div className="min-w-0">
-
                     <h3 className="font-semibold text-gray-900 truncate">
-
                       {selectedProduct?.productName ||
                         selectedProduct?.product?.name ||
                         "Product"}
-
                     </h3>
 
                     <p className="text-sm text-gray-500 mt-1">
                       Delivered product
                     </p>
-
                   </div>
-
                 </div>
-
               </div>
 
               {/* ==================================================
                   FORM
               ================================================== */}
 
-              <form
-                onSubmit={handleSubmitReview}
-                className="p-6"
-              >
-
+              <form onSubmit={handleSubmitReview} className="p-6">
                 {/* ==================================================
                     RATING
                 ================================================== */}
 
                 <div>
-
                   <label className="block text-sm font-semibold text-gray-900 mb-3">
                     Your Rating
                   </label>
 
                   <div className="flex items-center gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => {
+                      const active = star <= (hoverRating || rating);
 
-                    {[1, 2, 3, 4, 5].map(
-                      (star) => {
-
-                        const active =
-                          star <=
-                          (
-                            hoverRating ||
-                            rating
-                          );
-
-                        return (
-                          <button
-                            key={star}
-                            type="button"
-                            onClick={() =>
-                              setRating(star)
-                            }
-                            onMouseEnter={() =>
-                              setHoverRating(
-                                star
-                              )
-                            }
-                            onMouseLeave={() =>
-                              setHoverRating(0)
-                            }
-                            className="
+                      return (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setRating(star)}
+                          onMouseEnter={() => setHoverRating(star)}
+                          onMouseLeave={() => setHoverRating(0)}
+                          className="
                               transition
                               hover:scale-110
                             "
-                          >
-
-                            <Star
-                              size={32}
-                              className={
-                                `${active
-                                  ? "text-yellow-400"
-                                  : "text-gray-300"}
-                                  `  
-                              }
-                              fill={
-                                active
-                                  ? "currentColor"
-                                  : "none"
-                              }
-                            />
-
-                          </button>
-                        );
-                      }
-                    )}
+                        >
+                          <Star
+                            size={32}
+                            className={`${
+                              active ? "text-yellow-400" : "text-gray-300"
+                            }
+                                  `}
+                            fill={active ? "currentColor" : "none"}
+                          />
+                        </button>
+                      );
+                    })}
 
                     {rating > 0 && (
-
                       <span className="ml-2 text-sm font-medium text-gray-600">
                         {rating}/5
                       </span>
-
                     )}
-
                   </div>
-
                 </div>
 
                 {/* ==================================================
@@ -2123,7 +1703,6 @@ const handleUpdateRating = async (e) => {
                 ================================================== */}
 
                 <div className="mt-6">
-
                   <label
                     htmlFor="reviewText"
                     className="
@@ -2140,11 +1719,7 @@ const handleUpdateRating = async (e) => {
                   <textarea
                     id="reviewText"
                     value={reviewText}
-                    onChange={(e) =>
-                      setReviewText(
-                        e.target.value
-                      )
-                    }
+                    onChange={(e) => setReviewText(e.target.value)}
                     placeholder="Tell us what you think about this product..."
                     rows={5}
                     maxLength={1000}
@@ -2169,13 +1744,10 @@ const handleUpdateRating = async (e) => {
                   />
 
                   <div className="flex justify-end mt-1">
-
                     <span className="text-xs text-gray-400">
                       {reviewText.length}/1000
                     </span>
-
                   </div>
-
                 </div>
 
                 {/* ==================================================
@@ -2183,11 +1755,8 @@ const handleUpdateRating = async (e) => {
                 ================================================== */}
 
                 <div className="mt-6">
-
                   <div className="flex items-center justify-between mb-3">
-
                     <div>
-
                       <label className="block text-sm font-semibold text-gray-900">
                         Add Photos
                       </label>
@@ -2195,19 +1764,16 @@ const handleUpdateRating = async (e) => {
                       <p className="text-xs text-gray-500 mt-1">
                         Upload up to 5 images
                       </p>
-
                     </div>
 
                     <span className="text-xs font-medium text-gray-400">
                       {reviewImages.length}/5
                     </span>
-
                   </div>
 
                   {/* UPLOAD */}
 
                   {reviewImages.length < 5 && (
-
                     <label
                       htmlFor="reviewImages"
                       className="
@@ -2230,12 +1796,9 @@ const handleUpdateRating = async (e) => {
                         transition
                       "
                     >
-
                       <ImagePlus size={19} />
 
-                      <span className="text-sm font-medium">
-                        Add Photos
-                      </span>
+                      <span className="text-sm font-medium">Add Photos</span>
 
                       <input
                         id="reviewImages"
@@ -2245,23 +1808,17 @@ const handleUpdateRating = async (e) => {
                         className="hidden"
                         onChange={handleReviewImages}
                       />
-
                     </label>
-
                   )}
 
                   {/* PREVIEWS */}
 
                   {reviewImagePreviews.length > 0 && (
-
                     <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 mt-4">
-
-                      {reviewImagePreviews.map(
-                        (image, index) => (
-
-                          <div
-                            key={`${image.file.name}-${index}`}
-                            className="
+                      {reviewImagePreviews.map((image, index) => (
+                        <div
+                          key={`${image.file.name}-${index}`}
+                          className="
                               relative
                               aspect-square
                               rounded-xl
@@ -2270,28 +1827,23 @@ const handleUpdateRating = async (e) => {
                               border-gray-200
                               bg-gray-100
                             "
-                          >
-
-                            <img
-                              src={image.url}
-                              alt={`Review ${index + 1}`}
-                              className="
+                        >
+                          <img
+                            src={image.url}
+                            alt={`Review ${index + 1}`}
+                            className="
                                 w-full
                                 h-full
                                 object-cover
                               "
-                            />
+                          />
 
-                            {/* REMOVE */}
+                          {/* REMOVE */}
 
-                            <button
-                              type="button"
-                              onClick={() =>
-                                removeReviewImage(
-                                  index
-                                )
-                              }
-                              className="
+                          <button
+                            type="button"
+                            onClick={() => removeReviewImage(index)}
+                            className="
                                 absolute
                                 top-1
                                 right-1
@@ -2306,26 +1858,18 @@ const handleUpdateRating = async (e) => {
                                 justify-center
                                 transition
                               "
-                              title="Remove image"
-                            >
-
-                              <Trash2 size={14} />
-
-                            </button>
-
-                          </div>
-
-                        )
-                      )}
-
+                            title="Remove image"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
                     </div>
-
                   )}
 
                   <p className="text-xs text-gray-400 mt-2">
                     JPG, PNG or WEBP • Maximum 5 MB per image
                   </p>
-
                 </div>
 
                 {/* ==================================================
@@ -2333,7 +1877,6 @@ const handleUpdateRating = async (e) => {
                 ================================================== */}
 
                 {reviewError && (
-
                   <div
                     className="
                       mt-4
@@ -2346,14 +1889,10 @@ const handleUpdateRating = async (e) => {
                       text-red-600
                     "
                   >
-
                     {typeof reviewError === "string"
                       ? reviewError
-                      : reviewError?.message ||
-                        "Failed to submit review."}
-
+                      : reviewError?.message || "Failed to submit review."}
                   </div>
-
                 )}
 
                 {/* ==================================================
@@ -2361,7 +1900,6 @@ const handleUpdateRating = async (e) => {
                 ================================================== */}
 
                 <div className="flex gap-3 mt-6">
-
                   <button
                     type="button"
                     onClick={handleCloseReview}
@@ -2386,11 +1924,7 @@ const handleUpdateRating = async (e) => {
 
                   <button
                     type="submit"
-                    disabled={
-                      reviewLoading ||
-                      !rating ||
-                      !reviewText.trim()
-                    }
+                    disabled={reviewLoading || !rating || !reviewText.trim()}
                     className="
                       flex-1
                       h-11
@@ -2409,44 +1943,27 @@ const handleUpdateRating = async (e) => {
                       disabled:cursor-not-allowed
                     "
                   >
-
                     {reviewLoading ? (
-
                       <>
-                        <Loader2
-                          size={17}
-                          className="animate-spin"
-                        />
-
+                        <Loader2 size={17} className="animate-spin" />
                         Submitting...
                       </>
-
                     ) : (
-
                       <>
                         <Send size={17} />
-
                         Submit Review
                       </>
-
                     )}
-
                   </button>
-
                 </div>
-
               </form>
-
             </div>
-
           </div>
-
         </div>
-
       )}
-{updateRatingModal && selectedReview && (
-  <div
-    className="
+      {updateRatingModal && selectedReview && (
+        <div
+          className="
       fixed
       inset-0
       z-[110]
@@ -2455,23 +1972,23 @@ const handleUpdateRating = async (e) => {
       justify-center
       p-4
     "
-  >
-    {/* BACKDROP */}
+        >
+          {/* BACKDROP */}
 
-    <div
-      className="
+          <div
+            className="
         absolute
         inset-0
         bg-black/50
         backdrop-blur-sm
       "
-      onClick={handleCloseUpdateRating}
-    />
+            onClick={handleCloseUpdateRating}
+          />
 
-    {/* MODAL */}
+          {/* MODAL */}
 
-    <div
-      className="
+          <div
+            className="
         relative
         w-full
         max-w-md
@@ -2480,11 +1997,11 @@ const handleUpdateRating = async (e) => {
         shadow-2xl
         overflow-hidden
       "
-    >
-      {/* HEADER */}
+          >
+            {/* HEADER */}
 
-      <div
-        className="
+            <div
+              className="
           flex
           items-center
           justify-between
@@ -2493,22 +2010,22 @@ const handleUpdateRating = async (e) => {
           border-b
           border-gray-100
         "
-      >
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">
-            Update Rating
-          </h2>
+            >
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Update Rating
+                </h2>
 
-          <p className="text-sm text-gray-500 mt-1">
-            Update your rating for this product
-          </p>
-        </div>
+                <p className="text-sm text-gray-500 mt-1">
+                  Update your rating for this product
+                </p>
+              </div>
 
-        <button
-          type="button"
-          onClick={handleCloseUpdateRating}
-          disabled={updateReviewLoading}
-          className="
+              <button
+                type="button"
+                onClick={handleCloseUpdateRating}
+                disabled={updateReviewLoading}
+                className="
             w-9
             h-9
             rounded-full
@@ -2521,100 +2038,70 @@ const handleUpdateRating = async (e) => {
             transition
             disabled:opacity-50
           "
-        >
-          <X size={20} />
-        </button>
-      </div>
+              >
+                <X size={20} />
+              </button>
+            </div>
 
-      {/* CONTENT */}
+            {/* CONTENT */}
 
-      <form
-        onSubmit={handleUpdateRating}
-        className="p-6"
-      >
-        <div className="text-center">
+            <form onSubmit={handleUpdateRating} className="p-6">
+              <div className="text-center">
+                <p className="text-sm font-semibold text-gray-900">
+                  How would you rate this product?
+                </p>
 
-          <p className="text-sm font-semibold text-gray-900">
-            How would you rate this product?
-          </p>
+                {/* STARS */}
 
-          {/* STARS */}
+                <div className="flex justify-center items-center gap-2 mt-5">
+                  {[1, 2, 3, 4, 5].map((star) => {
+                    const active = star <= (updateHoverRating || updateRating);
 
-          <div className="flex justify-center items-center gap-2 mt-5">
-            {[1, 2, 3, 4, 5].map(
-              (star) => {
-                const active =
-                  star <=
-                  (
-                    updateHoverRating ||
-                    updateRating
-                  );
-
-                return (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() =>
-                      setUpdateRating(star)
-                    }
-                    onMouseEnter={() =>
-                      setUpdateHoverRating(
-                        star
-                      )
-                    }
-                    onMouseLeave={() =>
-                      setUpdateHoverRating(0)
-                    }
-                    className="
+                    return (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setUpdateRating(star)}
+                        onMouseEnter={() => setUpdateHoverRating(star)}
+                        onMouseLeave={() => setUpdateHoverRating(0)}
+                        className="
                       transition
                       hover:scale-110
                     "
-                  >
-                    <Star
-                      size={38}
-                      className={
-                        active
-                          ? "text-yellow-400"
-                          : "text-gray-300"
-                      }
-                      fill={
-                        active
-                          ? "currentColor"
-                          : "none"
-                      }
-                    />
-                  </button>
-                );
-              }
-            )}
-          </div>
+                      >
+                        <Star
+                          size={38}
+                          className={
+                            active ? "text-yellow-400" : "text-gray-300"
+                          }
+                          fill={active ? "currentColor" : "none"}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
 
-          {/* RATING VALUE */}
+                {/* RATING VALUE */}
 
-          <div className="mt-4">
+                <div className="mt-4">
+                  {updateRating > 0 ? (
+                    <p className="text-sm font-medium text-gray-600">
+                      You selected{" "}
+                      <span className="font-bold text-gray-900">
+                        {updateRating}/5
+                      </span>
+                    </p>
+                  ) : (
+                    <p className="text-sm text-gray-400">Select your rating</p>
+                  )}
+                </div>
+              </div>
 
-            {updateRating > 0 ? (
-              <p className="text-sm font-medium text-gray-600">
-                You selected{" "}
-                <span className="font-bold text-gray-900">
-                  {updateRating}/5
-                </span>
-              </p>
-            ) : (
-              <p className="text-sm text-gray-400">
-                Select your rating
-              </p>
-            )}
+              {/* ERROR */}
 
-          </div>
-
-        </div>
-
-        {/* ERROR */}
-
-        {reviewError && (
-          <div
-            className="
+              {reviewError && (
+                <div
+                  className="
               mt-5
               p-3
               rounded-xl
@@ -2624,90 +2111,89 @@ const handleUpdateRating = async (e) => {
               text-sm
               text-red-600
             "
-          >
-            {typeof reviewError === "string"
-              ? reviewError
-              : reviewError?.message ||
-                "Failed to update rating."}
+                >
+                  {typeof reviewError === "string"
+                    ? reviewError
+                    : reviewError?.message || "Failed to update rating."}
+                </div>
+              )}
+
+              {/* BUTTONS */}
+
+              <div className="flex flex-col sm:flex-row gap-3 mt-7 w-full">
+                <button
+                  type="button"
+                  onClick={handleCloseUpdateRating}
+                  disabled={updateReviewLoading}
+                  className="
+      w-full
+      sm:flex-1
+      h-11
+      px-4
+      rounded-xl
+      border
+      border-gray-200
+      bg-white
+      text-gray-700
+      text-sm
+      font-semibold
+      hover:bg-gray-50
+      active:bg-gray-100
+      transition-all
+      duration-200
+      flex
+      items-center
+      justify-center
+      disabled:opacity-50
+      disabled:cursor-not-allowed
+    "
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={updateReviewLoading || !updateRating}
+                  className="
+      w-full
+      sm:flex-1
+      h-11
+      px-4
+      rounded-xl
+      bg-blue-600
+      hover:bg-sky-500
+      active:bg-sky-600
+      text-white
+      text-sm
+      font-semibold
+      transition-all
+      duration-200
+      flex
+      items-center
+      justify-center
+      gap-2
+      whitespace-nowrap
+      disabled:opacity-50
+      disabled:cursor-not-allowed
+    "
+                >
+                  {updateReviewLoading ? (
+                    <>
+                      <Loader2 size={17} className="animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <Star size={17} fill="currentColor" />
+                      Update Rating
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
-        )}
-
-        {/* BUTTONS */}
-
-        <div className="flex gap-3 mt-7">
-
-          <button
-            type="button"
-            onClick={handleCloseUpdateRating}
-            disabled={updateReviewLoading}
-            className="
-              flex-1
-              h-11
-              rounded-xl
-              border
-              border-gray-200
-              bg-white
-              text-gray-700
-              text-sm
-              font-semibold
-              hover:bg-gray-50
-              transition
-              disabled:opacity-50
-            "
-          >
-            Cancel
-          </button>
-
-          <button
-            type="submit"
-            disabled={
-              updateReviewLoading ||
-              !updateRating
-            }
-            className="
-              flex-1
-              h-11
-              rounded-xl
-              bg-yellow-500
-              hover:bg-yellow-600
-              text-white
-              text-sm
-              font-semibold
-              transition
-              flex
-              items-center
-              justify-center
-              gap-2
-              disabled:opacity-50
-              disabled:cursor-not-allowed
-            "
-          >
-            {updateReviewLoading ? (
-              <>
-                <Loader2
-                  size={17}
-                  className="animate-spin"
-                />
-
-                Updating...
-              </>
-            ) : (
-              <>
-                <Star
-                  size={17}
-                  fill="currentColor"
-                />
-
-                Update Rating
-              </>
-            )}
-          </button>
-
         </div>
-      </form>
-    </div>
-  </div>
-)}
+      )}
     </>
   );
 }
