@@ -277,36 +277,47 @@ const preparedVariants = prepareProductVariants({
 
 export const getProducts = async (req, res) => {
   try {
-const page = Number(req.query.page) || 1;
-const limit = Number(req.query.limit) || 10;
-const skip = (page - 1) * limit;
-const products = await Product.find()
-  .populate({
-    path: "category",
-    populate: {
-      path: "parent",
-      populate: {
-        path: "parent",
-      },
-    },
-  })
-  .populate("vendor", "firstName email")
-  .sort({ createdAt: -1 }) .skip(skip)
-  .limit(limit);
-  const total = await Product.countDocuments()
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.max(Number(req.query.limit) || 1000, 1);
+
+    const skip = (page - 1) * limit;
+
+    const products = await Product.find()
+      .populate({
+        path: "category",
+        populate: {
+          path: "parent",
+          populate: {
+            path: "parent",
+            populate: {
+              path: "parent",
+            },
+          },
+        },
+      })
+      .populate("vendor", "firstName email")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Product.countDocuments();
+
     return res.status(200).json(
       new ApiResponse(
         200,
-        { products, pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      }, },
+        {
+          products,
+
+          pagination: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+          },
+        },
         "Products fetched successfully"
       )
     );
-
   } catch (error) {
     console.log("Get products error:", error);
 

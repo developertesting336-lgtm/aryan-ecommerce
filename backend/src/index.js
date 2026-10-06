@@ -11,6 +11,8 @@ import { errorHandler } from "./middlewares/errorHandler.js";
 import path from "path";
 import { stripeWebhook } from "./controllers/payment.controller.js";
 import { fileURLToPath } from "url";
+import { agenda } from "./config/agenda.js";
+import "./jobs/agendajobs.js"
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 4000;
@@ -29,6 +31,11 @@ app.post(
 );
 app.use(morgan('dev'));
 app.use(json());
+// Start Agenda
+(async () => {
+  await agenda.start();
+  console.log("Agenda started");
+})();
 app.use(cors({
    origin: function (origin, callback) {
       if (!origin || allowedOrigins.includes(origin)) {

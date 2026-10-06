@@ -47,6 +47,7 @@ const orderSchema = new mongoose.Schema(
         "SHIPPED",
         "DELIVERED",
         "RETURNED",
+        "CANCELLED",
       ],
       default: "UNFULFILLED",
     },

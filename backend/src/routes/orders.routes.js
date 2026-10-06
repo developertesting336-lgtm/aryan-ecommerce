@@ -9,7 +9,7 @@ const router = express.Router();
 router.post("/",verifyJWT,createOrder);
 router.get("/",verifyJWT,getOrders);
 router.get("/orderStatus/",verifyJWT,verifyAdmin,getOrderByStatus);
-router.patch("/cancelOrder/",verifyJWT,cancelOrder);
+router.patch("/cancel/",verifyJWT,cancelOrder);
 router.get("/orders/:id",verifyJWT,getOrderById);
 router.get("/:_id",verifyJWT,getOrderItems);
 router.get("/orderStatus/:_id",verifyJWT,getOrderStatus);

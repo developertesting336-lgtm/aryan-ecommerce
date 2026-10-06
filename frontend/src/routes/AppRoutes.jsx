@@ -38,6 +38,7 @@ import CreateOrder from "../pages/CreateOrder";
 
 import Orders from "../pages/Orders";
 import OrderDetails from "../pages/OrderDetails";
+import OrderTracking from "../pages/OrderTracking";
 import PaymentSuccess from "../pages/PaymentSuccess";
 
 import PrivacyPolicy from "../pages/PrivacyPolicy";
@@ -165,6 +166,7 @@ function AppRoutes() {
             <Route path="/orders" element={<Orders />} />
 
             <Route path="/orders/:orderId" element={<OrderDetails />} />
+            <Route path="/orders/:orderId/tracking" element={<OrderTracking />}/>
 
             <Route path="/payment-success" element={<PaymentSuccess />} />
           </Route>

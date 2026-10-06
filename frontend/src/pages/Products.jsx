@@ -1,3 +1,206 @@
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
+import { getProducts } from "../redux/slices/productSlice";
+import { getCategories } from "../redux/slices/categorySlice";
+
+import ProductGrid from "../components/products/ProductGrid";
+import ProductGridSkeleton from "../components/products/ProductGridSkeleton";
+
+import {
+  SlidersHorizontal,
+  X,
+  ChevronDown,
+  RotateCcw,
+  PackageOpen,
+  Search,
+  ChevronRight,
+} from "lucide-react";
+
+import PageButtons from "../components/PageButtons";
+
+/* =========================================================
+   CONSTANTS
+========================================================= */
+
+const PRODUCTS_PER_PAGE = 10;
+
+/* =========================================================
+   CATEGORY HELPERS
+========================================================= */
+
+/**
+ * Get category ID from:
+ *
+ * "123"
+ *
+ * OR
+ *
+ * {
+ *   _id: "123",
+ *   name: "Fashion"
+ * }
+ */
+const getCategoryId = (category) => {
+  if (!category) {
+    return null;
+  }
+
+  if (typeof category === "string") {
+    return category;
+  }
+
+  return (
+    category._id ||
+    category.id ||
+    null
+  );
+};
+
+/**
+ * Get parent ID from:
+ *
+ * parent: "123"
+ *
+ * OR
+ *
+ * parent: {
+ *   _id: "123"
+ * }
+ *
+ * OR
+ *
+ * parentId: "123"
+ */
+const getParentId = (category) => {
+  if (!category) {
+    return null;
+  }
+
+  const parent =
+    category.parent ??
+    category.parentId ??
+    null;
+
+  if (!parent) {
+    return null;
+  }
+
+  if (typeof parent === "string") {
+    return parent;
+  }
+
+  return (
+    parent._id ||
+    parent.id ||
+    null
+  );
+};
+
+/**
+ * Get all category IDs under a selected category.
+ *
+ * Example:
+ *
+ * Fashion
+ *   ├── Men
+ *   │    ├── T-Shirts
+ *   │    └── Jeans
+ *   │
+ *   └── Women
+ *        ├── Dresses
+ *        └── Tops
+ *
+ * Selecting Fashion returns:
+ *
+ * Fashion
+ * Men
+ * T-Shirts
+ * Jeans
+ * Women
+ * Dresses
+ * Tops
+ *
+ * This works with unlimited category levels.
+ */
+const getDescendantCategoryIds = (
+  selectedCategoryId,
+  categories
+) => {
+  const ids = new Set();
+
+  if (!selectedCategoryId) {
+    return ids;
+  }
+
+  ids.add(
+    String(selectedCategoryId)
+  );
+
+  let changed = true;
+
+  while (changed) {
+    changed = false;
+
+    categories.forEach((category) => {
+      const categoryId =
+        getCategoryId(category);
+
+      const parentId =
+        getParentId(category);
+
+      if (
+        !categoryId ||
+        !parentId
+      ) {
+        return;
+      }
+
+      if (
+        ids.has(String(parentId)) &&
+        !ids.has(String(categoryId))
+      ) {
+        ids.add(
+          String(categoryId)
+        );
+
+        changed = true;
+      }
+    });
+  }
+
+  return ids;
+};
+
+/**
+ * Get the direct category ID from a product.
+ *
+ * Supports:
+ *
+ * product.category = "123"
+ *
+ * OR
+ *
+ * product.category = {
+ *   _id: "123"
+ * }
+ */
+const getProductCategoryId = (
+  product
+) => {
+  if (!product?.category) {
+    return null;
+  }
+
+  return getCategoryId(
+    product.category
+  );
+};
+
+/* =========================================================
+   FILTER CONTENT
+========================================================= */
+
 function FilterContent({
   categories,
   categoriesLoading,
@@ -7,25 +210,31 @@ function FilterContent({
   priceRange,
   priceInput,
   setPriceInput,
-  appliedPrice,
   setAppliedPrice,
   applyPriceFilter,
-  inStockOnly,
-  setInStockOnly,
   clearFilters,
   hasFilters,
 }) {
-  const handlePriceChange = (field, value) => {
-    // Allow empty input
+  const [expandedCategories, setExpandedCategories] =
+    useState({});
+
+  /* =========================================================
+     PRICE INPUT
+  ========================================================= */
+
+  const handlePriceChange = (
+    field,
+    value
+  ) => {
     if (value === "") {
       setPriceInput((prev) => ({
         ...prev,
         [field]: "",
       }));
+
       return;
     }
 
-    // Only allow digits
     if (!/^\d*$/.test(value)) {
       return;
     }
@@ -39,34 +248,228 @@ function FilterContent({
   const handlePriceKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
+
       applyPriceFilter();
+
       e.currentTarget.blur();
     }
   };
 
-  const clearMinPrice = () => {
-    setPriceInput((prev) => ({
-      ...prev,
-      min: "",
-    }));
+  /* =========================================================
+     GET CHILDREN
+  ========================================================= */
 
-    setAppliedPrice((prev) => ({
-      ...prev,
-      min: "",
-    }));
+  const getChildren = (parentId) => {
+    return categories.filter(
+      (category) => {
+        const categoryParentId =
+          getParentId(category);
+
+        return (
+          categoryParentId &&
+          String(categoryParentId) ===
+            String(parentId)
+        );
+      }
+    );
   };
 
-  const clearMaxPrice = () => {
-    setPriceInput((prev) => ({
-      ...prev,
-      max: "",
-    }));
+  /* =========================================================
+     ROOT CATEGORIES
+  ========================================================= */
 
-    setAppliedPrice((prev) => ({
-      ...prev,
-      max: "",
-    }));
+  const rootCategories =
+    categories.filter(
+      (category) =>
+        !getParentId(category)
+    );
+
+  /* =========================================================
+     TOGGLE CATEGORY
+  ========================================================= */
+
+  const toggleCategory = (
+    categoryId
+  ) => {
+    setExpandedCategories(
+      (prev) => ({
+        ...prev,
+        [categoryId]:
+          !prev[categoryId],
+      })
+    );
   };
+
+  /* =========================================================
+     SELECT CATEGORY
+  ========================================================= */
+
+  const selectCategory = (
+    categoryId
+  ) => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
+    setSelectedCategory(
+      categoryId
+    );
+  };
+
+  /* =========================================================
+     RECURSIVE CATEGORY TREE
+  ========================================================= */
+
+  const renderCategoryTree = (
+    category,
+    level = 0
+  ) => {
+    const children =
+      getChildren(
+        category._id
+      );
+
+    const hasChildren =
+      children.length > 0;
+
+    const isExpanded =
+      expandedCategories[
+        category._id
+      ] === true;
+
+    const active =
+      String(
+        selectedCategory
+      ) ===
+      String(category._id);
+
+    return (
+      <div key={category._id}>
+        {/* =================================================
+            CATEGORY ROW
+        ================================================= */}
+
+        <div
+          className={`
+            flex w-full items-center
+            rounded-xl transition
+            ${
+              active
+                ? "bg-blue-50 text-blue-700"
+                : "text-slate-600 hover:bg-slate-50"
+            }
+          `}
+        >
+          {/* CATEGORY NAME */}
+
+          <button
+            type="button"
+            onClick={() =>
+              selectCategory(
+                category._id
+              )
+            }
+            className={`
+              flex min-w-0 flex-1
+              items-center
+              text-left text-sm
+              ${
+                level === 0
+                  ? "px-3.5 py-2.5"
+                  : "px-3 py-2"
+              }
+            `}
+            style={{
+              paddingLeft:
+                level === 0
+                  ? undefined
+                  : `${12 + level * 14}px`,
+            }}
+          >
+            {level > 0 && (
+              <span className="mr-2 text-slate-300">
+                —
+              </span>
+            )}
+
+            <span
+              className={
+                active
+                  ? "font-semibold"
+                  : "font-medium"
+              }
+            >
+              {category.name}
+            </span>
+          </button>
+
+          {/* EXPAND BUTTON */}
+
+          {hasChildren && (
+            <button
+              type="button"
+              onClick={() =>
+                toggleCategory(
+                  category._id
+                )
+              }
+              className="
+                flex h-9 w-9
+                shrink-0
+                items-center justify-center
+                rounded-lg
+                text-slate-400
+                hover:text-slate-700
+              "
+              aria-label={`Toggle ${category.name}`}
+            >
+              <ChevronDown
+                size={15}
+                className={`
+                  transition-transform
+                  ${
+                    isExpanded
+                      ? "rotate-180"
+                      : ""
+                  }
+                `}
+              />
+            </button>
+          )}
+        </div>
+
+        {/* =================================================
+            CHILDREN
+        ================================================= */}
+
+        {hasChildren &&
+          isExpanded && (
+            <div
+              className={`
+                ${
+                  level === 0
+                    ? "ml-3 border-l border-slate-100"
+                    : "ml-4 border-l border-slate-100"
+                }
+              `}
+            >
+              {children.map(
+                (child) =>
+                  renderCategoryTree(
+                    child,
+                    level + 1
+                  )
+              )}
+            </div>
+          )}
+      </div>
+    );
+  };
+
+  /* =========================================================
+     RENDER
+  ========================================================= */
 
   return (
     <div className="space-y-7">
@@ -81,15 +484,20 @@ function FilterContent({
             Categories
           </h3>
 
-          {selectedCategory !== "all" && (
+          {selectedCategory !==
+            "all" && (
             <button
               type="button"
               onClick={() => {
                 window.scrollTo({
-      top: 0,
-      behavior: 'smooth' // 'auto' for an instant jump
-    });
-                setSelectedCategory("all")}}
+                  top: 0,
+                  behavior: "smooth",
+                });
+
+                setSelectedCategory(
+                  "all"
+                );
+              }}
               className="text-xs font-semibold text-blue-600"
             >
               Reset
@@ -99,25 +507,49 @@ function FilterContent({
 
         {categoriesLoading ? (
           <div className="space-y-2">
-            {[1, 2, 3, 4].map((item) => (
-              <div
-                key={item}
-                className="h-10 animate-pulse rounded-xl bg-slate-100"
-              />
-            ))}
+            {[1, 2, 3, 4].map(
+              (item) => (
+                <div
+                  key={item}
+                  className="h-10 animate-pulse rounded-xl bg-slate-100"
+                />
+              )
+            )}
           </div>
         ) : (
-          <div className="space-y-1">
+          <div
+            className="
+              max-h-[320px]
+              overflow-y-auto
+              space-y-1
+              pr-2
+
+              [&::-webkit-scrollbar]:w-1
+              [&::-webkit-scrollbar-track]:bg-transparent
+              [&::-webkit-scrollbar-thumb]:rounded-full
+              [&::-webkit-scrollbar-thumb]:bg-slate-200
+              hover:[&::-webkit-scrollbar-thumb]:bg-slate-400
+            "
+          >
+            {/* =================================================
+                ALL PRODUCTS
+            ================================================= */}
 
             <button
               type="button"
-              onClick={() => setSelectedCategory("all")}
+              onClick={() =>
+                selectCategory(
+                  "all"
+                )
+              }
               className={`
                 group flex w-full items-center
-                justify-between rounded-xl px-3.5 py-2.5
+                justify-between rounded-xl
+                px-3.5 py-2.5
                 text-left text-sm transition
                 ${
-                  selectedCategory === "all"
+                  selectedCategory ===
+                  "all"
                     ? "bg-blue-50 text-blue-700"
                     : "text-slate-600 hover:bg-slate-50"
                 }
@@ -125,7 +557,8 @@ function FilterContent({
             >
               <span
                 className={
-                  selectedCategory === "all"
+                  selectedCategory ===
+                  "all"
                     ? "font-semibold"
                     : "font-medium"
                 }
@@ -138,54 +571,16 @@ function FilterContent({
               </span>
             </button>
 
-            {categories.map((category) => {
-              const active =
-                String(selectedCategory) ===
-                String(category._id);
+            {/* =================================================
+                CATEGORY TREE
+            ================================================= */}
 
-              return (
-                <button
-                  type="button"
-                  key={category._id}
-                  onClick={() =>{
-                    window.scrollTo({
-      top: 0,
-      behavior: 'smooth' // 'auto' for an instant jump
-    });
-                    setSelectedCategory(category._id)}
-                  }
-                  className={`
-                    group flex w-full items-center
-                    justify-between rounded-xl px-3.5 py-2.5
-                    text-left text-sm transition
-                    ${
-                      active
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-slate-600 hover:bg-slate-50"
-                    }
-                  `}
-                >
-                  <span
-                    className={
-                      active
-                        ? "font-semibold"
-                        : "font-medium"
-                    }
-                  >
-                    {category.name}
-                  </span>
-
-                  <ChevronRight
-                    size={14}
-                    className={
-                      active
-                        ? "text-blue-500"
-                        : "text-slate-300"
-                    }
-                  />
-                </button>
-              );
-            })}
+            {rootCategories.map(
+              (category) =>
+                renderCategoryTree(
+                  category
+                )
+            )}
           </div>
         )}
       </div>
@@ -202,8 +597,10 @@ function FilterContent({
             Price range
           </h3>
 
-          {(priceInput.min !== "" ||
-            priceInput.max !== "") && (
+          {(priceInput.min !==
+            "" ||
+            priceInput.max !==
+              "") && (
             <button
               type="button"
               onClick={() => {
@@ -237,17 +634,27 @@ function FilterContent({
               type="text"
               inputMode="numeric"
               autoComplete="off"
-              placeholder={Math.floor(
+              placeholder={
                 priceRange.min
-              ).toLocaleString("en-IN")}
-              value={priceInput.min}
+                  ? Math.floor(
+                      priceRange.min
+                    ).toLocaleString(
+                      "en-IN"
+                    )
+                  : "Min"
+              }
+              value={
+                priceInput.min
+              }
               onChange={(e) =>
                 handlePriceChange(
                   "min",
                   e.target.value
                 )
               }
-              onKeyDown={handlePriceKeyDown}
+              onKeyDown={
+                handlePriceKeyDown
+              }
               className="
                 h-10 w-full rounded-xl
                 border border-slate-200
@@ -264,7 +671,9 @@ function FilterContent({
             />
           </div>
 
-          <span className="text-slate-300">—</span>
+          <span className="text-slate-300">
+            —
+          </span>
 
           {/* MAX */}
 
@@ -277,17 +686,27 @@ function FilterContent({
               type="text"
               inputMode="numeric"
               autoComplete="off"
-              placeholder={Math.ceil(
+              placeholder={
                 priceRange.max
-              ).toLocaleString("en-IN")}
-              value={priceInput.max}
+                  ? Math.ceil(
+                      priceRange.max
+                    ).toLocaleString(
+                      "en-IN"
+                    )
+                  : "Max"
+              }
+              value={
+                priceInput.max
+              }
               onChange={(e) =>
                 handlePriceChange(
                   "max",
                   e.target.value
                 )
               }
-              onKeyDown={handlePriceKeyDown}
+              onKeyDown={
+                handlePriceKeyDown
+              }
               className="
                 h-10 w-full rounded-xl
                 border border-slate-200
@@ -309,7 +728,9 @@ function FilterContent({
 
         <button
           type="button"
-          onClick={applyPriceFilter}
+          onClick={
+            applyPriceFilter
+          }
           className="
             mt-3 w-full rounded-xl
             bg-blue-600 py-2.5
@@ -321,54 +742,21 @@ function FilterContent({
         </button>
 
         <p className="mt-2 text-center text-[10px] text-slate-400">
-          ₹{Math.floor(priceRange.min).toLocaleString("en-IN")}
+          ₹
+          {Math.floor(
+            priceRange.min
+          ).toLocaleString(
+            "en-IN"
+          )}
           {" — "}
-          ₹{Math.ceil(priceRange.max).toLocaleString("en-IN")}
+          ₹
+          {Math.ceil(
+            priceRange.max
+          ).toLocaleString(
+            "en-IN"
+          )}
         </p>
       </div>
-
-      <div className="h-px bg-slate-100" />
-
-      {/* =====================================================
-          AVAILABILITY
-      ====================================================== */}
-{/* 
-      <div>
-        <h3 className="mb-3 text-[13px] font-bold uppercase tracking-wide text-slate-900">
-          Availability
-        </h3>
-
-        <button
-          type="button"
-          onClick={() =>
-            setInStockOnly((prev) => !prev)
-          }
-          className="flex w-full items-center justify-between"
-        >
-          <span className="text-sm font-medium text-slate-600">
-            In stock only
-          </span>
-
-          <span
-            className={`
-              flex h-5 w-5 items-center
-              justify-center rounded-md border
-              ${
-                inStockOnly
-                  ? "border-blue-600 bg-blue-600 text-white"
-                  : "border-slate-300 bg-white"
-              }
-            `}
-          >
-            {inStockOnly && (
-              <Check
-                size={13}
-                strokeWidth={3}
-              />
-            )}
-          </span>
-        </button>
-      </div> */}
 
       {/* =====================================================
           CLEAR
@@ -380,7 +768,9 @@ function FilterContent({
 
           <button
             type="button"
-            onClick={clearFilters}
+            onClick={
+              clearFilters
+            }
             className="
               flex w-full items-center
               justify-center gap-2
@@ -401,105 +791,95 @@ function FilterContent({
   );
 }
 
-
-
-
-
-
-
-
-import { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-
-import { getProducts } from "../redux/slices/productSlice";
-import { getCategories } from "../redux/slices/categorySlice";
-
-import ProductGrid from "../components/products/ProductGrid";
-import ProductGridSkeleton from "../components/products/ProductGridSkeleton";
-
-import {
-  SlidersHorizontal,
-  X,
-  ChevronDown,
-  RotateCcw,
-  PackageOpen,
-  Search,
-  Check,
-  ChevronRight,
-} from "lucide-react";
-import PageButtons from "../components/PageButtons";
+/* =========================================================
+   PRODUCTS PAGE
+========================================================= */
 
 export default function Products() {
   const dispatch = useDispatch();
 
-  // =========================================================
-  // REDUX
-  // =========================================================
+  /* =========================================================
+     REDUX
+  ========================================================= */
 
   const {
     product = [],
-    pagination ,
     loading: productsLoading,
     error: productsError,
-  } = useSelector((state) => state.product);
+  } = useSelector(
+    (state) => state.product
+  );
 
   const {
     categories = [],
     loading: categoriesLoading,
     error: categoriesError,
-  } = useSelector((state) => state.category);
-
-  // =========================================================
-  // STATE
-  // =========================================================
-
-  const [sort, setSort] = useState("latest");
-  const [page, setPage] = useState(1);
-
-  const [mobileFiltersOpen, setMobileFiltersOpen] =
-    useState(false);
-
-  const [selectedCategory, setSelectedCategory] =
-    useState("all");
-
-  const [inStockOnly, setInStockOnly] =
-    useState(false);
-
-  // =========================================================
-  // PRICE STATE
-  //
-  // priceInput = what user is typing
-  // appliedPrice = what is actually filtering products
-  // =========================================================
-
-  const [priceInput, setPriceInput] = useState({
-    min: "",
-    max: "",
-  });
-
-  const [appliedPrice, setAppliedPrice] = useState({
-    min: "",
-    max: "",
-  });
-
-  // =========================================================
-  // FETCH PRODUCTS
-  // =========================================================
-
- useEffect(() => {
-  console.log("FETCHING PAGE:", page);
-
-  dispatch(
-    getProducts({
-      page,
-      limit: 10,
-    })
+  } = useSelector(
+    (state) => state.category
   );
-}, [dispatch, page]);
 
-  // =========================================================
-  // FETCH CATEGORIES
-  // =========================================================
+  /* =========================================================
+     STATE
+  ========================================================= */
+
+  const [sort, setSort] =
+    useState("latest");
+
+  const [page, setPage] =
+    useState(1);
+
+  const [
+    mobileFiltersOpen,
+    setMobileFiltersOpen,
+  ] = useState(false);
+
+  const [
+    selectedCategory,
+    setSelectedCategory,
+  ] = useState("all");
+
+  const [priceInput, setPriceInput] =
+    useState({
+      min: "",
+      max: "",
+    });
+
+  const [
+    appliedPrice,
+    setAppliedPrice,
+  ] = useState({
+    min: "",
+    max: "",
+  });
+
+  /* =========================================================
+     FETCH ALL PRODUCTS ONCE
+     
+     IMPORTANT:
+     
+     Category + price filtering is now FRONTEND ONLY.
+     
+     Therefore changing:
+     
+     category
+     price
+     sort
+     
+     does NOT call the API again.
+  ========================================================= */
+
+  useEffect(() => {
+    dispatch(
+      getProducts({
+        page: 1,
+        limit: 1000,
+      })
+    );
+  }, [dispatch]);
+
+  /* =========================================================
+     FETCH CATEGORIES
+  ========================================================= */
 
   useEffect(() => {
     if (!categories.length) {
@@ -511,94 +891,31 @@ export default function Products() {
         })
       );
     }
-  }, [dispatch, categories.length]);
+  }, [
+    dispatch,
+    categories.length,
+  ]);
 
-  // =========================================================
-  // HELPERS
-  // =========================================================
+  /* =========================================================
+     GET PRICE
+  ========================================================= */
 
   const getPrice = (item) => {
-    return Number(item?.price) || 0;
+    return (
+      Number(item?.price) || 0
+    );
   };
 
-  // =========================================================
-  // GET PRODUCT CATEGORY ID
-  // =========================================================
-
-  const getCategoryId = (product) => {
-    if (!product?.category) {
-      return null;
-    }
-
-    if (typeof product.category === "string") {
-      return product.category;
-    }
-
-    return product.category?._id || null;
-  };
-
-  // =========================================================
-  // CHECK CATEGORY + ALL PARENTS
-  //
-  // Example:
-  //
-  // Electronics
-  //     ↓
-  // Mobile Phones
-  //     ↓
-  // Smartphones
-  //     ↓
-  // Product
-  //
-  // Selecting Electronics should show this product.
-  // =========================================================
-
-  const productBelongsToCategory = (
-    product,
-    selectedCategoryId
-  ) => {
-    if (!product?.category || !selectedCategoryId) {
-      return false;
-    }
-
-    // If category is only an ID, we can only check direct match
-    if (typeof product.category === "string") {
-      return (
-        String(product.category) ===
-        String(selectedCategoryId)
-      );
-    }
-
-    let currentCategory = product.category;
-
-    while (currentCategory) {
-      if (
-        String(currentCategory?._id) ===
-        String(selectedCategoryId)
-      ) {
-        return true;
-      }
-
-      currentCategory = currentCategory.parent;
-
-      // Parent can sometimes be just an ID
-      if (
-        currentCategory &&
-        typeof currentCategory === "string"
-      ) {
-        return (
-          String(currentCategory) ===
-          String(selectedCategoryId)
-        );
-      }
-    }
-
-    return false;
-  };
-
-  // =========================================================
-  // PRICE RANGE
-  // =========================================================
+  /* =========================================================
+     GLOBAL PRICE RANGE
+     
+     IMPORTANT:
+     
+     This uses ALL PRODUCTS, not filtered products.
+     
+     Therefore the price range doesn't jump around when
+     the user changes category.
+  ========================================================= */
 
   const priceRange = useMemo(() => {
     if (!product.length) {
@@ -610,7 +927,9 @@ export default function Products() {
 
     const prices = product
       .map(getPrice)
-      .filter((price) => price >= 0);
+      .filter(
+        (price) => price >= 0
+      );
 
     if (!prices.length) {
       return {
@@ -625,12 +944,285 @@ export default function Products() {
     };
   }, [product]);
 
-  // =========================================================
-  // PRICE INPUT CHANGE
-  // =========================================================
+  /* =========================================================
+     SELECTED CATEGORY DESCENDANTS
+     
+     Example:
+     
+     Selected:
+     
+     Fashion
+     
+     categoryIds becomes:
+     
+     Fashion
+     Men
+     T-Shirts
+     Jeans
+     Women
+     Dresses
+     
+     Therefore selecting Fashion shows products from all
+     children as well.
+  ========================================================= */
 
-  const handlePriceChange = (field, value) => {
-    // Allow empty input
+  const selectedCategoryIds =
+    useMemo(() => {
+      if (
+        selectedCategory ===
+        "all"
+      ) {
+        return null;
+      }
+
+      return getDescendantCategoryIds(
+        selectedCategory,
+        categories
+      );
+    }, [
+      selectedCategory,
+      categories,
+    ]);
+
+  /* =========================================================
+     FRONTEND FILTERING
+     
+     FLOW:
+     
+     ALL PRODUCTS
+          ↓
+     CATEGORY
+          ↓
+     PRICE
+          ↓
+     SORT
+          ↓
+     PAGINATION
+  ========================================================= */
+
+  const filteredProducts =
+    useMemo(() => {
+      let result = [...product];
+
+      /* =====================================================
+         CATEGORY FILTER
+      ===================================================== */
+
+      if (
+        selectedCategory !==
+        "all"
+      ) {
+        const categoryIds =
+          selectedCategoryIds ||
+          new Set();
+
+        result = result.filter(
+          (item) => {
+            const productCategoryId =
+              getProductCategoryId(
+                item
+              );
+
+            if (
+              !productCategoryId
+            ) {
+              return false;
+            }
+
+            return categoryIds.has(
+              String(
+                productCategoryId
+              )
+            );
+          }
+        );
+      }
+
+      /* =====================================================
+         MIN PRICE
+      ===================================================== */
+
+      if (
+        appliedPrice.min !==
+        ""
+      ) {
+        const minPrice =
+          Number(
+            appliedPrice.min
+          );
+
+        result = result.filter(
+          (item) =>
+            getPrice(item) >=
+            minPrice
+        );
+      }
+
+      /* =====================================================
+         MAX PRICE
+      ===================================================== */
+
+      if (
+        appliedPrice.max !==
+        ""
+      ) {
+        const maxPrice =
+          Number(
+            appliedPrice.max
+          );
+
+        result = result.filter(
+          (item) =>
+            getPrice(item) <=
+            maxPrice
+        );
+      }
+
+      /* =====================================================
+         SORT
+         
+         We are sorting a COPY of product because:
+         
+         [...product]
+         
+         prevents mutation of the Redux state.
+      ===================================================== */
+
+      switch (sort) {
+        case "price-low":
+          result.sort(
+            (a, b) =>
+              getPrice(a) -
+              getPrice(b)
+          );
+          break;
+
+        case "price-high":
+          result.sort(
+            (a, b) =>
+              getPrice(b) -
+              getPrice(a)
+          );
+          break;
+
+        case "name":
+          result.sort(
+            (a, b) =>
+              String(
+                a?.name || ""
+              ).localeCompare(
+                String(
+                  b?.name || ""
+                )
+              )
+          );
+          break;
+
+        case "latest":
+        default:
+          result.sort(
+            (a, b) =>
+              new Date(
+                b?.createdAt || 0
+              ) -
+              new Date(
+                a?.createdAt || 0
+              )
+          );
+          break;
+      }
+
+      return result;
+    }, [
+      product,
+      selectedCategory,
+      selectedCategoryIds,
+      appliedPrice.min,
+      appliedPrice.max,
+      sort,
+    ]);
+
+  /* =========================================================
+     FRONTEND PAGINATION
+     
+     IMPORTANT:
+     
+     Pagination happens AFTER filtering.
+     
+     Example:
+     
+     100 products
+          ↓
+     Fashion
+          ↓
+     36 products
+          ↓
+     Price
+          ↓
+     14 products
+          ↓
+     10 per page
+          ↓
+     2 pages
+  ========================================================= */
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(
+      filteredProducts.length /
+        PRODUCTS_PER_PAGE
+    )
+  );
+
+  /* =========================================================
+     PAGINATED PRODUCTS
+  ========================================================= */
+
+  const paginatedProducts =
+    useMemo(() => {
+      const startIndex =
+        (page - 1) *
+        PRODUCTS_PER_PAGE;
+
+      return filteredProducts.slice(
+        startIndex,
+        startIndex +
+          PRODUCTS_PER_PAGE
+      );
+    }, [
+      filteredProducts,
+      page,
+    ]);
+
+  /* =========================================================
+     PROTECT AGAINST INVALID PAGE
+     
+     Example:
+     
+     User is on page 5.
+     
+     Then applies a filter and only 2 pages remain.
+     
+     Move them automatically to page 2.
+  ========================================================= */
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [
+    page,
+    totalPages,
+  ]);
+
+  /* =========================================================
+     PRICE INPUT
+  ========================================================= */
+
+  const handlePriceChange = (
+    field,
+    value
+  ) => {
     if (value === "") {
       setPriceInput((prev) => ({
         ...prev,
@@ -640,7 +1232,6 @@ export default function Products() {
       return;
     }
 
-    // Only numbers
     if (!/^\d*$/.test(value)) {
       return;
     }
@@ -651,21 +1242,27 @@ export default function Products() {
     }));
   };
 
-  // =========================================================
-  // APPLY PRICE
-  // =========================================================
+  /* =========================================================
+     APPLY PRICE FILTER
+  ========================================================= */
 
   const applyPriceFilter = () => {
-    let min = priceInput.min;
-    let max = priceInput.max;
+    const min =
+      priceInput.min;
+
+    const max =
+      priceInput.max;
 
     const minNumber =
-      min === "" ? null : Number(min);
+      min === ""
+        ? null
+        : Number(min);
 
     const maxNumber =
-      max === "" ? null : Number(max);
+      max === ""
+        ? null
+        : Number(max);
 
-    // Invalid minimum
     if (
       minNumber !== null &&
       Number.isNaN(minNumber)
@@ -673,7 +1270,6 @@ export default function Products() {
       return;
     }
 
-    // Invalid maximum
     if (
       maxNumber !== null &&
       Number.isNaN(maxNumber)
@@ -681,15 +1277,19 @@ export default function Products() {
       return;
     }
 
-    // If min > max, don't apply
     if (
       minNumber !== null &&
       maxNumber !== null &&
       minNumber > maxNumber
     ) {
-      alert("Minimum price cannot be greater than maximum price");
+      alert(
+        "Minimum price cannot be greater than maximum price"
+      );
+
       return;
     }
+
+    setPage(1);
 
     setAppliedPrice({
       min,
@@ -697,149 +1297,47 @@ export default function Products() {
     });
   };
 
-  // =========================================================
-  // ENTER KEY FOR PRICE
-  // =========================================================
+  /* =========================================================
+     CATEGORY CHANGE
+  ========================================================= */
 
-  const handlePriceKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      applyPriceFilter();
-    }
+  const handleCategoryChange = (
+    categoryId
+  ) => {
+    setPage(1);
+
+    setSelectedCategory(
+      categoryId
+    );
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
-  // =========================================================
-  // FILTER PRODUCTS
-  // =========================================================
+  /* =========================================================
+     SORT CHANGE
+  ========================================================= */
 
-  const filteredProducts = useMemo(() => {
-    let result = [...product];
+  const handleSortChange = (
+    value
+  ) => {
+    setPage(1);
 
-    // =======================================================
-    // CATEGORY
-    // =======================================================
+    setSort(value);
+  };
 
-    if (selectedCategory !== "all") {
-      result = result.filter((item) =>
-        productBelongsToCategory(
-          item,
-          selectedCategory
-        )
-      );
-    }
-
-    // =======================================================
-    // MIN PRICE
-    // =======================================================
-
-    if (appliedPrice.min !== "") {
-      const min = Number(appliedPrice.min);
-
-      if (!Number.isNaN(min)) {
-        result = result.filter(
-          (item) => getPrice(item) >= min
-        );
-      }
-    }
-
-    // =======================================================
-    // MAX PRICE
-    // =======================================================
-
-    if (appliedPrice.max !== "") {
-      const max = Number(appliedPrice.max);
-
-      if (!Number.isNaN(max)) {
-        result = result.filter(
-          (item) => getPrice(item) <= max
-        );
-      }
-    }
-
-    // =======================================================
-    // STOCK
-    // =======================================================
-
-    if (inStockOnly) {
-      result = result.filter(
-        (item) => Number(item?.stock) > 0
-      );
-    }
-
-    // =======================================================
-    // SORT
-    // =======================================================
-
-    if (sort === "price-low") {
-      result.sort(
-        (a, b) => getPrice(a) - getPrice(b)
-      );
-    }
-
-    if (sort === "price-high") {
-      result.sort(
-        (a, b) => getPrice(b) - getPrice(a)
-      );
-    }
-
-    if (sort === "name") {
-      result.sort((a, b) =>
-        (a.name || "").localeCompare(
-          b.name || ""
-        )
-      );
-    }
-
-    if (sort === "latest") {
-      result.sort((a, b) => {
-        const dateA = new Date(
-          a.createdAt || 0
-        ).getTime();
-
-        const dateB = new Date(
-          b.createdAt || 0
-        ).getTime();
-
-        return dateB - dateA;
-      });
-    }
-
-    return result;
-  }, [
-    product,
-    selectedCategory,
-    appliedPrice,
-    inStockOnly,
-    sort,
-  ]);
-
-  // =========================================================
-  // SELECTED CATEGORY NAME
-  // =========================================================
-
-  const selectedCategoryName = useMemo(() => {
-    if (selectedCategory === "all") {
-      return null;
-    }
-
-    return (
-      categories.find(
-        (category) =>
-          String(category._id) ===
-          String(selectedCategory)
-      )?.name || "Category"
-    );
-  }, [
-    categories,
-    selectedCategory,
-  ]);
-
-  // =========================================================
-  // CLEAR FILTERS
-  // =========================================================
+  /* =========================================================
+     CLEAR FILTERS
+  ========================================================= */
 
   const clearFilters = () => {
-    setSelectedCategory("all");
+    setPage(1);
+
+    setSelectedCategory(
+      "all"
+    );
 
     setPriceInput({
       min: "",
@@ -851,10 +1349,16 @@ export default function Products() {
       max: "",
     });
 
-    setInStockOnly(false);
+    setSort("latest");
   };
+
+  /* =========================================================
+     CLEAR MIN PRICE
+  ========================================================= */
 
   const clearMinPrice = () => {
+    setPage(1);
+
     setPriceInput((prev) => ({
       ...prev,
       min: "",
@@ -865,8 +1369,14 @@ export default function Products() {
       min: "",
     }));
   };
+
+  /* =========================================================
+     CLEAR MAX PRICE
+  ========================================================= */
 
   const clearMaxPrice = () => {
+    setPage(1);
+
     setPriceInput((prev) => ({
       ...prev,
       max: "",
@@ -878,29 +1388,68 @@ export default function Products() {
     }));
   };
 
-  const hasFilters =
-    selectedCategory !== "all" ||
-    appliedPrice.min !== "" ||
-    appliedPrice.max !== "" ||
-    inStockOnly;
+  /* =========================================================
+     SELECTED CATEGORY NAME
+  ========================================================= */
 
-  
-  
-console.log("page",page)
-console.log("productspage",product)
-  // =========================================================
-  // LOADING / ERROR
-  // =========================================================
+  const selectedCategoryName =
+    useMemo(() => {
+      if (
+        selectedCategory ===
+        "all"
+      ) {
+        return null;
+      }
+
+      return (
+        categories.find(
+          (category) =>
+            String(
+              category._id
+            ) ===
+            String(
+              selectedCategory
+            )
+        )?.name ||
+        "Category"
+      );
+    }, [
+      categories,
+      selectedCategory,
+    ]);
+
+  /* =========================================================
+     HAS FILTERS
+     
+     ONLY:
+     
+     Category
+     Price
+  ========================================================= */
+
+  const hasFilters =
+    selectedCategory !==
+      "all" ||
+    appliedPrice.min !==
+      "" ||
+    appliedPrice.max !==
+      "";
+
+  /* =========================================================
+     LOADING / ERROR
+  ========================================================= */
 
   const loading =
-    productsLoading || categoriesLoading;
+    productsLoading ||
+    categoriesLoading;
 
   const error =
-    productsError || categoriesError;
+    productsError ||
+    categoriesError;
 
-  // =========================================================
-  // RENDER
-  // =========================================================
+  /* =========================================================
+     RENDER
+  ========================================================= */
 
   return (
     <main className="min-h-screen bg-[#f7f8fa]">
@@ -947,32 +1496,6 @@ console.log("productspage",product)
                 selected items for every need.
               </p>
             </div>
-
-            {/* <div className="flex items-center gap-5 self-start lg:self-auto">
-
-              <div>
-                <p className="text-xl font-black text-slate-950">
-                  {product.length}
-                </p>
-
-                <p className="mt-0.5 text-[11px] font-medium text-slate-400">
-                  Products
-                </p>
-              </div>
-
-              <div className="h-9 w-px bg-slate-200" />
-
-              <div>
-                <p className="text-xl font-black text-slate-950">
-                  {categories.length}
-                </p>
-
-                <p className="mt-0.5 text-[11px] font-medium text-slate-400">
-                  Categories
-                </p>
-              </div>
-
-            </div> */}
           </div>
         </div>
       </section>
@@ -987,18 +1510,22 @@ console.log("productspage",product)
           <div
             className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
             onClick={() =>
-              setMobileFiltersOpen(false)
+              setMobileFiltersOpen(
+                false
+              )
             }
           />
 
-          <div className="
-            absolute bottom-0 left-0 right-0
-            max-h-[90vh] overflow-y-auto
-            rounded-t-[28px] bg-white
-            p-6 shadow-2xl
-          ">
-
+          <div
+            className="
+              absolute bottom-0 left-0 right-0
+              max-h-[90vh] overflow-y-auto
+              rounded-t-[28px] bg-white
+              p-6 shadow-2xl
+            "
+          >
             <div className="mb-6 flex items-center justify-between">
+
               <div>
                 <h2 className="text-lg font-black text-slate-950">
                   Filters
@@ -1012,7 +1539,9 @@ console.log("productspage",product)
               <button
                 type="button"
                 onClick={() =>
-                  setMobileFiltersOpen(false)
+                  setMobileFiltersOpen(
+                    false
+                  )
                 }
                 className="
                   flex h-9 w-9 items-center
@@ -1022,30 +1551,55 @@ console.log("productspage",product)
               >
                 <X size={18} />
               </button>
+
             </div>
 
             <FilterContent
-  categories={categories}
-  categoriesLoading={categoriesLoading}
-  product={product}
-  selectedCategory={selectedCategory}
-  setSelectedCategory={setSelectedCategory}
-  priceRange={priceRange}
-  priceInput={priceInput}
-  setPriceInput={setPriceInput}
-  appliedPrice={appliedPrice}
-  setAppliedPrice={setAppliedPrice}
-  applyPriceFilter={applyPriceFilter}
-  inStockOnly={inStockOnly}
-  setInStockOnly={setInStockOnly}
-  clearFilters={clearFilters}
-  hasFilters={hasFilters}
-/>
+              categories={
+                categories
+              }
+              categoriesLoading={
+                categoriesLoading
+              }
+              product={product}
+              selectedCategory={
+                selectedCategory
+              }
+              setSelectedCategory={
+                handleCategoryChange
+              }
+              priceRange={
+                priceRange
+              }
+              priceInput={
+                priceInput
+              }
+              setPriceInput={
+                setPriceInput
+              }
+              appliedPrice={
+                appliedPrice
+              }
+              setAppliedPrice={
+                setAppliedPrice
+              }
+              applyPriceFilter={
+                applyPriceFilter
+              }
+              clearFilters={
+                clearFilters
+              }
+              hasFilters={
+                hasFilters
+              }
+            />
 
             <button
               type="button"
               onClick={() =>
-                setMobileFiltersOpen(false)
+                setMobileFiltersOpen(
+                  false
+                )
               }
               className="
                 mt-7 w-full rounded-xl
@@ -1054,7 +1608,12 @@ console.log("productspage",product)
                 hover:bg-blue-600
               "
             >
-              Show {filteredProducts.length} products
+              Show{" "}
+              {filteredProducts.length}{" "}
+              {filteredProducts.length ===
+              1
+                ? "product"
+                : "products"}
             </button>
 
           </div>
@@ -1069,16 +1628,20 @@ console.log("productspage",product)
 
         <div className="grid gap-8 lg:grid-cols-[250px_minmax(0,1fr)]">
 
-          {/* SIDEBAR */}
+          {/* =================================================
+              SIDEBAR
+          ================================================= */}
 
           <aside className="hidden lg:block">
 
-            <div className="
-              sticky top-6
-              rounded-2xl
-              border border-slate-200
-              bg-white p-5
-            ">
+            <div
+              className="
+                sticky top-6
+                rounded-2xl
+                border border-slate-200
+                bg-white p-5
+              "
+            >
 
               <div className="mb-6 flex items-start justify-between">
 
@@ -1095,7 +1658,9 @@ console.log("productspage",product)
                 {hasFilters && (
                   <button
                     type="button"
-                    onClick={clearFilters}
+                    onClick={
+                      clearFilters
+                    }
                     className="text-xs font-semibold text-blue-600"
                   >
                     Clear
@@ -1104,60 +1669,93 @@ console.log("productspage",product)
 
               </div>
 
-             <FilterContent
-  categories={categories}
-  categoriesLoading={categoriesLoading}
-  product={product}
-  selectedCategory={selectedCategory}
-  setSelectedCategory={setSelectedCategory}
-  priceRange={priceRange}
-  priceInput={priceInput}
-  setPriceInput={setPriceInput}
-  appliedPrice={appliedPrice}
-  setAppliedPrice={setAppliedPrice}
-  applyPriceFilter={applyPriceFilter}
-  inStockOnly={inStockOnly}
-  setInStockOnly={setInStockOnly}
-  clearFilters={clearFilters}
-  hasFilters={hasFilters}
-/>
-
+              <FilterContent
+                categories={
+                  categories
+                }
+                categoriesLoading={
+                  categoriesLoading
+                }
+                product={product}
+                selectedCategory={
+                  selectedCategory
+                }
+                setSelectedCategory={
+                  handleCategoryChange
+                }
+                priceRange={
+                  priceRange
+                }
+                priceInput={
+                  priceInput
+                }
+                setPriceInput={
+                  setPriceInput
+                }
+                appliedPrice={
+                  appliedPrice
+                }
+                setAppliedPrice={
+                  setAppliedPrice
+                }
+                applyPriceFilter={
+                  applyPriceFilter
+                }
+                clearFilters={
+                  clearFilters
+                }
+                hasFilters={
+                  hasFilters
+                }
+              />
 
             </div>
-
           </aside>
 
-          {/* PRODUCT AREA */}
+          {/* =================================================
+              PRODUCT AREA
+          ================================================= */}
 
           <div className="min-w-0">
 
-            {/* TOOLBAR */}
+            {/* =================================================
+                TOOLBAR
+            ================================================= */}
 
-            <div className="
-              mb-6
-              rounded-2xl
-              border border-slate-200
-              bg-white
-              p-3 sm:p-4
-            ">
+            <div
+              className="
+                mb-6
+                rounded-2xl
+                border border-slate-200
+                bg-white
+                p-3 sm:p-4
+              "
+            >
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
                 <div className="flex items-center gap-3">
 
-                  <div className="
-                    flex h-10 w-10
-                    items-center justify-center
-                    rounded-xl bg-blue-50
-                    text-blue-600
-                  ">
-                    <PackageOpen size={18} />
+                  <div
+                    className="
+                      flex h-10 w-10
+                      items-center justify-center
+                      rounded-xl bg-blue-50
+                      text-blue-600
+                    "
+                  >
+                    <PackageOpen
+                      size={18}
+                    />
                   </div>
 
                   <div>
                     <p className="text-sm font-bold text-slate-950">
-                      {filteredProducts.length}{" "}
-                      {filteredProducts.length === 1
+                      {
+                        filteredProducts.length
+                      }{" "}
+                      {filteredProducts.length ===
+                      1
                         ? "product"
                         : "products"}
                     </p>
@@ -1176,7 +1774,9 @@ console.log("productspage",product)
                   <button
                     type="button"
                     onClick={() =>
-                      setMobileFiltersOpen(true)
+                      setMobileFiltersOpen(
+                        true
+                      )
                     }
                     className="
                       flex h-10 flex-1
@@ -1189,17 +1789,22 @@ console.log("productspage",product)
                       sm:flex-none lg:hidden
                     "
                   >
-                    <SlidersHorizontal size={16} />
+                    <SlidersHorizontal
+                      size={16}
+                    />
+
                     Filters
 
                     {hasFilters && (
-                      <span className="
-                        flex h-5 min-w-5
-                        items-center justify-center
-                        rounded-full bg-blue-600
-                        px-1 text-[10px]
-                        font-bold text-white
-                      ">
+                      <span
+                        className="
+                          flex h-5 min-w-5
+                          items-center justify-center
+                          rounded-full bg-blue-600
+                          px-1 text-[10px]
+                          font-bold text-white
+                        "
+                      >
                         !
                       </span>
                     )}
@@ -1212,7 +1817,9 @@ console.log("productspage",product)
                     <select
                       value={sort}
                       onChange={(e) =>
-                        setSort(e.target.value)
+                        handleSortChange(
+                          e.target.value
+                        )
                       }
                       className="
                         h-10 w-full
@@ -1260,15 +1867,19 @@ console.log("productspage",product)
                 </div>
               </div>
 
-              {/* ACTIVE FILTERS */}
+              {/* =================================================
+                  ACTIVE FILTERS
+              ================================================= */}
 
               {hasFilters && (
-                <div className="
-                  mt-3 flex flex-wrap
-                  items-center gap-2
-                  border-t border-slate-100
-                  pt-3
-                ">
+                <div
+                  className="
+                    mt-3 flex flex-wrap
+                    items-center gap-2
+                    border-t border-slate-100
+                    pt-3
+                  "
+                >
 
                   <span className="text-[11px] font-semibold text-slate-400">
                     Active:
@@ -1276,11 +1887,14 @@ console.log("productspage",product)
 
                   {/* CATEGORY */}
 
-                  {selectedCategory !== "all" && (
+                  {selectedCategory !==
+                    "all" && (
                     <button
                       type="button"
                       onClick={() =>
-                        setSelectedCategory("all")
+                        handleCategoryChange(
+                          "all"
+                        )
                       }
                       className="
                         inline-flex items-center
@@ -1290,17 +1904,23 @@ console.log("productspage",product)
                         text-blue-700
                       "
                     >
-                      {selectedCategoryName}
+                      {
+                        selectedCategoryName
+                      }
+
                       <X size={12} />
                     </button>
                   )}
 
                   {/* MIN */}
 
-                  {appliedPrice.min !== "" && (
+                  {appliedPrice.min !==
+                    "" && (
                     <button
                       type="button"
-                      onClick={clearMinPrice}
+                      onClick={
+                        clearMinPrice
+                      }
                       className="
                         inline-flex items-center
                         gap-1.5 rounded-full
@@ -1312,17 +1932,23 @@ console.log("productspage",product)
                       Min ₹
                       {Number(
                         appliedPrice.min
-                      ).toLocaleString("en-IN")}
+                      ).toLocaleString(
+                        "en-IN"
+                      )}
+
                       <X size={12} />
                     </button>
                   )}
 
                   {/* MAX */}
 
-                  {appliedPrice.max !== "" && (
+                  {appliedPrice.max !==
+                    "" && (
                     <button
                       type="button"
-                      onClick={clearMaxPrice}
+                      onClick={
+                        clearMaxPrice
+                      }
                       className="
                         inline-flex items-center
                         gap-1.5 rounded-full
@@ -1334,28 +1960,10 @@ console.log("productspage",product)
                       Max ₹
                       {Number(
                         appliedPrice.max
-                      ).toLocaleString("en-IN")}
-                      <X size={12} />
-                    </button>
-                  )}
+                      ).toLocaleString(
+                        "en-IN"
+                      )}
 
-                  {/* STOCK */}
-
-                  {inStockOnly && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setInStockOnly(false)
-                      }
-                      className="
-                        inline-flex items-center
-                        gap-1.5 rounded-full
-                        bg-emerald-50 px-3 py-1.5
-                        text-xs font-semibold
-                        text-emerald-700
-                      "
-                    >
-                      In stock
                       <X size={12} />
                     </button>
                   )}
@@ -1365,28 +1973,38 @@ console.log("productspage",product)
 
             </div>
 
-            {/* STATES */}
+            {/* =================================================
+                STATES
+            ================================================= */}
 
             {loading ? (
 
-              <ProductGridSkeleton count={12} />
+              <ProductGridSkeleton
+                count={12}
+              />
 
             ) : error ? (
 
-              <div className="
-                rounded-2xl
-                border border-red-100
-                bg-white px-6 py-20
-                text-center
-              ">
+              <div
+                className="
+                  rounded-2xl
+                  border border-red-100
+                  bg-white px-6 py-20
+                  text-center
+                "
+              >
 
-                <div className="
-                  mx-auto flex h-14 w-14
-                  items-center justify-center
-                  rounded-2xl bg-red-50
-                  text-red-500
-                ">
-                  <RotateCcw size={22} />
+                <div
+                  className="
+                    mx-auto flex h-14 w-14
+                    items-center justify-center
+                    rounded-2xl bg-red-50
+                    text-red-500
+                  "
+                >
+                  <RotateCcw
+                    size={22}
+                  />
                 </div>
 
                 <h2 className="mt-5 text-lg font-bold text-slate-950">
@@ -1400,7 +2018,12 @@ console.log("productspage",product)
                 <button
                   type="button"
                   onClick={() => {
-                    dispatch(getProducts());
+                    dispatch(
+                      getProducts({
+                        page: 1,
+                        limit: 1000,
+                      })
+                    );
 
                     dispatch(
                       getCategories({
@@ -1421,22 +2044,29 @@ console.log("productspage",product)
 
               </div>
 
-            ) : filteredProducts.length === 0 ? (
+            ) : filteredProducts.length ===
+              0 ? (
 
-              <div className="
-                rounded-2xl
-                border border-slate-200
-                bg-white px-6 py-20
-                text-center
-              ">
+              <div
+                className="
+                  rounded-2xl
+                  border border-slate-200
+                  bg-white px-6 py-20
+                  text-center
+                "
+              >
 
-                <div className="
-                  mx-auto flex h-16 w-16
-                  items-center justify-center
-                  rounded-2xl bg-slate-100
-                  text-slate-400
-                ">
-                  <Search size={25} />
+                <div
+                  className="
+                    mx-auto flex h-16 w-16
+                    items-center justify-center
+                    rounded-2xl bg-slate-100
+                    text-slate-400
+                  "
+                >
+                  <Search
+                    size={25}
+                  />
                 </div>
 
                 <h2 className="mt-5 text-lg font-bold text-slate-950">
@@ -1450,7 +2080,9 @@ console.log("productspage",product)
                 {hasFilters && (
                   <button
                     type="button"
-                    onClick={clearFilters}
+                    onClick={
+                      clearFilters
+                    }
                     className="
                       mt-5 inline-flex
                       items-center gap-2
@@ -1459,7 +2091,9 @@ console.log("productspage",product)
                       text-sm font-bold text-white
                     "
                   >
-                    <RotateCcw size={15} />
+                    <RotateCcw
+                      size={15}
+                    />
                     Clear filters
                   </button>
                 )}
@@ -1469,20 +2103,50 @@ console.log("productspage",product)
             ) : (
 
               <ProductGrid
-                products={filteredProducts}
+                products={
+                  paginatedProducts
+                }
               />
 
             )}
 
           </div>
         </div>
-        {/* <PageButtons  page={page}
-      totalPages={10}
-      onPageChange={setPage} /> */}
       </section>
-      <PageButtons  page={page}
-      totalPages={pagination.totalPages}
-      onPageChange={setPage} />
+
+      {/* =====================================================
+          PAGINATION
+          
+          IMPORTANT:
+          
+          Uses frontend filtered result count.
+      ====================================================== */}
+
+      {!loading &&
+        !error &&
+        filteredProducts.length >
+          0 && (
+          <PageButtons
+            page={page}
+            totalPages={
+              totalPages
+            }
+            onPageChange={(
+              nextPage
+            ) => {
+              setPage(
+                nextPage
+              );
+
+              window.scrollTo({
+                top: 0,
+                behavior:
+                  "smooth",
+              });
+            }}
+          />
+        )}
+
     </main>
   );
 }

@@ -15,8 +15,11 @@ export const myProductsApi = async (productData) => {
 
 
 // Get user by ID
-export const getProductsApi = async (page = 1, limit = 4) => {
-  const response = await api.get(`/product/`, {
+export const getProductsApi = async (
+  page = 1,
+  limit = 1000
+) => {
+  const response = await api.get("/product/", {
     params: {
       page,
       limit,
@@ -25,7 +28,6 @@ export const getProductsApi = async (page = 1, limit = 4) => {
 
   return response.data;
 };
-
 
 export const getRealtedProductsApi = async (product) => {
   const response = await api.get(`/productRelation/${product}`, product);

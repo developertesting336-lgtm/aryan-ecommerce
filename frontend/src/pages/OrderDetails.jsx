@@ -1403,7 +1403,32 @@ export default function OrderDetails() {
                       </div>
                     </div>
                   </div>
-
+{normalizedStatus !== "CANCELLED" &&
+ normalizedStatus !== "CANCELED" && (
+  <button
+    type="button"
+    onClick={() => navigate(`/orders/${orderId}/tracking`)}
+    className="
+      w-full
+      h-11
+      rounded-xl
+      bg-blue-600
+      hover:bg-blue-700
+      text-white
+      text-sm
+      font-semibold
+      transition
+      flex
+      items-center
+      justify-center
+      gap-2
+      shadow-sm
+    "
+  >
+    <Truck size={17} />
+    Track Order
+  </button>
+)}
                   {/* CANCEL ORDER */}
 
                   {canCancel && (

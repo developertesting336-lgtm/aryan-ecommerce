@@ -37,15 +37,33 @@ export const createProduct = createAsyncThunk(
 
 export const getProducts = createAsyncThunk(
   "product/getProducts",
-  async ({ page = 1, limit = 10 } = {}, { rejectWithValue }) => {
+
+  async (
+    {
+      page = 1,
+      limit = 1000,
+    } = {},
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await getProductsApi(page,limit);
-console.log("res pro",response)
-      // return response.data.products;
-      return{
-        products:response.data.products,
-        pagination:response.data.pagination,
-      }
+      const response =
+        await getProductsApi(
+          page,
+          limit
+        );
+
+      console.log(
+        "Products response:",
+        response
+      );
+
+      return {
+        products:
+          response.data.products,
+
+        pagination:
+          response.data.pagination,
+      };
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message ||

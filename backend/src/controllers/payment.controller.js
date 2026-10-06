@@ -3,7 +3,7 @@ import Stripe from "stripe";
 import { PaymentStatus } from "../config/constants.js";
 import { sendEmailtoUser } from "../utils/mail.js";
 import { ApiError,ApiResponse } from "../utils/apiResponse.js";
-
+import {agenda} from '../config/agenda.js'
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 
@@ -200,6 +200,25 @@ export const stripeWebhook = async (req, res) => {
           order.paymentStatus = PaymentStatus.PAID;
 
           await order.save();
+           // Schedule fulfillment job
+           console.log("🟡 BEFORE AGENDA");
+
+  try {
+  const job = await agenda.schedule(
+    "in 15 seconds",
+    "update-order-status",
+    {
+      orderId: order._id.toString(),
+      fulfillmentStatus: "PROCESSING",
+    }
+  );
+
+  console.log("🟢 AFTER AGENDA");
+  console.log("Job:", job.attrs);
+} catch (error) {
+  console.error("🔴 AGENDA ERROR:", error);
+}
+
           if(order.paymentStatus===PaymentStatus.PAID){
        getcouponforEmail(user,orderId)
      }

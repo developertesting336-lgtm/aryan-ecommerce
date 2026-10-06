@@ -37,6 +37,7 @@ export const FulfillmentStatus = {
   SHIPPED: 'SHIPPED',
   DELIVERED: 'DELIVERED',
   RETURNED: 'RETURNED',
+   CANCELLED: 'CANCELLED'
 };
 
 export const CheckoutStatus = {
