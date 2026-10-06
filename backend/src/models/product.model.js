@@ -187,4 +187,12 @@ variants: [
 );
 productSchema.index({ name: "text" });
 
+productSchema.index({ category: 1, status: 1 });
+productSchema.index({ status: 1, createdAt: -1 });
+
+// Price filtering / sorting
+productSchema.index({ status: 1, price: 1 });
+
+// Vendor products
+productSchema.index({ vendor: 1, status: 1 });
 export const Product = mongoose.model("Product",productSchema);

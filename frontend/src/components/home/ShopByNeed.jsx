@@ -650,9 +650,8 @@ import {
   Sofa
 } from "lucide-react";
 
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { getHomepage } from "../../redux/slices/content/homepage/homepageSlice";
 
 // ======================================================
 // ICON MAP
@@ -699,7 +698,6 @@ const normalizeBoolean = (value) => {
 
 export default function ShopByNeed() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   // ====================================================
   // HOMEPAGE REDUX STATE
@@ -711,22 +709,7 @@ export default function ShopByNeed() {
     error = null,
   } = useSelector((state) => state.homepage || {});
 
-  // ====================================================
-  // FETCH HOMEPAGE
-  // ====================================================
-
-  // useEffect(() => {
-  //   /*
-  //    * Load homepage data.
-  //    *
-  //    * shopByNeed will come from:
-  //    *
-  //    * state.homepage.shopByNeed
-  //    */
-  //   if (!shopByNeed.length) {
-  //     dispatch(getHomepage());
-  //   }
-  // }, [dispatch, shopByNeed.length]);
+ 
 
   // ====================================================
   // ACTIVE + SORTED COLLECTIONS
@@ -943,11 +926,10 @@ export default function ShopByNeed() {
             lg:gap-6
           "
         >
-          {collections.map((item, index) => (
+          {collections.map((item) => (
             <CollectionCard
-              key={item?._id || item?.id || index}
+              key={item?._id || item?.id}
               item={item}
-              index={index}
               onNavigate={handleNavigate}
             />
           ))}
@@ -964,7 +946,6 @@ export default function ShopByNeed() {
 function CollectionCard({
   item,
   onNavigate,
-  index,
 }) {
   const videoRef = useRef(null);
 
@@ -977,29 +958,7 @@ function CollectionCard({
 
   const IconComponent =
     iconMap[item?.icon] || ShoppingBag;
-
-  // ====================================================
-  // AUTOPLAY
-  // ====================================================
-
-  useEffect(() => {
-    const video = videoRef.current;
-
-    if (!video || !item?.video) return;
-
-    video.muted = true;
-    video.playsInline = true;
-
-    const startVideo = async () => {
-      try {
-        await video.play();
-      } catch (error) {
-        console.log("Autoplay waiting:", error);
-      }
-    };
-
-    startVideo();
-  }, [item?.video]);
+ 
 
   // ====================================================
   // NAVIGATION
@@ -1043,32 +1002,7 @@ function CollectionCard({
         lg:min-h-[360px]
       "
     >
-      {/* =========================================================
-          FALLBACK IMAGE
-      ========================================================== */}
 
-      {item?.fallbackImage && (
-        <img
-          src={item.fallbackImage}
-          alt=""
-          aria-hidden="true"
-          className={`
-            absolute
-            inset-0
-            h-full
-            w-full
-            object-cover
-            transition-opacity
-            duration-500
-
-            ${
-              videoLoaded && !videoError
-                ? "opacity-0"
-                : "opacity-100"
-            }
-          `}
-        />
-      )}
 
       {/* =========================================================
           VIDEO
@@ -1081,7 +1015,9 @@ function CollectionCard({
           muted
           loop
           playsInline
-          preload="auto"
+          // preload="auto"
+           preload="metadata"
+            poster={item.fallbackImage}
           onLoadedData={() => setVideoLoaded(true)}
           onCanPlay={() => setVideoLoaded(true)}
           onError={() => setVideoError(true)}

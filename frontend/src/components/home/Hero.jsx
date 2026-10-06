@@ -7,15 +7,11 @@ import React, {
 
 import gsap from "gsap";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
-import {
-  getHomepage,
-} from "../../redux/slices/content/homepage/homepageSlice";
 
 const Hero = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -43,17 +39,6 @@ const Hero = () => {
 
   const loading = Boolean(homepageState.loading);
 
-  /*
-   * =========================================
-   * FETCH HOMEPAGE DATA
-   * =========================================
-   *
-   * API call is handled by Redux thunk.
-   * Hero component only dispatches the thunk.
-   */
-  // useEffect(() => {
-  //   dispatch(getHomepage());
-  // }, [dispatch]);
 
   /*
    * =========================================
@@ -298,6 +283,9 @@ const Hero = () => {
       <div className="absolute inset-0">
         {slides.map((slide, index) => (
           <img
+          loading={index === 0 ? "eager" : "lazy"}
+  fetchPriority={index === 0 ? "high" : "low"}
+  decoding="async"
             key={slide._id || index}
             ref={(element) => {
               imageRefs.current[index] = element;
