@@ -1,6 +1,7 @@
 import { Product, User, Category, ProductRelation } from "../models/index.js";
 import { ApiError, ApiResponse } from "../utils/apiResponse.js";
 import { generateSlug } from "../utils/common.js";
+import { prepareProductVariants } from "../utils/productVariantHelper.js";
 import mongoose from "mongoose";
 import {uploadOnCloudinary} from "../config/cloudinary.js";
 import fs from "fs";
@@ -21,6 +22,8 @@ export const createProduct = async (req, res) => {
       stock,
       sku,
       accessories,
+      variants,
+  hasVariants,
     } = req.body;
 
     // -----------------------------------------
@@ -163,6 +166,13 @@ export const createProduct = async (req, res) => {
     // Create product
     // -----------------------------------------
 
+const preparedVariants = prepareProductVariants({
+  variants,
+  productName: name,
+  brand,
+  hasVariants,
+});
+
     const product = await Product.create({
       name: name.trim(),
       slug,
@@ -189,7 +199,8 @@ export const createProduct = async (req, res) => {
       sku: sku?.trim() || undefined,
 
       vendor: req.user._id,
-
+      hasVariants,
+       variants: preparedVariants,
       // Admin can make it active immediately.
       // Vendor products start as draft.
       status: user.role === "admin" ? "active" : "draft",
@@ -517,117 +528,404 @@ export const editProduct = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // 1. Validate product ID
+    // -----------------------------------------
+    // Validate product ID
+    // -----------------------------------------
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new ApiError(400, "Invalid product ID");
     }
+
+    // -----------------------------------------
+    // Validate user
+    // -----------------------------------------
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    if (user.role !== "vendor" && user.role !== "admin") {
+      throw new ApiError(
+        403,
+        "You are not authorized to edit products"
+      );
+    }
+
+    // -----------------------------------------
+    // Find product
+    // -----------------------------------------
+
+    const product = await Product.findOne(
+      user.role === "admin"
+        ? { _id: id }
+        : { _id: id, vendor: req.user._id }
+    );
+
+    if (!product) {
+      throw new ApiError(404, "Product not found");
+    }
+
+    // -----------------------------------------
+    // Request body
+    // -----------------------------------------
 
     const {
       name,
       description,
       category,
+      brand,
       price,
+      mrp,
       stock,
+      sku,
+      accessories,
+      variants,
+      hasVariants,
     } = req.body;
 
     const updateFields = {};
 
-    // 2. Update name + slug
+    // -----------------------------------------
+    // Validate + update name
+    // -----------------------------------------
+
     if (name !== undefined && name !== null) {
       const trimmedName = name.trim();
 
       if (!trimmedName) {
-        throw new ApiError(400, "Product name cannot be empty");
+        throw new ApiError(
+          400,
+          "Product name cannot be empty"
+        );
       }
 
       updateFields.name = trimmedName;
-      updateFields.slug = generateSlug(trimmedName);
+
+      const newSlug = generateSlug(trimmedName);
+
+      // Check duplicate slug excluding current product
+      const existingProduct = await Product.findOne({
+        slug: newSlug,
+        _id: { $ne: id },
+      });
+
+      if (existingProduct) {
+        throw new ApiError(
+          409,
+          "A product with this name already exists"
+        );
+      }
+
+      updateFields.slug = newSlug;
     }
 
-    // 3. Update description
+    // -----------------------------------------
+    // Update description
+    // -----------------------------------------
+
     if (description !== undefined && description !== null) {
-      updateFields.description = description.trim();
+      const trimmedDescription = description.trim();
+
+      if (!trimmedDescription) {
+        throw new ApiError(
+          400,
+          "Product description cannot be empty"
+        );
+      }
+
+      updateFields.description = trimmedDescription;
     }
 
-    // 4. Update category
+    // -----------------------------------------
+    // Update category
+    // -----------------------------------------
+
     if (category !== undefined && category !== null) {
+      const categoryExists = await Category.findById(category);
+
+      if (!categoryExists) {
+        throw new ApiError(404, "Category not found");
+      }
+
       updateFields.category = category;
     }
 
-    // 5. Update price
-    if (price !== undefined && price !== null) {
-      updateFields.price = price;
+    // -----------------------------------------
+    // Update brand
+    // -----------------------------------------
+
+    if (brand !== undefined && brand !== null) {
+      updateFields.brand = brand.trim() || undefined;
     }
 
-    // 6. Update stock
-    if (stock !== undefined && stock !== null) {
-      updateFields.stock = stock;
-    }
+    // -----------------------------------------
+    // Validate + update price
+    // -----------------------------------------
 
-    // 7. Add new images to existing images
-    let newImages = [];
-
-    if (req.files?.length > 0) {
-      newImages = req.files.map((file) => file.filename);
-    }
-
-    // 8. Check whether anything is being updated
-    if (
-      Object.keys(updateFields).length === 0 &&
-      newImages.length === 0
-    ) {
-      throw new ApiError(400, "No fields provided for update");
-    }
-
-    // 9. Build MongoDB update operation
-    const updateOperation = {};
-
-    // Normal fields
-    if (Object.keys(updateFields).length > 0) {
-      updateOperation.$set = updateFields;
-    }
-
-    // Add images instead of replacing existing images
-    if (newImages.length > 0) {
-      updateOperation.$push = {
-        images: {
-          $each: newImages,
-        },
-      };
-    }
-
-    // 10. Update product
-    const product = await Product.findOneAndUpdate(
-       req.user.role === "admin"
-    ? { _id: id }
-    : { _id: id, vendor: req.user._id },
-      updateOperation,
-      {
-        new: true,
-        runValidators: true,
+    if (price !== undefined && price !== null && price !== "") {
+      if (Number(price) < 0) {
+        throw new ApiError(
+          400,
+          "Price cannot be negative"
+        );
       }
+
+      updateFields.price = Number(price);
+    }
+
+    // -----------------------------------------
+    // Validate + update MRP
+    // -----------------------------------------
+
+    if (mrp !== undefined && mrp !== null && mrp !== "") {
+      if (Number(mrp) < 0) {
+        throw new ApiError(
+          400,
+          "MRP cannot be negative"
+        );
+      }
+
+      updateFields.mrp = Number(mrp);
+    }
+
+    // -----------------------------------------
+    // Validate + update stock
+    // -----------------------------------------
+
+    if (stock !== undefined && stock !== null && stock !== "") {
+      if (Number(stock) < 0) {
+        throw new ApiError(
+          400,
+          "Stock cannot be negative"
+        );
+      }
+
+      updateFields.stock = Number(stock);
+    }
+
+    // -----------------------------------------
+    // Update SKU
+    // -----------------------------------------
+
+    if (sku !== undefined && sku !== null) {
+      updateFields.sku = sku.trim() || undefined;
+    }
+
+    // -----------------------------------------
+    // Handle variants
+    // -----------------------------------------
+
+    if (
+      variants !== undefined ||
+      hasVariants !== undefined
+    ) {
+      const preparedVariants = prepareProductVariants({
+        variants,
+        productName:
+          name !== undefined
+            ? name
+            : product.name,
+        brand:
+          brand !== undefined
+            ? brand
+            : product.brand,
+        hasVariants:
+          hasVariants !== undefined
+            ? hasVariants
+            : product.hasVariants,
+      });
+
+      updateFields.variants = preparedVariants;
+
+      if (hasVariants !== undefined) {
+        updateFields.hasVariants =
+          hasVariants === true ||
+          hasVariants === "true";
+      }
+    }
+
+    // -----------------------------------------
+    // Upload new media
+    // -----------------------------------------
+
+    const files = req.files || [];
+
+    let uploadedMedia = [];
+
+    if (files.length > 0) {
+      for (const file of files) {
+        try {
+          const uploaded = await uploadOnCloudinary(
+            file.path
+          );
+
+          if (!uploaded) {
+            continue;
+          }
+
+          uploadedMedia.push({
+            type: file.mimetype?.startsWith("video")
+              ? "video"
+              : "image",
+            url: uploaded.secure_url,
+          });
+        } finally {
+          // Delete local file after upload
+          if (fs.existsSync(file.path)) {
+            fs.unlinkSync(file.path);
+          }
+        }
+      }
+
+      if (uploadedMedia.length === 0) {
+        throw new ApiError(
+          400,
+          "Failed to upload product media"
+        );
+      }
+    }
+
+    // -----------------------------------------
+    // Handle product images
+    // -----------------------------------------
+
+    if (uploadedMedia.length > 0) {
+      const newImagePaths = uploadedMedia
+        .filter((item) => item.type === "image")
+        .map((item) => item.url);
+
+      if (newImagePaths.length > 0) {
+        updateFields.images = [
+          ...(product.images || []),
+          ...newImagePaths,
+        ];
+      }
+    }
+
+    // -----------------------------------------
+    // Check whether anything is being updated
+    // -----------------------------------------
+
+    if (Object.keys(updateFields).length === 0) {
+      throw new ApiError(
+        400,
+        "No fields provided for update"
+      );
+    }
+
+    // -----------------------------------------
+    // Update product
+    // -----------------------------------------
+
+    const updatedProduct =
+      await Product.findOneAndUpdate(
+        user.role === "admin"
+          ? { _id: id }
+          : {
+              _id: id,
+              vendor: req.user._id,
+            },
+        {
+          $set: updateFields,
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+    if (!updatedProduct) {
+      throw new ApiError(
+        404,
+        "Product not found"
+      );
+    }
+
+    // -----------------------------------------
+    // Update accessories
+    // -----------------------------------------
+
+    if (accessories !== undefined) {
+      let accessoryIds = accessories;
+
+      // FormData sends arrays as strings
+      if (typeof accessories === "string") {
+        try {
+          accessoryIds = JSON.parse(accessories);
+        } catch (error) {
+          accessoryIds = [];
+        }
+      }
+
+      if (!Array.isArray(accessoryIds)) {
+        accessoryIds = [];
+      }
+
+      // Remove existing accessory relations
+      await ProductRelation.deleteMany({
+        relatedProduct: updatedProduct._id,
+        type: "addon",
+      });
+
+      // Create new relations
+      const relations = accessoryIds
+        .filter(
+          (relatedProductId) =>
+            relatedProductId &&
+            relatedProductId.toString() !==
+              updatedProduct._id.toString()
+        )
+        .map((relatedProductId) => ({
+          product: relatedProductId,
+          relatedProduct: updatedProduct._id,
+          type: "addon",
+          isActive: true,
+        }));
+
+      if (relations.length > 0) {
+        await ProductRelation.insertMany(
+          relations
+        );
+      }
+    }
+
+    // -----------------------------------------
+    // Return updated product
+    // -----------------------------------------
+
+    const finalProduct = await Product.findById(
+      updatedProduct._id
+    )
+      .populate("category")
+      .populate("vendor", "name email");
+
+    // -----------------------------------------
+    // Success response
+    // -----------------------------------------
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          product: finalProduct,
+        },
+        "Product updated successfully"
+      )
+    );
+  } catch (error) {
+    console.error(
+      "Edit product error:",
+      error
     );
 
-    // 11. Product not found
-    if (!product) {
-      throw new ApiError(404, "Product not found");
-    }
-
-    // 12. Success response
-    return res.status(200).json({
-      success: true,
-      message: "Product updated successfully",
-      product,
-    });
-
-  } catch (error) {
-    console.error("adminEditProducts error:", error);
-
-    // Duplicate slug
+    // Duplicate slug / unique field
     if (error.code === 11000) {
       return res.status(409).json({
         success: false,
-        message: "A product with this name already exists",
+        message:
+          "A product with this name already exists",
       });
     }
 
@@ -639,12 +937,17 @@ export const editProduct = async (req, res) => {
       });
     }
 
-    return res.status(error.statusCode || 500).json({
+    return res.status(
+      error.statusCode || 500
+    ).json({
       success: false,
-      message: error.message || "Internal server error",
+      message:
+        error.message ||
+        "Something went wrong",
     });
   }
 };
+
 
 
 

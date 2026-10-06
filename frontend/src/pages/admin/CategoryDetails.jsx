@@ -451,7 +451,7 @@ const CategoryDetails = () => {
         }
         onViewCategory={(categoryId) =>
           navigate(
-            `/admin/categories/${categoryId}`
+            `/categories/${categoryId}`
           )
         }
       />

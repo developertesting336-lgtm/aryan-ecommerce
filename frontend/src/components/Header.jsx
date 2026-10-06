@@ -570,16 +570,16 @@ export default function Navbar() {
             </Link>
 
             <Link
-              to="/profile"
+              to="/help"
               className="px-5 transition hover:text-blue-200"
             >
               Help Center
             </Link>
 
-            {user?.role !== "user" && (
+            { ["admin", "vendor"].includes(user?.role) && (
               <button
                 type="button"
-                className="flex items-center gap-1 px-5 hover:text-blue-200"
+                className="flex items-center gap-1 px-5 hover:text-blue-200 cursor-pointer"
                 onClick={() =>
                   navigate(
                     `${couponBasePath}/`
@@ -595,7 +595,7 @@ export default function Navbar() {
               className="flex items-center gap-1 pl-5 hover:text-blue-200"
             >
               ₹ INR
-              <ChevronDown size={14} />
+              {/* <ChevronDown size={14} /> */}
             </button>
           </div>
         </div>

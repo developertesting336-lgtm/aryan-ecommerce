@@ -156,7 +156,7 @@ export default function ProductCard({
       : null;
 
   const brandName =
-    parentCategoryName ||
+    // parentCategoryName ||
     categoryName ||
     "PRODUCT";
 
@@ -564,13 +564,13 @@ const [currentImage, setCurrentImage] = useState(0);
     items-center
     justify-center
   "
- 
 >
   <AnimatePresence
     mode="wait"
     initial={false}
   >
     <motion.img
+    loading="lazy"
   key={currentImage}
   src={productImages[currentImage]}
   alt={`${name || "Product"} ${currentImage + 1}`}

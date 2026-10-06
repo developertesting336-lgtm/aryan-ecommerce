@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -18,11 +18,11 @@ import {
   CheckCircle,
 } from "lucide-react";
 
-// import {
-  
-//   editProduct,
-// } from "../../redux/slices/adminSlice";
-import {getProductById,editProduct} from "../redux/slices/productSlice"
+import {
+  getProductById,
+  editProduct,
+} from "../redux/slices/productSlice";
+
 import {
   getRootCategories,
   getCategoryChildren,
@@ -37,25 +37,53 @@ import {
 ========================================================= */
 
 const getId = (category) => {
-  return category?._id || category?.id || "";
+  if (!category) return "";
+
+  return String(
+    category?._id ||
+      category?.id ||
+      ""
+  );
 };
 
 const getCategoryName = (category) => {
   if (!category) return "";
 
   return (
-    category.name ||
-    category.title ||
-    category.categoryName ||
+    category?.name ||
+    category?.title ||
+    category?.categoryName ||
     ""
   );
 };
 
-const getChildren = (category) => {
+const getParentId = (category) => {
+  if (!category) return "";
+
+  return String(
+    category?.parent?._id ||
+      category?.parent?.id ||
+      category?.parent ||
+      category?.parentCategory?._id ||
+      category?.parentCategory?.id ||
+      category?.parentCategory ||
+      ""
+  );
+};
+
+const getImageValue = (image) => {
+  if (!image) return "";
+
+  if (typeof image === "string") {
+    return image;
+  }
+
   return (
-    category?.children ||
-    category?.subcategories ||
-    []
+    image?.url ||
+    image?.secure_url ||
+    image?.path ||
+    image?.filename ||
+    ""
   );
 };
 
@@ -67,20 +95,34 @@ export default function EditProduct() {
   const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
-const {user} = useSelector((state)=> state.auth)
-console.log("edit uer",user)
+
   /* =======================================================
-     ADMIN / PRODUCT STATE
+     AUTH
+  ======================================================= */
+
+  const user = useSelector(
+    (state) => state.auth?.user
+  );
+
+  const backPath =
+    user?.role === "admin"
+      ? "/admin/products"
+      : "/vendor/products";
+
+  /* =======================================================
+     PRODUCT REDUX STATE
   ======================================================= */
 
   const {
     product,
     loading: reduxLoading,
     error: reduxError,
-  } = useSelector((state) => state.product);
+  } = useSelector(
+    (state) => state.product
+  );
 
   /* =======================================================
-     CATEGORY STATE FROM REDUX
+     CATEGORY REDUX STATE
   ======================================================= */
 
   const parentCategories = useSelector(
@@ -94,18 +136,19 @@ console.log("edit uer",user)
   const [parentCategoryId, setParentCategoryId] =
     useState("");
 
-  const [subcategoryId, setSubcategoryId] =
+  const [childCategoryId, setChildCategoryId] =
     useState("");
 
+  const [finalCategoryId, setFinalCategoryId] =
+    useState("");
+
+  const [parentCategoriesLoaded, setParentCategoriesLoaded] =
+    useState(false);
+
   /*
-   * Subcategories are stored in Redux as:
-   *
-   * state.category.children[parentId]
-   *
-   * So we select only the children belonging to
-   * the currently selected parent.
+   * Children of selected parent
    */
-  const subcategories = useSelector((state) =>
+  const childCategories = useSelector((state) =>
     parentCategoryId
       ? selectCategoryChildren(
           state,
@@ -113,66 +156,121 @@ console.log("edit uer",user)
         )
       : []
   );
+
+  /*
+   * Children of selected child.
+   * These are the final categories.
+   */
+  const finalCategories = useSelector((state) =>
+    childCategoryId
+      ? selectCategoryChildren(
+          state,
+          childCategoryId
+        )
+      : []
+  );
+
+  /* =======================================================
+     API BASE URL
+  ======================================================= */
+
   const BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:3000";
-const getImageUrl = (image) => {
-  if (!image) {
-    return "/1786052049893.webp";
-  }
+    import.meta.env.VITE_API_URL ||
+    "http://localhost:3000";
 
-  // Already a complete URL
-  if (
-    image.startsWith("http://") ||
-    image.startsWith("https://") ||
-    image.startsWith("blob:")
-  ) {
-    return image;
-  }
+  const getImageUrl = (image) => {
+    if (!image) {
+      return "/1786052049893.webp";
+    }
 
-  // Already starts with /uploads/
-  if (image.startsWith("/uploads/")) {
-    return `http://localhost:3000${image}`;
-  }
+    const imageValue =
+      getImageValue(image);
 
-  // Starts with uploads/
-  if (image.startsWith("uploads/")) {
-    return `http://localhost:3000/${image}`;
-  }
+    if (!imageValue) {
+      return "/1786052049893.webp";
+    }
 
-  // Normal filename
-  return `${BASE_URL}${image}`;
-};
+    /*
+     * Already a complete URL.
+     */
+    if (
+      imageValue.startsWith("http://") ||
+      imageValue.startsWith("https://") ||
+      imageValue.startsWith("blob:")
+    ) {
+      return imageValue;
+    }
+
+    /*
+     * Absolute uploads path.
+     */
+    if (
+      imageValue.startsWith("/uploads/")
+    ) {
+      return `${BASE_URL}${imageValue}`;
+    }
+
+    /*
+     * Relative uploads path.
+     */
+    if (
+      imageValue.startsWith("uploads/")
+    ) {
+      return `${BASE_URL}/${imageValue}`;
+    }
+
+    /*
+     * Normal relative filename/path.
+     */
+    if (imageValue.startsWith("/")) {
+      return `${BASE_URL}${imageValue}`;
+    }
+
+    return `${BASE_URL}/${imageValue}`;
+  };
+
   /* =======================================================
      PAGE STATE
   ======================================================= */
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] =
+    useState(true);
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [saving, setSaving] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  const [success, setSuccess] =
+    useState("");
 
   /* =======================================================
-     FORM
+     FORM DATA
   ======================================================= */
 
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    category: "",
-    brand: "",
-    price: "",
-    discount: "",
-    stock: "",
-    sku: "",
-    status: "active",
-  });
+  const [formData, setFormData] =
+    useState({
+      name: "",
+      description: "",
+      category: "",
+      brand: "",
+      price: "",
+      mrp: "",
+      discount: "",
+      stock: "",
+      sku: "",
+      status: "active",
+      hasVariants: false,
+      variants: [],
+    });
 
   /* =======================================================
      IMAGES
   ======================================================= */
 
-  const [images, setImages] = useState([]);
+  const [images, setImages] =
+    useState([]);
 
   const [removedImages, setRemovedImages] =
     useState([]);
@@ -190,14 +288,13 @@ const getImageUrl = (image) => {
   const categoryDropdownRef =
     useRef(null);
 
-  const categoryScrollRef =
-    useRef(null);
-
-  /* =========================================================
+  /* =======================================================
      LOAD ROOT CATEGORIES
-  ========================================================= */
+  ======================================================= */
 
   useEffect(() => {
+    let mounted = true;
+
     dispatch(getRootCategories())
       .unwrap()
       .catch((err) => {
@@ -205,16 +302,27 @@ const getImageUrl = (image) => {
           "Failed to load root categories:",
           err
         );
+      })
+      .finally(() => {
+        if (mounted) {
+          setParentCategoriesLoaded(true);
+        }
       });
+
+    return () => {
+      mounted = false;
+    };
   }, [dispatch]);
 
-  /* =========================================================
+  /* =======================================================
      LOAD PRODUCT
-  ========================================================= */
+  ======================================================= */
 
   useEffect(() => {
     if (!id) {
-      setError("Product ID is missing.");
+      setError(
+        "Product ID is missing."
+      );
       setLoading(false);
       return;
     }
@@ -239,219 +347,298 @@ const getImageUrl = (image) => {
       });
   }, [id, dispatch]);
 
-  /* =========================================================
+  /* =======================================================
      POPULATE FORM WHEN PRODUCT LOADS
-  ========================================================= */
+  ======================================================= */
 
   useEffect(() => {
     if (!product) return;
 
-    /*
-     * Product category can be:
-     *
-     * category: "123"
-     *
-     * OR:
-     *
-     * category: {
-     *   _id: "123",
-     *   name: "Shoes"
-     * }
-     */
-
     const categoryId =
       typeof product.category === "object"
-        ? product.category?._id
-        : product.category;
+        ? getId(product.category)
+        : String(
+            product.category || ""
+          );
 
     setFormData({
       name: product.name || "",
-      description: product.description || "",
-      category: categoryId || "",
+
+      description:
+        product.description || "",
+
+      category: categoryId,
+
       brand: product.brand || "",
-      price: product.price ?? "",
-      discount: product.discount ?? "",
-      stock: product.stock ?? "",
-      sku: product.sku || "",
-      status: product.status || "active",
+
+      price:
+        product.price ??
+        product.sellingPrice ??
+        "",
+
+      mrp:
+        product.mrp ??
+        "",
+
+      discount:
+        product.discount ??
+        "",
+
+      stock:
+        product.stock ??
+        "",
+
+      sku:
+        product.sku ||
+        "",
+
+      status:
+        product.status ||
+        "active",
+
+      hasVariants:
+        product.hasVariants === true ||
+        product.hasVariants === "true",
+
+      variants:
+        Array.isArray(product.variants)
+          ? product.variants
+          : [],
     });
 
-    /* =====================================================
-       IMAGES
-    ===================================================== */
+    /*
+     * Existing product images.
+     */
+    const productImages =
+      Array.isArray(product.images)
+        ? product.images.map(
+            (image, index) => {
+              const imageValue =
+                getImageValue(image);
 
-    const productImages = (
-      product.images || []
-    ).map((image, index) => {
-      if (typeof image === "string") {
-  return {
-    id: `${image}-${index}`,
-    _id: null,
-    url: image,
-    secure_url: image,
-    originalUrl: image,
-    isNew: false,
-  };
-}
+              return {
+                id:
+                  image?._id ||
+                  image?.id ||
+                  imageValue ||
+                  `existing-image-${index}`,
 
-return {
-  id:
-    image._id ||
-    image.id ||
-    image.url ||
-    `image-${index}`,
+                _id:
+                  image?._id ||
+                  null,
 
-  _id: image._id,
+                url:
+                  image?.url ||
+                  imageValue ||
+                  "",
 
-  url:
-    image.url ||
-    image.secure_url,
+                secure_url:
+                  image?.secure_url ||
+                  imageValue ||
+                  "",
 
-  secure_url:
-    image.secure_url,
+                originalUrl:
+                  imageValue,
 
-  originalUrl:
-    image.url ||
-    image.secure_url,
-
-  isNew: false,
-};
-    });
+                isNew: false,
+              };
+            }
+          )
+        : [];
 
     setImages(productImages);
+    setRemovedImages([]);
   }, [product]);
 
-  /* =========================================================
-     RESOLVE PRODUCT CATEGORY
-  ========================================================= */
-
-  /*
-   * This is important for EDIT MODE.
-   *
-   * If product.category is already a root category,
-   * select it directly.
-   *
-   * If it is a subcategory, call getCategoryById()
-   * to find its parent.
-   */
+  /* =======================================================
+     RESOLVE PRODUCT CATEGORY HIERARCHY
+  ======================================================= */
 
   useEffect(() => {
     if (!product?.category) return;
 
+    if (!parentCategoriesLoaded) {
+      return;
+    }
+
     const categoryId =
       typeof product.category === "object"
         ? getId(product.category)
-        : product.category;
+        : String(
+            product.category || ""
+          );
 
     if (!categoryId) return;
 
-    /*
-     * First check whether the product category
-     * is itself a root category.
-     */
+    const categoryObject =
+      typeof product.category === "object"
+        ? product.category
+        : null;
 
-    const existingParent =
-      parentCategories.find(
-        (category) =>
-          String(getId(category)) ===
-          String(categoryId)
+    /*
+     * If backend already provides the hierarchy.
+     *
+     * Example:
+     *
+     * final category
+     *   -> parent = child
+     *       -> parent = root
+     */
+    const directParentId =
+      categoryObject?.parent?._id ||
+      categoryObject?.parent?.id ||
+      categoryObject?.parent ||
+      categoryObject?.parentCategory?._id ||
+      categoryObject?.parentCategory?.id ||
+      categoryObject?.parentCategory ||
+      "";
+
+    const parentParentId =
+      categoryObject?.parent?.parent?._id ||
+      categoryObject?.parent?.parent?.id ||
+      categoryObject?.parent?.parent ||
+      categoryObject?.parentCategory?.parent?._id ||
+      categoryObject?.parentCategory?.parent?.id ||
+      categoryObject?.parentCategory?.parent ||
+      "";
+
+    if (
+      directParentId &&
+      parentParentId
+    ) {
+      setParentCategoryId(
+        String(parentParentId)
       );
 
-    if (existingParent) {
-      setParentCategoryId(
+      setChildCategoryId(
+        String(directParentId)
+      );
+
+      setFinalCategoryId(
         String(categoryId)
       );
-
-      setSubcategoryId("");
 
       return;
     }
 
     /*
-     * If not a root category, check whether the
-     * product object already contains parent info.
+     * Check if selected category is a root category.
      */
-
-    if (
-      typeof product.category === "object"
-    ) {
-      const productCategory =
-        product.category;
-
-      const parentId =
-        productCategory?.parent?._id ||
-        productCategory?.parent ||
-        productCategory?.parentCategory?._id ||
-        productCategory?.parentCategory ||
-        "";
-
-      if (parentId) {
-        setParentCategoryId(
-          String(parentId)
-        );
-
-        setSubcategoryId(
+    const rootCategory =
+      parentCategories.find(
+        (category) =>
+          String(
+            getId(category)
+          ) ===
           String(categoryId)
-        );
+      );
 
-        return;
-      }
+    if (rootCategory) {
+      setParentCategoryId(
+        String(categoryId)
+      );
+
+      setChildCategoryId("");
+      setFinalCategoryId("");
+
+      return;
     }
 
     /*
-     * Otherwise ask the category API for the
-     * category details.
+     * Otherwise fetch category details.
      */
-
     dispatch(
       getCategoryById(categoryId)
     )
       .unwrap()
       .then((category) => {
         const parentId =
-          category?.parent?._id ||
-          category?.parent ||
-          category?.parentCategory?._id ||
-          category?.parentCategory ||
-          "";
+          getParentId(category);
 
-        if (parentId) {
+        /*
+         * No parent = root category.
+         */
+        if (!parentId) {
           setParentCategoryId(
-            String(parentId)
-          );
-
-          setSubcategoryId(
             String(categoryId)
           );
+
+          setChildCategoryId("");
+          setFinalCategoryId("");
+
+          return;
         }
+
+        /*
+         * Fetch parent to determine
+         * whether current category is:
+         *
+         * Root -> Child
+         *
+         * or
+         *
+         * Root -> Child -> Final
+         */
+        return dispatch(
+          getCategoryById(parentId)
+        )
+          .unwrap()
+          .then((parentCategory) => {
+            const grandParentId =
+              getParentId(
+                parentCategory
+              );
+
+            /*
+             * Root -> Child -> Final
+             */
+            if (grandParentId) {
+              setParentCategoryId(
+                String(grandParentId)
+              );
+
+              setChildCategoryId(
+                String(parentId)
+              );
+
+              setFinalCategoryId(
+                String(categoryId)
+              );
+            } else {
+              /*
+               * Root -> Child
+               */
+              setParentCategoryId(
+                String(parentId)
+              );
+
+              setChildCategoryId(
+                String(categoryId)
+              );
+
+              setFinalCategoryId("");
+            }
+          });
       })
       .catch((err) => {
         console.error(
-          "Failed to resolve product category:",
+          "Failed to resolve category hierarchy:",
           err
         );
       });
   }, [
     product,
+    parentCategoriesLoaded,
     parentCategories,
     dispatch,
   ]);
 
-  /* =========================================================
-     LOAD SUBCATEGORIES WHEN PARENT CHANGES
-  ========================================================= */
+  /* =======================================================
+     LOAD CHILDREN OF ROOT CATEGORY
+  ======================================================= */
 
   useEffect(() => {
     if (!parentCategoryId) return;
-
-    /*
-     * Check whether Redux already has the children.
-     */
-
-    const alreadyLoaded =
-      subcategories.length > 0;
-
-    if (alreadyLoaded) return;
 
     dispatch(
       getCategoryChildren(
@@ -461,52 +648,66 @@ return {
       .unwrap()
       .catch((err) => {
         console.error(
-          "Failed to load subcategories:",
+          "Failed to load child categories:",
           err
         );
       });
   }, [
     parentCategoryId,
     dispatch,
-    subcategories.length,
   ]);
 
-  /* =========================================================
-     ENSURE EDITED SUBCATEGORY IS LOADED
-  ========================================================= */
+  /* =======================================================
+     LOAD FINAL CATEGORIES
+  ======================================================= */
 
-  /*
-   * When editing:
-   *
-   * 1. getCategoryById finds parent
-   * 2. parentCategoryId changes
-   * 3. getCategoryChildren loads children
-   * 4. subcategoryId remains selected
-   *
-   * Nothing else is required here.
-   */
+  useEffect(() => {
+    if (!childCategoryId) return;
 
-  /* =========================================================
+    dispatch(
+      getCategoryChildren(
+        childCategoryId
+      )
+    )
+      .unwrap()
+      .catch((err) => {
+        console.error(
+          "Failed to load final categories:",
+          err
+        );
+      });
+  }, [
+    childCategoryId,
+    dispatch,
+  ]);
+
+  /* =======================================================
      REDUX ERROR
-  ========================================================= */
+  ======================================================= */
 
   useEffect(() => {
-    if (reduxError && !error) {
-      setError(
-        typeof reduxError === "string"
-          ? reduxError
-          : reduxError?.message ||
-              "Something went wrong."
-      );
-    }
-  }, [reduxError, error]);
+    if (!reduxError) return;
 
-  /* =========================================================
-     CLOSE CATEGORY DROPDOWN OUTSIDE CLICK
-  ========================================================= */
+    setError((currentError) => {
+      if (currentError) {
+        return currentError;
+      }
+
+      return typeof reduxError === "string"
+        ? reduxError
+        : reduxError?.message ||
+            "Something went wrong.";
+    });
+  }, [reduxError]);
+
+  /* =======================================================
+     CLOSE DROPDOWN OUTSIDE CLICK
+  ======================================================= */
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (
+      event
+    ) => {
       if (
         categoryDropdownRef.current &&
         !categoryDropdownRef.current.contains(
@@ -530,9 +731,9 @@ return {
     };
   }, []);
 
-  /* =========================================================
+  /* =======================================================
      FORM CHANGE
-  ========================================================= */
+  ======================================================= */
 
   const handleChange = (e) => {
     const {
@@ -545,37 +746,26 @@ return {
       [name]: value,
     }));
 
-    if (error) {
-      setError("");
-    }
-
-    if (success) {
-      setSuccess("");
-    }
+    setError("");
+    setSuccess("");
   };
 
-  /* =========================================================
-     SELECT PARENT CATEGORY
-  ========================================================= */
+  /* =======================================================
+     CATEGORY SELECTION
+  ======================================================= */
 
   const handleParentCategorySelect = (
     category
   ) => {
-    const categoryId =
+    const selectedId =
       getId(category);
 
     setParentCategoryId(
-      String(categoryId)
+      String(selectedId)
     );
 
-    setSubcategoryId("");
-
-    /*
-     * Important:
-     * Do NOT put parent category into
-     * formData.category yet if your product
-     * must use the subcategory.
-     */
+    setChildCategoryId("");
+    setFinalCategoryId("");
 
     setFormData((prev) => ({
       ...prev,
@@ -583,36 +773,153 @@ return {
     }));
 
     setCategorySearch("");
+    setError("");
   };
 
-  /* =========================================================
-     SELECT SUBCATEGORY
-  ========================================================= */
-
-  const handleSubcategorySelect = (
-    subcategory
+  const handleChildCategorySelect = (
+    category
   ) => {
-    const subId =
-      getId(subcategory);
+    const selectedId =
+      getId(category);
 
-    setSubcategoryId(
-      String(subId)
+    setChildCategoryId(
+      String(selectedId)
+    );
+
+    setFinalCategoryId("");
+
+    setFormData((prev) => ({
+      ...prev,
+      category: "",
+    }));
+
+    setCategorySearch("");
+    setError("");
+  };
+
+  const handleFinalCategorySelect = (
+    category
+  ) => {
+    const selectedId =
+      getId(category);
+
+    setFinalCategoryId(
+      String(selectedId)
     );
 
     setFormData((prev) => ({
       ...prev,
-      category: String(subId),
+      category: String(selectedId),
     }));
 
     setCategoryOpen(false);
     setCategorySearch("");
-
     setError("");
   };
 
-  /* =========================================================
+  /* =======================================================
+     SELECTED CATEGORY OBJECTS
+  ======================================================= */
+
+  const selectedParent = useMemo(() => {
+    return parentCategories.find(
+      (category) =>
+        String(
+          getId(category)
+        ) ===
+        String(parentCategoryId)
+    );
+  }, [
+    parentCategories,
+    parentCategoryId,
+  ]);
+
+  const selectedChild = useMemo(() => {
+    return childCategories.find(
+      (category) =>
+        String(
+          getId(category)
+        ) ===
+        String(childCategoryId)
+    );
+  }, [
+    childCategories,
+    childCategoryId,
+  ]);
+
+  const selectedFinalCategory =
+    useMemo(() => {
+      return finalCategories.find(
+        (category) =>
+          String(
+            getId(category)
+          ) ===
+          String(finalCategoryId)
+      );
+    }, [
+      finalCategories,
+      finalCategoryId,
+    ]);
+
+  /*
+   * Used in product preview.
+   */
+  const selectedCategory =
+    selectedFinalCategory ||
+    selectedChild ||
+    selectedParent;
+
+  /* =======================================================
+     FILTERED CATEGORIES
+  ======================================================= */
+
+  const normalizedSearch =
+    categorySearch
+      .trim()
+      .toLowerCase();
+
+  const filteredParentCategories =
+    useMemo(() => {
+      return parentCategories.filter(
+        (category) =>
+          getCategoryName(category)
+            .toLowerCase()
+            .includes(normalizedSearch)
+      );
+    }, [
+      parentCategories,
+      normalizedSearch,
+    ]);
+
+  const filteredChildCategories =
+    useMemo(() => {
+      return childCategories.filter(
+        (category) =>
+          getCategoryName(category)
+            .toLowerCase()
+            .includes(normalizedSearch)
+      );
+    }, [
+      childCategories,
+      normalizedSearch,
+    ]);
+
+  const filteredFinalCategories =
+    useMemo(() => {
+      return finalCategories.filter(
+        (category) =>
+          getCategoryName(category)
+            .toLowerCase()
+            .includes(normalizedSearch)
+      );
+    }, [
+      finalCategories,
+      normalizedSearch,
+    ]);
+
+  /* =======================================================
      IMAGE UPLOAD
-  ========================================================= */
+  ======================================================= */
 
   const handleImageUpload = (e) => {
     const files = Array.from(
@@ -621,108 +928,140 @@ return {
 
     if (!files.length) return;
 
-    const newImages = files.map(
-      (file) => ({
-        id: `${file.name}-${Date.now()}-${Math.random()}`,
-
-        file,
-
-        preview:
-          URL.createObjectURL(file),
-
-        isNew: true,
-      })
+    const validFiles = files.filter(
+      (file) =>
+        file.type ===
+          "image/png" ||
+        file.type ===
+          "image/jpeg" ||
+        file.type ===
+          "image/webp"
     );
+
+    if (!validFiles.length) {
+      setError(
+        "Please select PNG, JPG, or WEBP images."
+      );
+
+      e.target.value = "";
+      return;
+    }
+
+    const newImages =
+      validFiles.map(
+        (file) => ({
+          id: `new-${Date.now()}-${Math.random()
+            .toString(36)
+            .slice(2)}`,
+
+          file,
+
+          preview:
+            URL.createObjectURL(file),
+
+          isNew: true,
+        })
+      );
 
     setImages((prev) => [
       ...prev,
       ...newImages,
     ]);
 
+    setError("");
     e.target.value = "";
   };
 
-  /* =========================================================
+  /* =======================================================
      REMOVE IMAGE
-  ========================================================= */
+  ======================================================= */
 
   const removeImage = (imageId) => {
-    setImages((prev) => {
-      const imageToRemove =
-        prev.find(
-          (image) =>
-            (image.id ||
-              image._id ||
-              image.url) ===
-            imageId
-        );
-
-      if (!imageToRemove) {
-        return prev;
-      }
-
-      /*
-       * NEW IMAGE
-       */
-
-      if (imageToRemove.isNew) {
-        if (
-          imageToRemove.preview
-        ) {
-          URL.revokeObjectURL(
-            imageToRemove.preview
-          );
-        }
-
-        return prev.filter(
-          (image) =>
-            (image.id ||
-              image._id ||
-              image.url) !==
-            imageId
-        );
-      }
-
-      /*
-       * EXISTING IMAGE
-       */
-
-      const imageValue =
-        imageToRemove._id ||
-        imageToRemove.url;
-
-      if (imageValue) {
-        setRemovedImages(
-          (current) => {
-            if (
-              current.includes(
-                imageValue
-              )
-            ) {
-              return current;
-            }
-
-            return [
-              ...current,
-              imageValue,
-            ];
-          }
-        );
-      }
-
-      return prev.filter(
+    const imageToRemove =
+      images.find(
         (image) =>
-          (image.id ||
-            image._id ||
-            image.url) !==
-          imageId
+          String(
+            image.id ||
+              image._id ||
+              image.url
+          ) ===
+          String(imageId)
       );
-    });
+
+    if (!imageToRemove) {
+      return;
+    }
+
+    /*
+     * New uploaded image.
+     */
+    if (imageToRemove.isNew) {
+      if (
+        imageToRemove.preview
+      ) {
+        URL.revokeObjectURL(
+          imageToRemove.preview
+        );
+      }
+
+      setImages((prev) =>
+        prev.filter(
+          (image) =>
+            String(
+              image.id ||
+                image._id ||
+                image.url
+            ) !==
+            String(imageId)
+        )
+      );
+
+      return;
+    }
+
+    /*
+     * Existing image.
+     */
+    const imageValue =
+      imageToRemove._id ||
+      imageToRemove.originalUrl ||
+      imageToRemove.url;
+
+    if (imageValue) {
+      setRemovedImages(
+        (current) => {
+          if (
+            current.includes(
+              imageValue
+            )
+          ) {
+            return current;
+          }
+
+          return [
+            ...current,
+            imageValue,
+          ];
+        }
+      );
+    }
+
+    setImages((prev) =>
+      prev.filter(
+        (image) =>
+          String(
+            image.id ||
+              image._id ||
+              image.url
+          ) !==
+          String(imageId)
+      )
+    );
   };
 
-  /* =========================================================
+  /* =======================================================
      VALIDATION
-  ========================================================= */
+  ======================================================= */
 
   const validateForm = () => {
     if (!formData.name.trim()) {
@@ -734,7 +1073,7 @@ return {
     }
 
     if (!formData.category) {
-      return "Please select a category and subcategory.";
+      return "Please select the final product category.";
     }
 
     if (
@@ -742,6 +1081,13 @@ return {
       Number(formData.price) <= 0
     ) {
       return "Please enter a valid price.";
+    }
+
+    if (
+      formData.mrp !== "" &&
+      Number(formData.mrp) < 0
+    ) {
+      return "MRP cannot be negative.";
     }
 
     if (
@@ -762,12 +1108,14 @@ return {
     return "";
   };
 
-  /* =========================================================
+  /* =======================================================
      SUBMIT
-  ========================================================= */
+  ======================================================= */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (saving) return;
 
     const validationError =
       validateForm();
@@ -782,7 +1130,8 @@ return {
       setError("");
       setSuccess("");
 
-      const data = new FormData();
+      const data =
+        new FormData();
 
       data.append(
         "name",
@@ -796,7 +1145,9 @@ return {
 
       data.append(
         "category",
-        formData.category
+        String(
+          formData.category
+        )
       );
 
       data.append(
@@ -830,6 +1181,15 @@ return {
       );
 
       data.append(
+        "mrp",
+        String(
+          formData.mrp === ""
+            ? 0
+            : Number(formData.mrp)
+        )
+      );
+
+      data.append(
         "sku",
         formData.sku
           .trim()
@@ -838,12 +1198,37 @@ return {
 
       data.append(
         "status",
-        formData.status
+        formData.status ||
+          "active"
+      );
+
+      data.append(
+        "hasVariants",
+        String(
+          formData.hasVariants
+        )
       );
 
       /*
-       * NEW IMAGES
+       * Send variants if your backend
+       * expects them.
        */
+      if (
+        Array.isArray(
+          formData.variants
+        )
+      ) {
+        data.append(
+          "variants",
+          JSON.stringify(
+            formData.variants
+          )
+        );
+      }
+
+      /* -----------------------------------------------------
+         NEW IMAGES
+      ----------------------------------------------------- */
 
       images
         .filter(
@@ -858,9 +1243,9 @@ return {
           );
         });
 
-      /*
-       * REMOVED IMAGES
-       */
+      /* -----------------------------------------------------
+         REMOVED IMAGES
+      ----------------------------------------------------- */
 
       removedImages.forEach(
         (image) => {
@@ -884,17 +1269,24 @@ return {
           "Product updated successfully."
       );
 
+      /*
+       * Small delay so user can see
+       * success message.
+       */
       setTimeout(() => {
-        navigate(
-          user.role === "admin"?
-          "/admin/products" : "/vendor/products"
-        );
+        navigate(backPath);
       }, 900);
     } catch (err) {
+      console.error(
+        "Update product error:",
+        err
+      );
+
       setError(
         typeof err === "string"
           ? err
           : err?.message ||
+              err?.error ||
               "Failed to update product."
       );
     } finally {
@@ -902,74 +1294,30 @@ return {
     }
   };
 
-  /* =========================================================
-     CLEANUP PREVIEW URLS
-  ========================================================= */
+  /* =======================================================
+     CLEANUP NEW IMAGE PREVIEWS
+  ======================================================= */
 
   useEffect(() => {
     return () => {
-      images.forEach((image) => {
-        if (
-          image.isNew &&
-          image.preview
-        ) {
-          URL.revokeObjectURL(
+      images.forEach(
+        (image) => {
+          if (
+            image.isNew &&
             image.preview
-          );
+          ) {
+            URL.revokeObjectURL(
+              image.preview
+            );
+          }
         }
-      });
+      );
     };
   }, [images]);
 
-  /* =========================================================
-     SELECTED CATEGORY
-  ========================================================= */
-
-  const selectedCategory =
-    parentCategories.find(
-      (category) =>
-        String(
-          getId(category)
-        ) ===
-        String(
-          formData.category
-        )
-    ) ||
-    subcategories.find(
-      (category) =>
-        String(
-          getId(category)
-        ) ===
-        String(
-          formData.category
-        )
-    );
-
-  const selectedParent =
-    parentCategories.find(
-      (category) =>
-        String(
-          getId(category)
-        ) ===
-        String(
-          parentCategoryId
-        )
-    );
-
-  const selectedSubcategory =
-    subcategories.find(
-      (category) =>
-        String(
-          getId(category)
-        ) ===
-        String(
-          subcategoryId
-        )
-    );
-
-  /* =========================================================
-     PRICE
-  ========================================================= */
+  /* =======================================================
+     PRICE CALCULATIONS
+  ======================================================= */
 
   const price = Number(
     formData.price || 0
@@ -980,36 +1328,16 @@ return {
   );
 
   const discountedPrice =
-    price -
-    (price * discount) / 100;
-
-  /* =========================================================
-     FILTER CATEGORIES
-  ========================================================= */
-
-  const filteredParentCategories =
-    parentCategories.filter(
-      (category) =>
-        getCategoryName(category)
-          ?.toLowerCase()
-          .includes(
-            categorySearch.toLowerCase()
-          )
+    Math.max(
+      0,
+      price -
+        (price * discount) /
+          100
     );
 
-  const filteredSubcategories =
-    subcategories.filter(
-      (category) =>
-        getCategoryName(category)
-          ?.toLowerCase()
-          .includes(
-            categorySearch.toLowerCase()
-          )
-    );
-
-  /* =========================================================
+  /* =======================================================
      LOADING
-  ========================================================= */
+  ======================================================= */
 
   if (
     loading ||
@@ -1030,9 +1358,9 @@ return {
     );
   }
 
-  /* =========================================================
+  /* =======================================================
      PAGE
-  ========================================================= */
+  ======================================================= */
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -1051,14 +1379,13 @@ return {
               <button
                 type="button"
                 onClick={() =>
-                  navigate(
-                   user.role === "admin"?
-          "/admin/products" : "/vendor/products"
-                  )
+                  navigate(backPath)
                 }
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
               >
-                <ArrowLeft size={18} />
+                <ArrowLeft
+                  size={18}
+                />
               </button>
 
               <div className="min-w-0">
@@ -1091,10 +1418,7 @@ return {
               <button
                 type="button"
                 onClick={() =>
-                  navigate(
-                    user.role === "admin"?
-          "/admin/products" : "/vendor/products"
-                  )
+                  navigate(backPath)
                 }
                 disabled={saving}
                 className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
@@ -1168,7 +1492,7 @@ return {
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
 
           {/* =================================================
-              LEFT
+              LEFT SIDE
           ================================================== */}
 
           <div className="space-y-6 xl:col-span-2">
@@ -1182,7 +1506,9 @@ return {
                 <div className="flex items-center gap-3">
 
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
-                    <Package size={18} />
+                    <Package
+                      size={18}
+                    />
                   </div>
 
                   <div>
@@ -1221,8 +1547,12 @@ return {
                     id="name"
                     name="name"
                     type="text"
-                    value={formData.name}
-                    onChange={handleChange}
+                    value={
+                      formData.name
+                    }
+                    onChange={
+                      handleChange
+                    }
                     placeholder="Enter product name"
                     className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
                   />
@@ -1249,7 +1579,9 @@ return {
                     value={
                       formData.description
                     }
-                    onChange={handleChange}
+                    onChange={
+                      handleChange
+                    }
                     rows={5}
                     placeholder="Enter product description"
                     className="w-full resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
@@ -1261,316 +1593,333 @@ return {
 
                 </div>
 
-                {/* CATEGORY + BRAND */}
+                {/* CATEGORY */}
 
-                {/* <div className="grid grid-cols-1 gap-5 md:grid-cols-2"> */}
+                <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
 
-                  {/* CATEGORY */}
+                  <div className="mb-5 flex items-center gap-3">
 
-                  <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
+                      <Layers
+                        size={19}
+                      />
+                    </div>
 
-                    <div className="mb-5 flex items-center gap-3">
+                    <div>
 
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
-                        <Layers size={19} />
-                      </div>
+                      <h2 className="text-base font-semibold text-gray-900">
+                        Product Category
+                      </h2>
 
-                      <div>
-
-                        <h2 className="text-base font-semibold text-gray-900">
-                          Product Category
-                        </h2>
-
-                        <p className="text-xs text-gray-400">
-                          Choose a parent category first, then select its subcategory.
-                        </p>
-
-                      </div>
+                      <p className="text-xs text-gray-400">
+                        Select parent, child, and final category.
+                      </p>
 
                     </div>
 
-                    <div
-                      ref={
-                        categoryDropdownRef
-                      }
-                      className="relative"
-                    >
+                  </div>
 
-                      <label className="mb-2 block text-sm font-medium text-gray-700">
-                        Category
-                        <span className="ml-1 text-red-500">
-                          *
-                        </span>
-                      </label>
+                  <div
+                    ref={
+                      categoryDropdownRef
+                    }
+                    className="relative"
+                  >
 
-                      {/* SELECTED */}
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                      Category
+                      <span className="ml-1 text-red-500">
+                        *
+                      </span>
+                    </label>
 
-                      {(parentCategoryId ||
-                        subcategoryId) && (
-                        <div className="mb-4 rounded-xl border border-blue-100 bg-blue-50/60 p-3">
+                    {/* SELECTED PATH */}
 
-                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                    {parentCategoryId && (
+                      <div className="mb-4 rounded-xl border border-blue-100 bg-blue-50/60 p-3">
 
-                            <FolderTree
-                              size={14}
-                            />
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <FolderTree
+                            size={14}
+                          />
 
-                            <span>
-                              Selected category
-                            </span>
-
-                          </div>
-
-                          <div className="mt-2 flex flex-wrap items-center gap-2">
-
-                            {selectedParent && (
-                              <span className="inline-flex items-center rounded-lg border border-blue-100 bg-white px-3 py-1.5 text-sm font-medium text-gray-700">
-                                {getCategoryName(
-                                  selectedParent
-                                )}
-                              </span>
-                            )}
-
-                            {selectedSubcategory && (
-                              <>
-                                <span className="text-gray-400">
-                                  /
-                                </span>
-
-                                <span className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white">
-                                  {getCategoryName(
-                                    selectedSubcategory
-                                  )}
-                                </span>
-                              </>
-                            )}
-
-                          </div>
-
+                          <span>
+                            Selected category
+                          </span>
                         </div>
-                      )}
 
-                      {/* BUTTON */}
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
 
-                      <button
-                        type="button"
-                        disabled={
-                          categoryLoading
-                        }
-                        onClick={() =>
-                          setCategoryOpen(
-                            (prev) =>
-                              !prev
-                          )
-                        }
-                        className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-left text-sm text-gray-900 outline-none transition hover:border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:bg-gray-50"
-                      >
-
-                        <div className="min-w-0">
-
-                          {categoryLoading ? (
-                            <span className="text-gray-400">
-                              Loading categories...
-                            </span>
-                          ) : subcategoryId ? (
-                            <div>
-
-                              <p className="truncate text-sm font-semibold text-gray-900">
-                                {getCategoryName(
-                                  selectedSubcategory
-                                )}
-                              </p>
-
-                              <p className="mt-0.5 text-xs text-gray-400">
-                                {getCategoryName(
-                                  selectedParent
-                                )}
-                              </p>
-
-                            </div>
-                          ) : parentCategoryId ? (
-                            <p className="text-sm font-semibold text-gray-900">
+                          {selectedParent && (
+                            <span className="rounded-lg border border-blue-100 bg-white px-3 py-1.5 text-sm font-medium text-gray-700">
                               {getCategoryName(
                                 selectedParent
                               )}
-                            </p>
-                          ) : (
-                            <span className="text-gray-400">
-                              Select parent category
                             </span>
+                          )}
+
+                          {selectedChild && (
+                            <>
+                              <span className="text-gray-400">
+                                /
+                              </span>
+
+                              <span className="rounded-lg border border-blue-100 bg-white px-3 py-1.5 text-sm font-medium text-gray-700">
+                                {getCategoryName(
+                                  selectedChild
+                                )}
+                              </span>
+                            </>
+                          )}
+
+                          {selectedFinalCategory && (
+                            <>
+                              <span className="text-gray-400">
+                                /
+                              </span>
+
+                              <span className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white">
+                                {getCategoryName(
+                                  selectedFinalCategory
+                                )}
+                              </span>
+                            </>
                           )}
 
                         </div>
 
-                        <ChevronDown
-                          size={18}
-                          className={`shrink-0 text-gray-400 transition-transform ${
-                            categoryOpen
-                              ? "rotate-180"
-                              : ""
-                          }`}
-                        />
+                      </div>
+                    )}
 
-                      </button>
+                    {/* CATEGORY BUTTON */}
 
-                      {/* DROPDOWN */}
+                    <button
+                      type="button"
+                      disabled={
+                        categoryLoading
+                      }
+                      onClick={() =>
+                        setCategoryOpen(
+                          (prev) =>
+                            !prev
+                        )
+                      }
+                      className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-left text-sm text-gray-900 outline-none transition hover:border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:bg-gray-50"
+                    >
 
-                      {categoryOpen && (
-                        <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
+                      <div className="min-w-0">
 
-                          {/* SEARCH */}
+                        {categoryLoading ? (
+                          <span className="text-gray-400">
+                            Loading categories...
+                          </span>
+                        ) : selectedFinalCategory ? (
+                          <div>
 
-                          <div className="border-b border-gray-100 p-3">
+                            <p className="truncate text-sm font-semibold text-gray-900">
+                              {getCategoryName(
+                                selectedFinalCategory
+                              )}
+                            </p>
 
-                            <div className="relative">
+                            <p className="mt-0.5 truncate text-xs text-gray-400">
+                              {getCategoryName(
+                                selectedParent
+                              )}{" "}
+                              /{" "}
+                              {getCategoryName(
+                                selectedChild
+                              )}
+                            </p>
 
-                              <Search
-                                size={17}
-                                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                              />
+                          </div>
+                        ) : selectedChild ? (
+                          <div>
 
-                              <input
-                                type="text"
-                                value={
-                                  categorySearch
+                            <p className="truncate text-sm font-semibold text-gray-900">
+                              {getCategoryName(
+                                selectedChild
+                              )}
+                            </p>
+
+                            <p className="mt-0.5 text-xs text-gray-400">
+                              {getCategoryName(
+                                selectedParent
+                              )}
+                            </p>
+
+                          </div>
+                        ) : selectedParent ? (
+                          <p className="text-sm font-semibold text-gray-900">
+                            {getCategoryName(
+                              selectedParent
+                            )}
+                          </p>
+                        ) : (
+                          <span className="text-gray-400">
+                            Select parent category
+                          </span>
+                        )}
+
+                      </div>
+
+                      <ChevronDown
+                        size={18}
+                        className={`shrink-0 text-gray-400 transition-transform ${
+                          categoryOpen
+                            ? "rotate-180"
+                            : ""
+                        }`}
+                      />
+
+                    </button>
+
+                    {/* DROPDOWN */}
+
+                    {categoryOpen && (
+                      <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
+
+                        {/* SEARCH */}
+
+                        <div className="border-b border-gray-100 p-3">
+
+                          <div className="relative">
+
+                            <Search
+                              size={17}
+                              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                            />
+
+                            <input
+                              type="text"
+                              value={
+                                categorySearch
+                              }
+                              onChange={(e) =>
+                                setCategorySearch(
+                                  e.target.value
+                                )
+                              }
+                              placeholder={
+                                !parentCategoryId
+                                  ? "Search parent categories..."
+                                  : !childCategoryId
+                                  ? "Search child categories..."
+                                  : "Search final categories..."
+                              }
+                              className="h-10 w-full rounded-lg border border-gray-200 pl-9 pr-3 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50"
+                              autoFocus
+                            />
+
+                          </div>
+
+                        </div>
+
+                        {/* =================================================
+                            STEP 1
+                        ================================================== */}
+
+                        {!parentCategoryId && (
+                          <div>
+
+                            <div className="border-b border-gray-100 bg-gray-50 px-4 py-3">
+
+                              <p className="text-xs font-bold uppercase tracking-wide text-gray-500">
+                                Step 1
+                              </p>
+
+                              <p className="mt-1 text-sm font-semibold text-gray-800">
+                                Select parent category
+                              </p>
+
+                            </div>
+
+                            <div className="max-h-64 overflow-y-auto py-1">
+
+                              {filteredParentCategories.map(
+                                (
+                                  category
+                                ) => {
+                                  const categoryId =
+                                    getId(
+                                      category
+                                    );
+
+                                  return (
+                                    <button
+                                      key={
+                                        categoryId
+                                      }
+                                      type="button"
+                                      onClick={() =>
+                                        handleParentCategorySelect(
+                                          category
+                                        )
+                                      }
+                                      className="w-full px-4 py-3 text-left transition hover:bg-blue-50"
+                                    >
+
+                                      <div className="flex items-center justify-between gap-3">
+
+                                        <div className="flex min-w-0 items-center gap-3">
+
+                                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
+                                            <Layers
+                                              size={
+                                                17
+                                              }
+                                            />
+                                          </div>
+
+                                          <div className="min-w-0">
+
+                                            <p className="truncate text-sm font-semibold">
+                                              {getCategoryName(
+                                                category
+                                              )}
+                                            </p>
+
+                                          </div>
+
+                                        </div>
+
+                                        <ChevronDown
+                                          size={
+                                            17
+                                          }
+                                          className="-rotate-90 shrink-0 text-gray-400"
+                                        />
+
+                                      </div>
+
+                                    </button>
+                                  );
                                 }
-                                onChange={(
-                                  e
-                                ) =>
-                                  setCategorySearch(
-                                    e.target.value
-                                  )
-                                }
-                                placeholder={
-                                  parentCategoryId
-                                    ? "Search subcategories..."
-                                    : "Search parent categories..."
-                                }
-                                className="h-10 w-full rounded-lg border border-gray-200 pl-9 pr-3 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50"
-                                autoFocus
-                              />
+                              )}
+
+                              {filteredParentCategories.length ===
+                                0 && (
+                                <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                  No parent categories found.
+                                </div>
+                              )}
 
                             </div>
 
                           </div>
+                        )}
 
-                          {/* PARENT */}
+                        {/* =================================================
+                            STEP 2
+                        ================================================== */}
 
-                          {!parentCategoryId ? (
+                        {parentCategoryId &&
+                          !childCategoryId && (
                             <div>
 
                               <div className="border-b border-gray-100 bg-gray-50 px-4 py-3">
 
-                                <p className="text-xs font-bold uppercase tracking-wide text-gray-500">
-                                  Step 1
-                                </p>
-
-                                <p className="mt-1 text-sm font-semibold text-gray-800">
-                                  Select a parent category
-                                </p>
-
-                              </div>
-
-                              <div
-                                ref={
-                                  categoryScrollRef
-                                }
-                                className="max-h-64 overflow-y-auto py-1"
-                              >
-
-                                {filteredParentCategories.map(
-                                  (
-                                    category
-                                  ) => {
-
-                                    const categoryId =
-                                      getId(
-                                        category
-                                      );
-
-                                    const children =
-                                      getChildren(
-                                        category
-                                      );
-
-                                    return (
-                                      <button
-                                        key={
-                                          categoryId
-                                        }
-                                        type="button"
-                                        onClick={() =>
-                                          handleParentCategorySelect(
-                                            category
-                                          )
-                                        }
-                                        className="w-full px-4 py-3 text-left transition hover:bg-blue-50"
-                                      >
-
-                                        <div className="flex items-center justify-between gap-3">
-
-                                          <div className="flex min-w-0 items-center gap-3">
-
-                                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
-                                              <Layers
-                                                size={
-                                                  17
-                                                }
-                                              />
-                                            </div>
-
-                                            <div className="min-w-0">
-
-                                              <p className="truncate text-sm font-semibold">
-                                                {getCategoryName(
-                                                  category
-                                                )}
-                                              </p>
-
-                                              <p className="mt-0.5 text-xs text-gray-400">
-                                                {children.length >
-                                                0
-                                                  ? `${children.length} subcategories`
-                                                  : "No subcategories"}
-                                              </p>
-
-                                            </div>
-
-                                          </div>
-
-                                          <ChevronDown
-                                            size={
-                                              17
-                                            }
-                                            className="-rotate-90 shrink-0 text-gray-400"
-                                          />
-
-                                        </div>
-
-                                      </button>
-                                    );
-                                  }
-                                )}
-
-                                {filteredParentCategories.length ===
-                                  0 && (
-                                  <div className="px-4 py-8 text-center text-sm text-gray-500">
-                                    No parent categories found.
-                                  </div>
-                                )}
-
-                              </div>
-
-                            </div>
-                          ) : (
-
-                            /* SUBCATEGORY */
-
-                            <div>
-
-                              <div className="border-b border-gray-100 bg-gray-50 px-4 py-3">
-
-                                <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center justify-between">
 
                                   <div>
 
@@ -1579,7 +1928,7 @@ return {
                                     </p>
 
                                     <p className="mt-1 text-sm font-semibold text-gray-800">
-                                      Select a subcategory
+                                      Select child category
                                     </p>
 
                                   </div>
@@ -1591,11 +1940,11 @@ return {
                                         ""
                                       );
 
-                                      setSubcategoryId(
+                                      setChildCategoryId(
                                         ""
                                       );
 
-                                      setCategorySearch(
+                                      setFinalCategoryId(
                                         ""
                                       );
 
@@ -1608,8 +1957,12 @@ return {
                                             "",
                                         })
                                       );
+
+                                      setCategorySearch(
+                                        ""
+                                      );
                                     }}
-                                    className="text-xs font-semibold text-blue-600 hover:text-blue-700"
+                                    className="text-xs font-semibold text-blue-600"
                                   >
                                     Change
                                   </button>
@@ -1637,51 +1990,208 @@ return {
 
                               <div className="max-h-64 overflow-y-auto py-1">
 
-                                {filteredSubcategories.map(
+                                {filteredChildCategories.map(
                                   (
-                                    subcategory
+                                    category
                                   ) => {
-
-                                    const subId =
+                                    const categoryId =
                                       getId(
-                                        subcategory
-                                      );
-
-                                    const selected =
-                                      String(
-                                        subcategoryId
-                                      ) ===
-                                      String(
-                                        subId
+                                        category
                                       );
 
                                     return (
                                       <button
                                         key={
-                                          subId
+                                          categoryId
                                         }
                                         type="button"
                                         onClick={() =>
-                                          handleSubcategorySelect(
-                                            subcategory
+                                          handleChildCategorySelect(
+                                            category
+                                          )
+                                        }
+                                        className="w-full px-4 py-3 text-left transition hover:bg-blue-50"
+                                      >
+
+                                        <div className="flex items-center justify-between">
+
+                                          <div className="flex items-center gap-3">
+
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
+                                              <FolderTree
+                                                size={
+                                                  16
+                                                }
+                                              />
+                                            </div>
+
+                                            <span className="text-sm font-medium text-gray-700">
+                                              {getCategoryName(
+                                                category
+                                              )}
+                                            </span>
+
+                                          </div>
+
+                                          <ChevronDown
+                                            size={
+                                              16
+                                            }
+                                            className="-rotate-90 text-gray-400"
+                                          />
+
+                                        </div>
+
+                                      </button>
+                                    );
+                                  }
+                                )}
+
+                                {categoryLoading &&
+                                  filteredChildCategories.length ===
+                                    0 && (
+                                    <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                      Loading child categories...
+                                    </div>
+                                  )}
+
+                                {!categoryLoading &&
+                                  filteredChildCategories.length ===
+                                    0 && (
+                                    <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                      No child categories found.
+                                    </div>
+                                  )}
+
+                              </div>
+
+                            </div>
+                          )}
+
+                        {/* =================================================
+                            STEP 3
+                        ================================================== */}
+
+                        {parentCategoryId &&
+                          childCategoryId && (
+                            <div>
+
+                              <div className="border-b border-gray-100 bg-gray-50 px-4 py-3">
+
+                                <div className="flex items-center justify-between">
+
+                                  <div>
+
+                                    <p className="text-xs font-bold uppercase tracking-wide text-gray-500">
+                                      Step 3
+                                    </p>
+
+                                    <p className="mt-1 text-sm font-semibold text-gray-800">
+                                      Select final category
+                                    </p>
+
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setChildCategoryId(
+                                        ""
+                                      );
+
+                                      setFinalCategoryId(
+                                        ""
+                                      );
+
+                                      setFormData(
+                                        (
+                                          prev
+                                        ) => ({
+                                          ...prev,
+                                          category:
+                                            "",
+                                        })
+                                      );
+
+                                      setCategorySearch(
+                                        ""
+                                      );
+                                    }}
+                                    className="text-xs font-semibold text-blue-600"
+                                  >
+                                    Back
+                                  </button>
+
+                                </div>
+
+                                <div className="mt-2 flex flex-wrap items-center gap-2">
+
+                                  <span className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600">
+                                    {getCategoryName(
+                                      selectedParent
+                                    )}
+                                  </span>
+
+                                  <span className="text-gray-400">
+                                    /
+                                  </span>
+
+                                  <span className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
+                                    {getCategoryName(
+                                      selectedChild
+                                    )}
+                                  </span>
+
+                                </div>
+
+                              </div>
+
+                              <div className="max-h-64 overflow-y-auto py-1">
+
+                                {filteredFinalCategories.map(
+                                  (
+                                    category
+                                  ) => {
+                                    const categoryId =
+                                      getId(
+                                        category
+                                      );
+
+                                    const selected =
+                                      String(
+                                        finalCategoryId
+                                      ) ===
+                                      String(
+                                        categoryId
+                                      );
+
+                                    return (
+                                      <button
+                                        key={
+                                          categoryId
+                                        }
+                                        type="button"
+                                        onClick={() =>
+                                          handleFinalCategorySelect(
+                                            category
                                           )
                                         }
                                         className={`w-full px-4 py-3 text-left transition ${
                                           selected
-                                            ? "bg-blue-50 text-blue-700"
-                                            : "text-gray-700 hover:bg-gray-50"
+                                            ? "bg-blue-50"
+                                            : "hover:bg-gray-50"
                                         }`}
                                       >
 
-                                        <div className="flex items-center justify-between gap-3">
+                                        <div className="flex items-center justify-between">
 
-                                          <div className="flex min-w-0 items-center gap-3">
+                                          <div className="flex items-center gap-3">
 
                                             <div
-                                              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                                              className={`flex h-8 w-8 items-center justify-center rounded-lg ${
                                                 selected
                                                   ? "bg-blue-100 text-blue-600"
-                                                  : "bg-gray-100 text-gray-400"
+                                                  : "bg-gray-100 text-gray-500"
                                               }`}
                                             >
                                               <FolderTree
@@ -1692,14 +2202,14 @@ return {
                                             </div>
 
                                             <span
-                                              className={`truncate text-sm ${
+                                              className={`text-sm ${
                                                 selected
-                                                  ? "font-semibold"
-                                                  : "font-medium"
+                                                  ? "font-semibold text-blue-700"
+                                                  : "font-medium text-gray-700"
                                               }`}
                                             >
                                               {getCategoryName(
-                                                subcategory
+                                                category
                                               )}
                                             </span>
 
@@ -1710,7 +2220,7 @@ return {
                                               size={
                                                 17
                                               }
-                                              className="shrink-0 text-blue-600"
+                                              className="text-blue-600"
                                             />
                                           )}
 
@@ -1721,60 +2231,66 @@ return {
                                   }
                                 )}
 
-                                {filteredSubcategories.length ===
-                                  0 && (
-                                  <div className="px-4 py-8 text-center text-sm text-gray-500">
-                                    No subcategories found.
-                                  </div>
-                                )}
+                                {categoryLoading &&
+                                  filteredFinalCategories.length ===
+                                    0 && (
+                                    <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                      Loading final categories...
+                                    </div>
+                                  )}
+
+                                {!categoryLoading &&
+                                  filteredFinalCategories.length ===
+                                    0 && (
+                                    <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                      No final categories found.
+                                    </div>
+                                  )}
 
                               </div>
 
                             </div>
                           )}
 
-                        </div>
-                      )}
+                      </div>
+                    )}
 
-                      <p className="mt-2 text-xs text-gray-400">
-                        Choose the parent category first, then select the subcategory.
-                      </p>
-
-                    </div>
-
-                  </section>
-                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-
-                  {/* BRAND */}
-
-                  <div>
-
-                    <label
-                      htmlFor="brand"
-                      className="mb-2 block text-sm font-medium text-slate-700"
-                    >
-                      Brand
-                    </label>
-
-                    <input
-                      id="brand"
-                      name="brand"
-                      type="text"
-                      value={
-                        formData.brand
-                      }
-                      onChange={
-                        handleChange
-                      }
-                      placeholder="Enter brand"
-                      className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
-                    />
+                    <p className="mt-2 text-xs text-gray-400">
+                      Choose parent → child → final category.
+                    </p>
 
                   </div>
 
+                </section>
+
+                {/* BRAND */}
+
+                <div>
+
+                  <label
+                    htmlFor="brand"
+                    className="mb-2 block text-sm font-medium text-slate-700"
+                  >
+                    Brand
+                  </label>
+
+                  <input
+                    id="brand"
+                    name="brand"
+                    type="text"
+                    value={
+                      formData.brand
+                    }
+                    onChange={
+                      handleChange
+                    }
+                    placeholder="Enter brand"
+                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                  />
+
                 </div>
 
-                {/* PRICE + DISCOUNT */}
+                {/* PRICE + MRP */}
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
 
@@ -1793,7 +2309,7 @@ return {
                     <div className="relative">
 
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-400">
-                        $
+                       ₹
                       </span>
 
                       <input
@@ -1815,6 +2331,47 @@ return {
                     </div>
 
                   </div>
+
+                  <div>
+
+                    <label
+                      htmlFor="mrp"
+                      className="mb-2 block text-sm font-medium text-slate-700"
+                    >
+                      MRP
+                    </label>
+
+                    <div className="relative">
+
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+                       ₹
+                      </span>
+
+                      <input
+                        id="mrp"
+                        name="mrp"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={
+                          formData.mrp
+                        }
+                        onChange={
+                          handleChange
+                        }
+                        placeholder="0.00"
+                        className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-8 pr-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                      />
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+                {/* DISCOUNT + STOCK */}
+
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
 
                   <div>
 
@@ -1851,12 +2408,6 @@ return {
 
                   </div>
 
-                </div>
-
-                {/* STOCK + SKU */}
-
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-
                   <div>
 
                     <label
@@ -1886,32 +2437,291 @@ return {
 
                   </div>
 
-                  <div>
+                </div>
 
-                    <label
-                      htmlFor="sku"
-                      className="mb-2 block text-sm font-medium text-slate-700"
-                    >
-                      SKU
-                    </label>
+                {/* SKU */}
 
-                    <input
-                      id="sku"
-                      name="sku"
-                      type="text"
-                      value={
-                        formData.sku
-                      }
-                      onChange={
-                        handleChange
-                      }
-                      placeholder="e.g. NIKE-270"
-                      className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
-                    />
+                <div>
 
-                  </div>
+                  <label
+                    htmlFor="sku"
+                    className="mb-2 block text-sm font-medium text-slate-700"
+                  >
+                    SKU
+                  </label>
+
+                  <input
+                    id="sku"
+                    name="sku"
+                    type="text"
+                    value={
+                      formData.sku
+                    }
+                    onChange={
+                      handleChange
+                    }
+                    placeholder="e.g. NIKE-270"
+                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                  />
 
                 </div>
+{formData.hasVariants && (
+  <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
+      <h2 className="text-base font-semibold text-slate-900">
+        Product Variants
+      </h2>
+
+      <p className="mt-1 text-xs text-slate-400">
+        Manage variants using their attributes.
+      </p>
+    </div>
+
+  {formData.variants.map((variant, variantIndex) => (
+  <div
+    key={variantIndex}
+    className="rounded-xl border border-slate-200 bg-slate-50 p-4"
+  >
+    {/* Variant title */}
+    <div className="mb-4">
+      <p className="text-sm font-semibold text-slate-900">
+        {variant.attributes
+          ?.map((attr) => attr.value)
+          .filter(Boolean)
+          .join(" / ") || `Variant ${variantIndex + 1}`}
+      </p>
+    </div>
+
+    {/* PRICE / MRP / STOCK */}
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+
+      {/* PRICE */}
+      <div>
+        <label className="mb-2 block text-xs font-medium text-slate-600">
+          Price
+        </label>
+
+        <input
+          type="number"
+          value={variant.price ?? ""}
+          onChange={(e) => {
+            const value = e.target.value;
+
+            setFormData((prev) => ({
+              ...prev,
+              variants: prev.variants.map((item, i) =>
+                i === variantIndex
+                  ? {
+                      ...item,
+                      price: value,
+                    }
+                  : item
+              ),
+            }));
+          }}
+          className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm"
+        />
+      </div>
+
+      {/* MRP */}
+      <div>
+        <label className="mb-2 block text-xs font-medium text-slate-600">
+          MRP
+        </label>
+
+        <input
+          type="number"
+          value={variant.mrp ?? ""}
+          onChange={(e) => {
+            const value = e.target.value;
+
+            setFormData((prev) => ({
+              ...prev,
+              variants: prev.variants.map((item, i) =>
+                i === variantIndex
+                  ? {
+                      ...item,
+                      mrp: value,
+                    }
+                  : item
+              ),
+            }));
+          }}
+          className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm"
+        />
+      </div>
+
+      {/* STOCK */}
+      <div>
+        <label className="mb-2 block text-xs font-medium text-slate-600">
+          Stock
+        </label>
+
+        <input
+          type="number"
+          value={variant.stock ?? ""}
+          onChange={(e) => {
+            const value = e.target.value;
+
+            setFormData((prev) => ({
+              ...prev,
+              variants: prev.variants.map((item, i) =>
+                i === variantIndex
+                  ? {
+                      ...item,
+                      stock: value,
+                    }
+                  : item
+              ),
+            }));
+          }}
+          className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm"
+        />
+      </div>
+    </div>
+
+    {/* ATTRIBUTES */}
+    <div className="mt-5">
+      <div className="mb-3 flex items-center justify-between">
+        <p className="text-xs font-semibold text-slate-600">
+          Attributes
+        </p>
+
+        <button
+          type="button"
+          onClick={() => {
+            setFormData((prev) => ({
+              ...prev,
+              variants: prev.variants.map((item, i) =>
+                i === variantIndex
+                  ? {
+                      ...item,
+                      attributes: [
+                        ...(item.attributes || []),
+                        {
+                          name: "",
+                          value: "",
+                        },
+                      ],
+                    }
+                  : item
+              ),
+            }));
+          }}
+          className="text-xs font-semibold text-indigo-600 hover:text-indigo-700"
+        >
+          + Add Attribute
+        </button>
+      </div>
+
+      <div className="space-y-3">
+        {(variant.attributes || []).map(
+          (attribute, attributeIndex) => (
+            <div
+              key={attributeIndex}
+              className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_auto]"
+            >
+              {/* ATTRIBUTE NAME */}
+              <input
+                type="text"
+                value={attribute.name || ""}
+                placeholder="Attribute name"
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  setFormData((prev) => ({
+                    ...prev,
+                    variants: prev.variants.map(
+                      (item, i) =>
+                        i === variantIndex
+                          ? {
+                              ...item,
+                              attributes:
+                                item.attributes.map(
+                                  (attr, ai) =>
+                                    ai === attributeIndex
+                                      ? {
+                                          ...attr,
+                                          name: value,
+                                        }
+                                      : attr
+                                ),
+                            }
+                          : item
+                    ),
+                  }));
+                }}
+                className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm"
+              />
+
+              {/* ATTRIBUTE VALUE */}
+              <input
+                type="text"
+                value={attribute.value || ""}
+                placeholder="Attribute value"
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  setFormData((prev) => ({
+                    ...prev,
+                    variants: prev.variants.map(
+                      (item, i) =>
+                        i === variantIndex
+                          ? {
+                              ...item,
+                              attributes:
+                                item.attributes.map(
+                                  (attr, ai) =>
+                                    ai === attributeIndex
+                                      ? {
+                                          ...attr,
+                                          value,
+                                        }
+                                      : attr
+                                ),
+                            }
+                          : item
+                    ),
+                  }));
+                }}
+                className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm"
+              />
+
+              {/* REMOVE ATTRIBUTE */}
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    variants: prev.variants.map(
+                      (item, i) =>
+                        i === variantIndex
+                          ? {
+                              ...item,
+                              attributes:
+                                item.attributes.filter(
+                                  (_, ai) =>
+                                    ai !== attributeIndex
+                                ),
+                            }
+                          : item
+                    ),
+                  }));
+                }}
+                className="h-10 rounded-lg border border-red-200 bg-white px-3 text-red-500 hover:bg-red-50"
+              >
+                Remove
+              </button>
+            </div>
+          )
+        )}
+      </div>
+    </div>
+  </div>
+))}
+
+  </section>
+)}
 
               </div>
 
@@ -1941,20 +2751,19 @@ return {
 
                   {images.map(
                     (image) => {
-
                       const imageKey =
                         image.id ||
                         image._id ||
                         image.url;
 
                       const imageSrc =
-                        image.preview ||
-                        image.url ||
-                        image.secure_url;
+                        image.isNew
+                          ? image.preview
+                          : getImageUrl(
+                              image.url ||
+                                image.secure_url
+                            );
 
-                        const finalImageSrc = image.isNew
-                             ? imageSrc
-                             : getImageUrl(imageSrc);
                       return (
                         <div
                           key={
@@ -1966,7 +2775,7 @@ return {
                           {imageSrc ? (
                             <img
                               src={
-                               finalImageSrc
+                                imageSrc
                               }
                               alt="Product"
                               className="h-full w-full object-cover"
@@ -2017,7 +2826,9 @@ return {
 
                   <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 text-slate-400 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600">
 
-                    <Upload size={22} />
+                    <Upload
+                      size={22}
+                    />
 
                     <span className="mt-2 text-xs font-medium">
                       Add Image
@@ -2175,12 +2986,12 @@ return {
 
                       <img
                         src={
-                         images[0].isNew
-        ? images[0].preview
-        : getImageUrl(
-            images[0].url ||
-            images[0].secure_url
-          )
+                          images[0].isNew
+                            ? images[0].preview
+                            : getImageUrl(
+                                images[0].url ||
+                                  images[0].secure_url
+                              )
                         }
                         alt={
                           formData.name ||
@@ -2216,19 +3027,15 @@ return {
                   <div className="p-4">
 
                     <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-slate-400">
-
                       {getCategoryName(
                         selectedCategory
                       ) ||
                         "Category"}
-
                     </p>
 
                     <h3 className="line-clamp-2 text-sm font-semibold text-slate-900">
-
                       {formData.name ||
                         "Product Name"}
-
                     </h3>
 
                     {formData.brand && (
@@ -2240,7 +3047,7 @@ return {
                     <div className="mt-3 flex flex-wrap items-center gap-2">
 
                       <span className="text-base font-bold text-slate-900">
-                        $
+                       ₹
                         {discountedPrice.toFixed(
                           2
                         )}
@@ -2249,7 +3056,7 @@ return {
                       {discount >
                         0 && (
                         <span className="text-xs text-slate-400 line-through">
-                          $
+                         ₹
                           {price.toFixed(
                             2
                           )}
@@ -2365,10 +3172,7 @@ return {
           <button
             type="button"
             onClick={() =>
-              navigate(
-               user.role === "admin"?
-          "/admin/products" : "/vendor/products"
-              )
+              navigate(backPath)
             }
             disabled={saving}
             className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"

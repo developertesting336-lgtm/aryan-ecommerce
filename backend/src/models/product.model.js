@@ -82,6 +82,67 @@ const productSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+
+// =========================
+// VARIANTS
+// =========================
+
+hasVariants: {
+  type: Boolean,
+  default: false,
+},
+
+variants: [
+  {
+    sku: {
+      type: String,
+      required: true,
+      uppercase: true,
+      trim: true,
+    },
+
+    price: {
+      type: Number,
+      required: true,
+      min: [0, "Variant price cannot be negative"],
+    },
+
+    mrp: {
+      type: Number,
+      default: null,
+      min: [0, "Variant mrp cannot be negative"],
+    },
+
+    stock: {
+      type: Number,
+      required: true,
+      default: 0,
+      min: [0, "Variant stock cannot be negative"],
+    },
+
+    attributes: [
+      {
+        name: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+
+        value: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+      },
+    ],
+
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+  },
+],
+
     rating: {
   average: {
     type: Number,
@@ -127,10 +188,3 @@ const productSchema = new mongoose.Schema(
 productSchema.index({ name: "text" });
 
 export const Product = mongoose.model("Product",productSchema);
-
-
-
-
-
-
-

@@ -1,216 +1,462 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { getProducts } from "../../redux/slices/productSlice";
 import ProductCard from "../products/ProductCard";
 
+const INITIAL_LIMIT = 8;
+const LOAD_MORE_COUNT = 8;
+const SCROLL_THRESHOLD = 250;
+
 export default function FeaturedProducts() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // =====================================================
-  // SCROLL / LIMIT STATE
-  // =====================================================
+  const scrollRef = useRef(null);
 
-  const [limit, setLimit] = useState(8);
+  // =========================================================
+  // FETCH CONTROL
+  // =========================================================
+
+  const isFetchingRef = useRef(false);
+
+  const limitRef = useRef(INITIAL_LIMIT);
+
+  // Last number of products returned by API
+  const lastReturnedCountRef = useRef(0);
+
+  // Keep IDs from previous API response
+  const previousProductIdsRef = useRef([]);
+
+  // =========================================================
+  // STATE
+  // =========================================================
+
+  const [limit, setLimit] = useState(INITIAL_LIMIT);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  const scrollRef = useRef(null);
-
-  // Prevent duplicate API calls
-  const isFetchingRef = useRef(false);
-
-  // Keep latest limit inside scroll event
-  const limitRef = useRef(8);
-
-  // =====================================================
-  // PRODUCTS FROM REDUX
-  // =====================================================
+  // =========================================================
+  // REDUX
+  // =========================================================
 
   const {
     product = [],
-    loading,
-    error,
+    pagination = {},
+    loading = false,
+    error = null,
   } = useSelector((state) => state.product);
 
-  // =====================================================
-  // FETCH PRODUCTS
-  //
-  // Initial:
-  // 8
-  //
-  // Scroll:
-  // 16
-  // 24
-  // 32
-  // ...
-  // =====================================================
+  // =========================================================
+  // MEMOIZED PRODUCTS
+  // =========================================================
 
-  useEffect(() => {
-    const fetchProducts = async () => {
+  const featuredProducts = useMemo(() => {
+    return Array.isArray(product) ? product : [];
+  }, [product]);
+
+  // =========================================================
+  // REDUX PAGINATION
+  // =========================================================
+
+  const currentPage = pagination?.page ?? 1;
+
+  const totalPages = pagination?.totalPages ?? 0;
+
+  // =========================================================
+  // NORMALIZE RESPONSE
+  // =========================================================
+
+  const extractProducts = useCallback((payload) => {
+    if (Array.isArray(payload)) {
+      return {
+        products: payload,
+        total: null,
+        pagination: null,
+      };
+    }
+
+    // payload.products
+    if (Array.isArray(payload?.products)) {
+      return {
+        products: payload.products,
+        total:
+          payload.total ??
+          payload.count ??
+          payload.totalProducts ??
+          payload.pagination?.total ??
+          null,
+        pagination: payload.pagination ?? null,
+      };
+    }
+
+    // payload.data
+    if (Array.isArray(payload?.data)) {
+      return {
+        products: payload.data,
+        total:
+          payload.total ??
+          payload.count ??
+          payload.pagination?.total ??
+          null,
+        pagination: payload.pagination ?? null,
+      };
+    }
+
+    // payload.data.products
+    if (Array.isArray(payload?.data?.products)) {
+      return {
+        products: payload.data.products,
+        total:
+          payload.data.total ??
+          payload.data.count ??
+          payload.data.totalProducts ??
+          payload.total ??
+          payload.data.pagination?.total ??
+          null,
+        pagination:
+          payload.data.pagination ??
+          payload.pagination ??
+          null,
+      };
+    }
+
+    return {
+      products: [],
+      total: null,
+      pagination: null,
+    };
+  }, []);
+
+  // =========================================================
+  // GET PRODUCT ID
+  // =========================================================
+
+  const getProductId = useCallback((item) => {
+    return (
+      item?._id ||
+      item?.id ||
+      item?.slug ||
+      null
+    );
+  }, []);
+
+  // =========================================================
+  // FETCH PRODUCTS
+  // =========================================================
+
+  const fetchProducts = useCallback(
+    async (requestedLimit) => {
+      // ---------------------------------------------
+      // Prevent duplicate request
+      // ---------------------------------------------
+
       if (isFetchingRef.current) {
         return;
       }
 
-      // Don't fetch again when we know
-      // there are no more products.
-      if (!hasMore && limit > 8) {
+      // ---------------------------------------------
+      // Already finished
+      // ---------------------------------------------
+
+      if (
+        requestedLimit > INITIAL_LIMIT &&
+        totalPages > 0 &&
+        currentPage >= totalPages
+      ) {
+        console.log(
+          "[FeaturedProducts] Fetch blocked - no more products."
+        );
+
+        setHasMore(false);
+
         return;
       }
 
       isFetchingRef.current = true;
 
-      if (limit > 8) {
+      if (requestedLimit > INITIAL_LIMIT) {
         setIsFetchingMore(true);
       }
 
       try {
         console.log(
-          "Fetching products with limit:",
-          limit
+          `[FeaturedProducts] Fetching limit=${requestedLimit}`
         );
 
         const result = await dispatch(
           getProducts({
-            limit,
+            limit: requestedLimit,
           })
         );
 
-        console.log("API result:", result);
+        // ---------------------------------------------
+        // HANDLE RESPONSE
+        // ---------------------------------------------
 
-        /*
-         * If getProducts is created with createAsyncThunk,
-         * result.payload normally contains the API response.
-         *
-         * We don't rely only on this for stopping because
-         * different APIs can have different response shapes.
-         */
+        const {
+          products: returnedProducts,
+          total,
+          pagination: responsePagination,
+        } = extractProducts(result?.payload);
 
-        let returnedProducts = [];
-
-        if (Array.isArray(result?.payload)) {
-          returnedProducts = result.payload;
-        } else if (
-          Array.isArray(result?.payload?.products)
-        ) {
-          returnedProducts = result.payload.products;
-        } else if (
-          Array.isArray(result?.payload?.data)
-        ) {
-          returnedProducts = result.payload.data;
-        }
+        const returnedCount =
+          returnedProducts.length;
 
         console.log(
-          "Products returned from API:",
-          returnedProducts.length
+          "[FeaturedProducts] Response:",
+          {
+            requestedLimit,
+            returnedCount,
+            total,
+            pagination: responsePagination,
+          }
         );
 
-        /*
-         * If API returned fewer products than requested,
-         * there are no more products available.
-         *
-         * Example:
-         *
-         * limit = 24
-         * API returns 18
-         *
-         * Therefore:
-         * hasMore = false
-         */
+        // =================================================
+        // USE RESPONSE PAGINATION
+        // =================================================
+
+        const responsePage =
+          responsePagination?.page ??
+          currentPage;
+
+        const responseTotalPages =
+          responsePagination?.totalPages ??
+          totalPages;
 
         if (
-          limit > 8 &&
-          returnedProducts.length > 0 &&
-          returnedProducts.length < limit
+          typeof responseTotalPages === "number" &&
+          responseTotalPages > 0
         ) {
-          setHasMore(false);
-
-          console.log(
-            "No more products available."
+          setHasMore(
+            responsePage < responseTotalPages
           );
         }
 
-        /*
-         * If API returned ZERO products,
-         * definitely stop further requests.
-         */
+        // =================================================
+        // FALLBACK - TOTAL
+        // =================================================
 
-        if (
-          limit > 8 &&
-          returnedProducts.length === 0
+        else if (
+          typeof total === "number" &&
+          total >= 0
         ) {
-          setHasMore(false);
-
-          console.log(
-            "API returned no more products."
+          setHasMore(
+            requestedLimit < total
           );
         }
 
-        /*
-         * Initial request returned fewer than 8.
-         * That also means there are no more products.
-         */
+        // =================================================
+        // FALLBACK - RESPONSE LENGTH
+        // =================================================
 
-        if (
-          limit === 8 &&
-          returnedProducts.length < 8
+        else if (
+          returnedCount < requestedLimit
         ) {
-          setHasMore(false);
-
           console.log(
-            "All available products loaded."
+            "[FeaturedProducts] API returned fewer products than requested."
           );
+
+          setHasMore(false);
         }
-      } catch (error) {
+
+        // =================================================
+        // FALLBACK - SAME RESPONSE SIZE
+        // =================================================
+
+        else if (
+          requestedLimit > INITIAL_LIMIT &&
+          returnedCount <=
+            lastReturnedCountRef.current
+        ) {
+          console.log(
+            "[FeaturedProducts] Product count did not increase. Stopping."
+          );
+
+          setHasMore(false);
+        }
+
+        // =================================================
+        // FALLBACK - PRODUCT IDS
+        // =================================================
+
+        else {
+          const currentIds =
+            returnedProducts
+              .map(getProductId)
+              .filter(Boolean);
+
+          const previousIds =
+            previousProductIdsRef.current;
+
+          if (
+            requestedLimit > INITIAL_LIMIT &&
+            currentIds.length > 0 &&
+            previousIds.length > 0
+          ) {
+            const previousSet =
+              new Set(previousIds);
+
+            const newProducts =
+              currentIds.filter(
+                (id) => !previousSet.has(id)
+              );
+
+            if (newProducts.length === 0) {
+              console.log(
+                "[FeaturedProducts] No new products returned. Stopping."
+              );
+
+              setHasMore(false);
+            } else {
+              setHasMore(true);
+            }
+          } else {
+            setHasMore(true);
+          }
+        }
+
+        // =================================================
+        // SAVE RESPONSE INFORMATION
+        // =================================================
+
+        lastReturnedCountRef.current =
+          returnedCount;
+
+        previousProductIdsRef.current =
+          returnedProducts
+            .map(getProductId)
+            .filter(Boolean);
+
+        // =================================================
+        // SAFETY
+        // =================================================
+
+        if (returnedCount === 0) {
+          setHasMore(false);
+        }
+      } catch (err) {
         console.error(
-          "Failed to fetch products:",
-          error
+          "[FeaturedProducts] Failed to fetch products:",
+          err
         );
       } finally {
         isFetchingRef.current = false;
         setIsFetchingMore(false);
       }
-    };
+    },
+    [
+      dispatch,
+      extractProducts,
+      getProductId,
+      currentPage,
+      totalPages,
+    ]
+  );
 
-    fetchProducts();
-  }, [dispatch, limit, hasMore]);
-
-  // =====================================================
-  // ADDITIONAL SAFETY CHECK
-  //
-  // If Redux contains fewer products than requested,
-  // stop infinite loading.
-  //
-  // Example:
-  //
-  // limit = 24
-  // Redux has only 18
-  //
-  // => no more API requests
-  // =====================================================
+  // =========================================================
+  // INITIAL LOAD
+  // =========================================================
 
   useEffect(() => {
+    // Don't request again if Redux already has products
+    if (featuredProducts.length > 0) {
+      return;
+    }
+
+    // Don't request again if Redux is already on another page
+    if (currentPage > 1) {
+      return;
+    }
+
+    if (isFetchingRef.current) {
+      return;
+    }
+
+    limitRef.current = INITIAL_LIMIT;
+
+    lastReturnedCountRef.current = 0;
+
+    previousProductIdsRef.current = [];
+
+    setLimit(INITIAL_LIMIT);
+    setHasMore(true);
+
+    fetchProducts(INITIAL_LIMIT);
+  }, [
+    featuredProducts.length,
+    currentPage,
+    fetchProducts,
+  ]);
+
+  // =========================================================
+  // LOAD MORE
+  // =========================================================
+
+  const loadMoreProducts = useCallback(() => {
+    if (isFetchingRef.current) {
+      return;
+    }
+
+    if (!hasMore) {
+      console.log(
+        "[FeaturedProducts] No more products - scroll ignored."
+      );
+
+      return;
+    }
+
+    // ---------------------------------------------
+    // Redux pagination check
+    // ---------------------------------------------
+
     if (
-      limit > 8 &&
-      Array.isArray(product) &&
-      product.length < limit
+      totalPages > 0 &&
+      currentPage >= totalPages
     ) {
+      console.log(
+        "[FeaturedProducts] Redux pagination reached last page."
+      );
+
       setHasMore(false);
 
-      console.log(
-        "Stopping infinite scroll because product count",
-        product.length,
-        "is less than limit",
-        limit
-      );
+      return;
     }
-  }, [product, limit]);
 
-  // =====================================================
-  // INFINITE SCROLL
-  // =====================================================
+    const currentLimit =
+      limitRef.current;
+
+    const nextLimit =
+      currentLimit + LOAD_MORE_COUNT;
+
+    console.log(
+      `[FeaturedProducts] ${currentLimit} -> ${nextLimit}`
+    );
+
+    // Update immediately
+    limitRef.current = nextLimit;
+
+    setLimit(nextLimit);
+
+    fetchProducts(nextLimit);
+  }, [
+    fetchProducts,
+    hasMore,
+    currentPage,
+    totalPages,
+  ]);
+
+  // =========================================================
+  // INTERNAL SCROLL
+  // =========================================================
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -220,12 +466,10 @@ export default function FeaturedProducts() {
     }
 
     const handleScroll = () => {
-      // Already fetching
       if (isFetchingRef.current) {
         return;
       }
 
-      // No more products
       if (!hasMore) {
         return;
       }
@@ -240,37 +484,20 @@ export default function FeaturedProducts() {
         scrollHeight -
         (scrollTop + clientHeight);
 
-      console.log("Scroll:", {
-        scrollTop,
-        scrollHeight,
-        clientHeight,
-        distanceFromBottom,
-        hasMore,
-        currentLimit: limitRef.current,
-      });
-
-      // Load more 200px before bottom
-      if (distanceFromBottom <= 200) {
-        const nextLimit =
-          limitRef.current + 8;
-
-        console.log(
-          "Loading more products:",
-          nextLimit
-        );
-
-        // Update ref immediately
-        limitRef.current = nextLimit;
-
-        // Update state
-        setLimit(nextLimit);
+      if (
+        distanceFromBottom <=
+        SCROLL_THRESHOLD
+      ) {
+        loadMoreProducts();
       }
     };
 
     container.addEventListener(
       "scroll",
       handleScroll,
-      { passive: true }
+      {
+        passive: true,
+      }
     );
 
     return () => {
@@ -279,37 +506,49 @@ export default function FeaturedProducts() {
         handleScroll
       );
     };
-  }, [loading, product.length, hasMore]);
+  }, [hasMore, loadMoreProducts]);
 
-  // =====================================================
-  // FEATURED PRODUCTS
-  // =====================================================
+  // =========================================================
+  // RETRY
+  // =========================================================
 
-  const featuredProducts = Array.isArray(product)
-    ? product
-    : [];
+  const handleRetry = () => {
+    if (isFetchingRef.current) {
+      return;
+    }
 
-  // =====================================================
+    limitRef.current = INITIAL_LIMIT;
+
+    lastReturnedCountRef.current = 0;
+
+    previousProductIdsRef.current = [];
+
+    setLimit(INITIAL_LIMIT);
+    setHasMore(true);
+
+    fetchProducts(INITIAL_LIMIT);
+  };
+
+  // =========================================================
   // DEBUG
-  // =====================================================
+  // =========================================================
 
-  console.log("=================================");
-  console.log("Current limit:", limit);
   console.log(
-    "Products:",
-    featuredProducts.length
+    "[FeaturedProducts]",
+    {
+      page: currentPage,
+      totalPages,
+      limit,
+      products: featuredProducts.length,
+      loading,
+      isFetchingMore,
+      hasMore,
+    }
   );
-  console.log("Loading:", loading);
-  console.log(
-    "Fetching more:",
-    isFetchingMore
-  );
-  console.log("Has more:", hasMore);
-  console.log("=================================");
 
-  // =====================================================
-  // RENDER
-  // =====================================================
+  // =========================================================
+  // UI
+  // =========================================================
 
   return (
     <section
@@ -326,9 +565,9 @@ export default function FeaturedProducts() {
         lg:py-12
       "
     >
-      {/* =================================================
+      {/* =====================================================
           HEADER
-      ================================================= */}
+      ===================================================== */}
 
       <div
         className="
@@ -383,7 +622,9 @@ export default function FeaturedProducts() {
 
         <button
           type="button"
-          onClick={() => navigate("/products")}
+          onClick={() =>
+            navigate("/products")
+          }
           className="
             shrink-0
             whitespace-nowrap
@@ -400,15 +641,14 @@ export default function FeaturedProducts() {
         </button>
       </div>
 
-      {/* =================================================
+      {/* =====================================================
           INITIAL LOADING
-      ================================================= */}
+      ===================================================== */}
 
       {loading &&
         featuredProducts.length === 0 && (
           <div
             className="
-              featured-products-scroll
               max-h-[70vh]
               overflow-y-auto
               overflow-x-hidden
@@ -429,20 +669,20 @@ export default function FeaturedProducts() {
                 lg:gap-5
               "
             >
-              {Array.from({ length: 10 }).map(
-                (_, index) => (
-                  <ProductSkeleton
-                    key={index}
-                  />
-                )
-              )}
+              {Array.from({
+                length: 10,
+              }).map((_, index) => (
+                <ProductSkeleton
+                  key={index}
+                />
+              ))}
             </div>
           </div>
         )}
 
-      {/* =================================================
+      {/* =====================================================
           ERROR
-      ================================================= */}
+      ===================================================== */}
 
       {!loading &&
         error &&
@@ -479,13 +719,7 @@ export default function FeaturedProducts() {
 
             <button
               type="button"
-              onClick={() => {
-                limitRef.current = 8;
-
-                setLimit(8);
-
-                setHasMore(true);
-              }}
+              onClick={handleRetry}
               className="
                 mt-4
                 rounded-xl
@@ -504,9 +738,9 @@ export default function FeaturedProducts() {
           </div>
         )}
 
-      {/* =================================================
+      {/* =====================================================
           EMPTY
-      ================================================= */}
+      ===================================================== */}
 
       {!loading &&
         !error &&
@@ -534,9 +768,9 @@ export default function FeaturedProducts() {
           </div>
         )}
 
-      {/* =================================================
+      {/* =====================================================
           PRODUCTS
-      ================================================= */}
+      ===================================================== */}
 
       {featuredProducts.length > 0 && (
         <div
@@ -564,29 +798,36 @@ export default function FeaturedProducts() {
               items-start
             "
           >
-            {featuredProducts.map((item) => (
-              <div
-                key={item._id}
-                className="
-                  min-w-0
-                  w-full
-                "
-              >
-                <ProductCard
-                  {...item}
-                  rating={
-                    item?.rating?.average
+            {featuredProducts.map(
+              (item, index) => (
+                <div
+                  key={
+                    item?._id ||
+                    item?.id ||
+                    item?.slug ||
+                    `product-${index}`
                   }
-                />
-              </div>
-            ))}
+                  className="
+                    min-w-0
+                    w-full
+                  "
+                >
+                  <ProductCard
+                    {...item}
+                    rating={
+                      item?.rating?.average
+                    }
+                  />
+                </div>
+              )
+            )}
           </div>
 
           {/* =================================================
               LOADING MORE
           ================================================= */}
 
-          {isFetchingMore && hasMore && (
+          {isFetchingMore && (
             <div
               className="
                 flex
@@ -624,7 +865,7 @@ export default function FeaturedProducts() {
           )}
 
           {/* =================================================
-              NO MORE PRODUCTS
+              NO MORE
           ================================================= */}
 
           {!isFetchingMore &&
@@ -645,13 +886,13 @@ export default function FeaturedProducts() {
         </div>
       )}
 
-      {/* =================================================
+      {/* =====================================================
           VIEW ALL
-      ================================================= */}
+      ===================================================== */}
 
       {!loading &&
         !error &&
-        product.length > 10 && (
+        featuredProducts.length > 10 && (
           <div
             className="
               flex
@@ -692,9 +933,9 @@ export default function FeaturedProducts() {
   );
 }
 
-/* =====================================================
+/* =========================================================
    PRODUCT SKELETON
-===================================================== */
+========================================================= */
 
 function ProductSkeleton() {
   return (
@@ -709,8 +950,6 @@ function ProductSkeleton() {
         bg-white
       "
     >
-      {/* IMAGE */}
-
       <div
         className="
           aspect-square
@@ -719,8 +958,6 @@ function ProductSkeleton() {
           bg-gray-200
         "
       />
-
-      {/* CONTENT */}
 
       <div
         className="

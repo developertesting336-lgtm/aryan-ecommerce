@@ -286,20 +286,20 @@ export default function Footer() {
 
               <li>
                 <Link
-                  to="/returns"
+                  to="/help"
                   className="
                     text-gray-400
                     transition
                     hover:text-white
                   "
                 >
-                  Returns & Refunds
+                   Help Center
                 </Link>
               </li>
 
               <li>
                 <Link
-                  to="/privacy"
+                  to="/privacy-policy"
                   className="
                     text-gray-400
                     transition
@@ -347,8 +347,7 @@ export default function Footer() {
                   </p>
 
                   <p className="mt-1 text-sm text-gray-300">
-                    Support through your
-                    customer service page
+                   support@novacart.com
                   </p>
                 </div>
               </div>
@@ -388,7 +387,7 @@ export default function Footer() {
                       hover:text-white
                     "
                   >
-                    Contact our support team
+                    +91 1800 000 000
                   </Link>
                 </div>
               </div>
@@ -470,7 +469,7 @@ export default function Footer() {
             NEWSLETTER
         ====================================================== */}
 
-        <div
+        {/* <div
           className="
             mt-12
             flex
@@ -552,7 +551,7 @@ export default function Footer() {
               <ArrowRight size={16} />
             </button>
           </form>
-        </div>
+        </div> */}
       </div>
 
       {/* =====================================================

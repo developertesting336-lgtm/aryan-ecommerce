@@ -44,7 +44,7 @@ console.log("res pro",response)
       // return response.data.products;
       return{
         products:response.data.products,
-        pagination:response.data.pagination
+        pagination:response.data.pagination,
       }
     } catch (error) {
       return rejectWithValue(
@@ -347,7 +347,7 @@ const productSlice = createSlice({
           typeof editedProduct === "object" &&
           editedProduct._id
         ) {
-          state.product.unshift(editedProduct);
+          state.product = editedProduct;
         }
       })
 

@@ -1911,4 +1911,8 @@ const reviewSchema = new Schema(
 );
 
 #---------------------pending tasks--------------------------------
-add products,add ai grok,make footer pages,add functionality in header options,fix hero text delay
+add products,add ai grok,make footer pages,add functionality in header options,fix hero text delay,
+add order traking sytem with cronjob. when order comes to customer then he has a option to accept the order then deliver.
+
+# completed tasks--------
+fix hero text delay,

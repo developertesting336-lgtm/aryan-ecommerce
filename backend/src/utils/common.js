@@ -17,3 +17,49 @@ export function generateCouponCode() {
 
   return code;
 }
+
+
+const normalizeSkuPart = (value) => {
+  return String(value || "")
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+};
+
+export const generateVariantSku = ({
+  brand,
+  productName,
+  attributes = [],
+  index,
+}) => {
+  const parts = [];
+
+  if (brand) {
+    parts.push(normalizeSkuPart(brand));
+  }
+
+  if (productName) {
+    const productPart = productName
+      .trim()
+      .split(/\s+/)
+      .slice(0, 3)
+      .join("-");
+
+    parts.push(normalizeSkuPart(productPart));
+  }
+
+  for (const attribute of attributes) {
+    if (attribute?.value) {
+      parts.push(
+        normalizeSkuPart(attribute.value)
+      );
+    }
+  }
+
+  parts.push(
+    String(index).padStart(3, "0")
+  );
+
+  return parts.join("-");
+};

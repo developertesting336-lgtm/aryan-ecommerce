@@ -40,6 +40,7 @@ import Orders from "../pages/Orders";
 import OrderDetails from "../pages/OrderDetails";
 import PaymentSuccess from "../pages/PaymentSuccess";
 
+import PrivacyPolicy from "../pages/PrivacyPolicy";
 // ============================================
 // ADMIN PAGES
 // ============================================
@@ -87,6 +88,8 @@ import { getWishlist } from "../redux/slices/wishlistSlice";
 import { getRootCategories } from "../redux/slices/categorySlice";
 
 import VendorOrders from "../pages/vendor/VendorOrders";
+import Contact from "../components/Contact";
+import Help from "../pages/Help";
 
 // ============================================================
 // APP ROUTES
@@ -139,7 +142,9 @@ function AppRoutes() {
 
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/search" element={<SearchPage />} />
-
+          <Route path="/privacy-policy" element={<PrivacyPolicy />}/>
+          <Route path="/contact" element={<Contact />}/>
+          <Route path="/help" element={<Help />} />
           {/* -----------------------------
               PROTECTED CUSTOMER PAGES
           ----------------------------- */}
