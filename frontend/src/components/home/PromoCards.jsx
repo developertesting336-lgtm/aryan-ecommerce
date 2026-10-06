@@ -610,6 +610,8 @@ const handleNavigate = (link) => {
 
       {imageUrl ? (
         <motion.img
+         width={1200}
+    height={675}
           src={imageUrl}
           alt={title || "Promotional banner"}
           loading="lazy"

@@ -283,6 +283,8 @@ const Hero = () => {
       <div className="absolute inset-0">
         {slides.map((slide, index) => (
           <img
+           width={1920}
+  height={600}
           loading={index === 0 ? "eager" : "lazy"}
   fetchPriority={index === 0 ? "high" : "low"}
   decoding="async"
