@@ -656,7 +656,7 @@ export default function Navbar() {
         ================================================= */}
 
         <div
-          className="relative ml-auto hidden lg:flex xl:ml-16"
+          className="relative ml-auto hidden lg:flex lg:ml-4 xl:ml-16"
           onMouseEnter={
             clearDropdownTimer
           }
@@ -666,7 +666,7 @@ export default function Navbar() {
         >
           <nav
             aria-label="Primary navigation"
-            className="flex items-center justify-between gap-5 xl:gap-8"
+            className="flex items-center justify-between gap-3 xl:gap-8"
           >
             {navigation.map((item) =>
               item.menu ? (
@@ -1043,30 +1043,46 @@ export default function Navbar() {
           {/* DESKTOP SEARCH */}
 
           <form
-            onSubmit={handleSearch}
-            role="search"
-            className="hidden xl:block"
-          >
-            <label className="relative block">
-              <Search
-                size={16}
-                aria-hidden="true"
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              />
+  onSubmit={handleSearch}
+  role="search"
+  className="hidden lg:block"
+>
+  <label className="relative block">
+    <Search
+      size={16}
+      aria-hidden="true"
+      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+    />
 
-              <input
-                value={search}
-                onChange={(event) =>
-                  setSearch(
-                    event.target.value
-                  )
-                }
-                placeholder="Search"
-                aria-label="Search products"
-                className="h-10 w-72 rounded-full border border-gray-200 bg-gray-50 pl-9 pr-3 text-sm outline-none focus:border-app-primary focus:ring-2 focus:ring-app-primary/15"
-              />
-            </label>
-          </form>
+    <input
+      value={search}
+      onChange={(event) =>
+        setSearch(event.target.value)
+      }
+      placeholder="Search"
+      aria-label="Search products"
+      className="
+        h-10
+        w-40
+        rounded-full
+        border
+        border-gray-200
+        bg-gray-50
+        pl-9
+        pr-3
+        text-sm
+        outline-none
+        transition-all
+        focus:w-48
+        focus:border-app-primary
+        focus:ring-2
+        focus:ring-app-primary/15
+        xl:w-72
+        xl:focus:w-72
+      "
+    />
+  </label>
+</form>
 
           {/* ACCOUNT */}
 

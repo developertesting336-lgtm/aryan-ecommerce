@@ -52,7 +52,7 @@ agenda.define("update-order-status", async (job) => {
     const nextStatus = nextStatuses[0];
 
     await agenda.schedule(
-      "in 10 seconds",
+      "in 1 minute",
       "update-order-status",
       {
         orderId: order._id.toString(),

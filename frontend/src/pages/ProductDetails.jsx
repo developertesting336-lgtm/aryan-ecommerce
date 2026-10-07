@@ -44,7 +44,7 @@ const API_URL = "http://localhost:3000";
 
 const getImageUrl = (image) => {
   if (!image) {
-    return "/1786052049893.webp";
+    return "/wmpj6_512.avif";
   }
 
   if (
@@ -67,7 +67,7 @@ const getProductImages = (images) => {
     return [images];
   }
 
-  return [];
+  return ["/wmpj6_512.avif"];
 };
 
 /* =========================================================

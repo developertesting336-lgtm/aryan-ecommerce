@@ -20,7 +20,7 @@ console.log("currentProduct",currentProduct)
 console.log("products",products)
 const getImageUrl = (image) => {
   if (!image) {
-    return "/1786052049893.webp";
+    return "/wmpj6_512.avif";
   }
 
   if (

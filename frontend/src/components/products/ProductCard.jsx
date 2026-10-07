@@ -8,6 +8,7 @@ import {
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import fallbackImage from "../../assets/wmpj6_512.avif"
 import { addProduct } from "../../redux/slices/cartSlice";
 
 import {
@@ -224,7 +225,7 @@ export default function ProductCard({
   const productImages =
   Array.isArray(images) && images.length > 0
     ? images.map(getImageUrl)
-    : ["/1786052049893.webp"];
+    : [fallbackImage];
 
 const [currentImage, setCurrentImage] = useState(0);
 
@@ -578,7 +579,7 @@ const [currentImage, setCurrentImage] = useState(0);
   onError={(e) => {
     e.currentTarget.onerror = null;
     e.currentTarget.src =
-      "/1786052049893.webp";
+      fallbackImage;
   }}
   className="
     h-full
