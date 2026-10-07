@@ -552,7 +552,7 @@ export default function Navbar() {
             <span className="mx-2 text-white/50">
               ·
             </span>{" "}
-            Free delivery over ₹2,000{" "}
+            Free delivery over ₹500{" "}
             <Link
               to="/products"
               className="ml-1 underline underline-offset-4 hover:text-blue-200"

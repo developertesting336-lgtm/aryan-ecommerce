@@ -1785,26 +1785,25 @@ export default function OrderTracking() {
               )
             }
             disabled={loading}
-            className="
-              flex-1
-              h-11
-              rounded-xl
-              border
-              border-gray-200
-              bg-white
-              hover:border-blue-300
-              hover:text-blue-600
-              text-gray-700
-              text-sm
-              font-semibold
-              transition
-              flex
-              items-center
-              justify-center
-              gap-2
-              disabled:opacity-50
-              disabled:cursor-not-allowed
-            "
+          className="
+      w-full sm:flex-1
+      min-h-12
+      px-4
+      rounded-xl
+      border border-gray-200
+      bg-white
+      hover:border-blue-300
+      hover:text-blue-600
+      text-gray-700
+      text-sm
+      font-semibold
+      transition
+      flex items-center justify-center
+      gap-2
+      whitespace-nowrap
+      disabled:opacity-50
+      disabled:cursor-not-allowed
+    "
           >
             <RefreshCw
               size={17}
@@ -1827,21 +1826,21 @@ export default function OrderTracking() {
             onClick={() =>
               navigate(`/orders/${orderId}`)
             }
-            className="
-              flex-1
-              h-11
-              rounded-xl
-              bg-blue-600
-              hover:bg-blue-700
-              text-white
-              text-sm
-              font-semibold
-              transition
-              flex
-              items-center
-              justify-center
-              gap-2
-            "
+             className="
+      w-full sm:flex-1
+      min-h-12
+      px-4
+      rounded-xl
+      bg-blue-600
+      hover:bg-blue-700
+      text-white
+      text-sm
+      font-semibold
+      transition
+      flex items-center justify-center
+      gap-2
+      whitespace-nowrap
+    "
           >
             <Package size={17} />
             View Order Details
