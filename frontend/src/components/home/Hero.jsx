@@ -220,31 +220,67 @@ const Hero = () => {
    * LOADING STATE
    * =========================================
    */
-  if (loading && !slides.length) {
-    return (
-      <section
-        className="
-          relative
-          h-[520px]
-          min-h-[520px]
-          w-full
-          overflow-hidden
+  
+if (loading && !slides.length) {
+  return (
+    <section
+      aria-label="Loading homepage banner"
+      aria-busy="true"
+      className="
+        relative
+        h-[520px] min-h-[520px]
+        w-full overflow-hidden
+        bg-gray-200 animate-pulse
+        sm:h-[560px] sm:min-h-[560px]
+        md:h-[580px] md:min-h-[580px]
+        lg:h-[560px] lg:min-h-[560px]
+        xl:h-[600px] xl:min-h-[600px]
+      "
+    >
+      {/* Background skeleton */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-300 via-gray-200 to-gray-400" />
 
-          sm:h-[560px]
-          sm:min-h-[560px]
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black/10" />
 
-          md:h-[580px]
-          md:min-h-[580px]
+      {/* Content skeleton */}
+      <div className="relative z-10 flex h-full items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
+        <div className="flex w-full max-w-4xl flex-col items-center">
 
-          lg:h-[560px]
-          lg:min-h-[560px]
+          {/* Badge */}
+          <div className="mb-5 h-8 w-32 rounded-full bg-white/40 sm:w-40" />
 
-          xl:h-[600px]
-          xl:min-h-[600px]
-        "
-      />
-    );
-  }
+          {/* Main heading */}
+          <div className="h-10 w-4/5 max-w-2xl rounded-lg bg-white/50 sm:h-14 md:h-16 lg:h-20" />
+
+          {/* Highlight heading */}
+          <div className="mt-3 h-10 w-3/5 max-w-xl rounded-lg bg-white/40 sm:h-14 md:h-16 lg:h-20" />
+
+          {/* Description */}
+          <div className="mt-6 flex w-full max-w-xl flex-col items-center gap-2">
+            <div className="h-3 w-full rounded bg-white/40 sm:h-4" />
+            <div className="h-3 w-5/6 rounded bg-white/40 sm:h-4" />
+            <div className="h-3 w-2/3 rounded bg-white/40 sm:h-4" />
+          </div>
+
+          {/* Buttons */}
+          <div className="mt-8 flex w-full max-w-md flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+            <div className="h-11 w-full rounded-lg bg-white/60 sm:w-40 sm:rounded-xl" />
+            <div className="h-11 w-full rounded-lg border border-white/30 bg-white/20 sm:w-40 sm:rounded-xl" />
+          </div>
+
+        </div>
+      </div>
+
+      {/* Slider indicators */}
+      <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2 sm:bottom-7">
+        <div className="h-1.5 w-10 rounded-full bg-white/70" />
+        <div className="h-1.5 w-5 rounded-full bg-white/30" />
+        <div className="h-1.5 w-5 rounded-full bg-white/30" />
+      </div>
+    </section>
+  );
+}
 
   /*
    * =========================================
