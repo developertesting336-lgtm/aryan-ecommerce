@@ -567,7 +567,7 @@ const PromoGrid = () => {
                 outline-none
                 transition-colors
                 duration-300
-
+                cursor-pointer
                 ${
                   isDark || hasGradient
                     ? "text-white hover:text-white/75"

@@ -973,6 +973,7 @@ function CollectionCard({
       type="button"
       onClick={handleCardClick}
       className="
+      cursor-pointer
         group
         relative
         min-h-[310px]

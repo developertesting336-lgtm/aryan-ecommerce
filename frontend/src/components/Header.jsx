@@ -897,7 +897,7 @@ export default function Navbar() {
                                         )
                                       )
                                     }
-                                    className="text-left text-sm font-semibold text-gray-900 hover:text-app-primary"
+                                    className="cursor-pointer text-left text-sm font-semibold text-gray-900 hover:text-app-primary"
                                   >
                                     {getCategoryName(
                                       category
@@ -939,7 +939,7 @@ export default function Navbar() {
                                                   )
                                                 )
                                               }
-                                              className="text-left text-sm text-gray-600 hover:text-app-primary"
+                                              className="cursor-pointer text-left text-sm text-gray-600 hover:text-app-primary"
                                             >
                                               {getCategoryName(
                                                 child

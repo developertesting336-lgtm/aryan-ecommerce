@@ -710,6 +710,7 @@ export default function FeaturedProducts() {
               disabled={!canScrollLeft}
               aria-label="Previous product"
               className="
+              cursor-pointer
                 flex
                 h-8
                 w-8
@@ -742,6 +743,7 @@ export default function FeaturedProducts() {
               disabled={!canScrollRight}
               aria-label="Next product"
               className="
+              cursor-pointer
                 flex
                 h-8
                 w-8
@@ -773,6 +775,7 @@ export default function FeaturedProducts() {
             type="button"
             onClick={() => navigate("/products")}
             className="
+            cursor-pointer
               shrink-0
               whitespace-nowrap
               text-xs
@@ -998,6 +1001,7 @@ export default function FeaturedProducts() {
               hover:bg-blue-50
               hover:text-blue-600
               transition
+              cursor-pointer
             "
           >
             Explore All Products

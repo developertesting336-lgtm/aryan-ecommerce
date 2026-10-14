@@ -346,7 +346,7 @@ if (loading && !slides.length) {
       {/* =========================================
           LIGHT OVERLAY
       ========================================== */}
-      <div
+      {/* <div
         className="
           pointer-events-none
           absolute
@@ -356,7 +356,26 @@ if (loading && !slides.length) {
           via-black/15
           to-black/45
         "
-      />
+      /> */}
+
+      {/* =========================================
+    OVERLAY: dark tint only (no blur)
+========================================== */}
+
+{/* 1. Even dark tint over the whole image */}
+<div className="pointer-events-none absolute inset-0 bg-black/40" />
+
+{/* 2. Extra darkness behind the text in the center */}
+<div
+  className="pointer-events-none absolute inset-0"
+  style={{
+    background:
+      "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 100%)",
+  }}
+/>
+
+{/* 3. Top-to-bottom gradient for depth */}
+<div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/40" />
 
       {/* =========================================
           HERO CONTENT
@@ -491,7 +510,7 @@ if (loading && !slides.length) {
                 items-center
                 justify-center
                 gap-3
-
+              cursor-pointer
                 sm:mt-8
                 sm:flex-row
                 sm:gap-4
@@ -525,7 +544,7 @@ if (loading && !slides.length) {
                   hover:-translate-y-1
                   hover:bg-white/90
                   hover:shadow-2xl
-
+                  cursor-pointer
                   sm:w-auto
                   sm:rounded-xl
                   sm:px-7
@@ -566,7 +585,7 @@ if (loading && !slides.length) {
                     backdrop-blur-sm
                     transition-all
                     duration-300
-
+                    cursor-pointer
                     hover:-translate-y-1
                     hover:bg-black/30
                     hover:shadow-xl

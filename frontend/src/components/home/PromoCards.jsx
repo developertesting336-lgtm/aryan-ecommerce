@@ -879,6 +879,7 @@ const handleNavigate = (link) => {
       scale: 0.97,
     }}
     className="
+    cursor-pointer
       mt-4
       inline-flex
       items-center

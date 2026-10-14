@@ -730,6 +730,7 @@ console.log("🔥 SENDING ORDER:", orderData);
               text-gray-500
               transition
               hover:text-blue-600
+              cursor-pointer
             "
           >
             <ArrowLeft
@@ -890,6 +891,7 @@ console.log("🔥 SENDING ORDER:", orderData);
                                   p-4
                                   text-left
                                   transition
+                                  cursor-pointer
                                   ${
                                     isSelected
                                       ? "border-blue-500 bg-blue-50 ring-2 ring-blue-500/10"
@@ -1714,6 +1716,7 @@ console.log("🔥 SENDING ORDER:", orderData);
                               handleRemoveCoupon
                             }
                             className="
+                            cursor-pointer
                               flex
                               h-7
                               w-7
@@ -1801,6 +1804,7 @@ console.log("🔥 SENDING ORDER:", orderData);
                               !selectedProduct?._id
                             }
                             className="
+                            cursor-pointer
                               h-11
                               rounded-xl
                               bg-gray-900
@@ -1998,6 +2002,7 @@ console.log("🔥 SENDING ORDER:", orderData);
                       !selectedItems.length
                     }
                     className="
+                    cursor-pointer
                       mt-5
                       flex
                       h-12

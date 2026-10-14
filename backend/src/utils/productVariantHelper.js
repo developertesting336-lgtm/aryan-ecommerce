@@ -136,6 +136,9 @@ export const prepareProductVariants = ({
           );
         }
       }
+// if(variant.mrp<variant.price){
+//    throw new Error(`MRP should be greater than or equal to selling price.`);
+// }
 
       // -----------------------------------------
       // Attributes

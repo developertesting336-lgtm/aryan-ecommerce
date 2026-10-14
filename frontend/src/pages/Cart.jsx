@@ -139,6 +139,7 @@ const handleBuyThis = (item) => {
                 hover:bg-blue-700
                 transition
                 font-medium
+                cursor-pointer
               "
             >
               Continue Shopping
@@ -209,6 +210,7 @@ const handleBuyThis = (item) => {
                           rounded-full
                           bg-gray-200
                           hover:bg-gray-300
+                          cursor-pointer
                         "
                         onClick={() =>
                           handleQuantity(item?.product?._id)
@@ -227,6 +229,7 @@ const handleBuyThis = (item) => {
                           rounded-full
                           bg-gray-200
                           hover:bg-gray-300
+                          cursor-pointer
                         "
                         onClick={() => handleAddCart(item)}
                       >
@@ -258,6 +261,7 @@ const handleBuyThis = (item) => {
       transition
       text-sm
       font-medium
+      cursor-pointer
     "
     onClick={() => handleBuyThis(item)}
   >
