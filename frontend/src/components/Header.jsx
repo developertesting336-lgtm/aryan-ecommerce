@@ -1615,146 +1615,77 @@ function MobileBestSelling({
           HORIZONTAL PRODUCT SCROLLER
       ============================================== */}
 
-      <div
-        className="
-          mobile-product-scroller
-          w-full
-          max-w-full
-          overflow-x-auto
-          overflow-y-hidden
-          overscroll-x-contain
-          pr-3
-          pb-4
-        "
-        style={{
-          WebkitOverflowScrolling:
-            "touch",
-          touchAction: "pan-x",
-          scrollbarWidth: "thin",
-        }}
-      >
-        {/* IMPORTANT:
-            w-max forces content to be wider
-            than the viewport so horizontal
-            scrolling can actually happen.
-        */}
+      {/* HORIZONTAL PRODUCT SCROLLER - 2 cards per view */}
 
-        <div className="flex w-max gap-3">
-          {products.map((product) => (
-            <Link
-              key={
-                product._id ||
-                product.id ||
-                product.name
-              }
-              to={`/product/${
-                product._id ||
-                product.id
-              }`}
-              onClick={onClose}
-              draggable={false}
-              className="
-                group
-                block
-                w-[165px]
-                shrink-0
-                overflow-hidden
-                rounded-lg
-                border
-                border-gray-100
-                bg-white
-                p-3
-                transition
-                active:scale-[0.98]
-                hover:border-blue-200
-                hover:shadow-md
-                sm:w-[185px]
-              "
-            >
-              {/* PRODUCT IMAGE */}
-
-              <div
-                className="
-                  flex
-                  h-28
-                  w-full
-                  items-center
-                  justify-center
-                  overflow-hidden
-                  rounded-md
-                  bg-gray-50
-                  sm:h-32
-                "
-              >
-                <img
-                  src={getHeaderImage(
-                    product.images?.[0]
-                  )}
-                  alt={
-                    product.name ||
-                    "Product"
-                  }
-                  draggable={false}
-                  className="
-                    h-full
-                    w-full
-                    select-none
-                    object-contain
-                    transition-transform
-                    duration-200
-                    group-hover:scale-105
-                  "
-                />
-              </div>
-
-              {/* PRODUCT NAME */}
-
-              <p
-                className="
-                  mt-3
-                  line-clamp-2
-                  min-h-[40px]
-                  text-xs
-                  font-medium
-                  leading-5
-                  text-gray-900
-                  group-hover:text-app-primary
-                  sm:text-sm
-                "
-              >
-                {product.name}
-              </p>
-
-              {/* PRODUCT PRICE */}
-
-              <p
-                className="
-                  mt-2
-                  text-sm
-                  font-semibold
-                  text-app-primary
-                  sm:text-base
-                "
-              >
-                ₹
-                {Number(
-                  product.price || 0
-                ).toLocaleString(
-                  "en-IN"
-                )}
-              </p>
-            </Link>
-          ))}
-
-          {/* EMPTY STATE */}
-
-          {!products.length && (
-            <div className="w-full py-6 pr-3 text-center text-sm text-gray-500">
-              No products available.
-            </div>
-          )}
-        </div>
+<div
+  className="
+    flex
+    w-full
+    gap-3
+    overflow-x-auto
+    overflow-y-hidden
+    overscroll-x-contain
+    snap-x
+    snap-mandatory
+    pb-4
+    [scrollbar-width:none]
+    [&::-webkit-scrollbar]:hidden
+  "
+  style={{
+    WebkitOverflowScrolling: "touch",
+    touchAction: "pan-x",
+  }}
+>
+  {products.map((product) => (
+    <Link
+      key={product._id || product.id || product.name}
+      to={`/product/${product._id || product.id}`}
+      onClick={onClose}
+      draggable={false}
+      className="
+        group
+        block
+        w-[calc((100%-0.75rem)/2)]
+        shrink-0
+        snap-start
+        overflow-hidden
+        rounded-lg
+        border
+        border-gray-100
+        bg-white
+        p-2.5
+        transition
+        active:scale-[0.98]
+        hover:border-blue-200
+        hover:shadow-md
+      "
+    >
+      <div className="flex h-28 w-full items-center justify-center overflow-hidden rounded-md bg-gray-50 sm:h-32">
+        <img
+          src={getHeaderImage(product.images?.[0])}
+          alt={product.name || "Product"}
+          draggable={false}
+          className="h-full w-full select-none object-contain transition-transform duration-200 group-hover:scale-105"
+        />
       </div>
+
+      <p className="mt-3 line-clamp-2 min-h-[40px] text-xs font-medium leading-5 text-gray-900 group-hover:text-app-primary sm:text-sm">
+        {product.name}
+      </p>
+
+      <p className="mt-2 text-sm font-semibold text-app-primary">
+        ₹{Number(product.price || 0).toLocaleString("en-IN")}
+      </p>
+    </Link>
+  ))}
+
+  {/* EMPTY STATE */}
+  {!products.length && (
+    <div className="w-full py-6 text-center text-sm text-gray-500">
+      No products available.
+    </div>
+  )}
+</div>
     </section>
   );
 }

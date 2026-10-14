@@ -7,11 +7,8 @@ import {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-<<<<<<< HEAD
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-=======
->>>>>>> origin/main
 
 import { getProducts } from "../../redux/slices/productSlice";
 import ProductCard from "../products/ProductCard";
@@ -25,7 +22,6 @@ export default function FeaturedProducts() {
   const navigate = useNavigate();
 
   const scrollRef = useRef(null);
-<<<<<<< HEAD
   const sectionRef = useRef(null);
   const [hasEnteredViewport, setHasEnteredViewport] = useState(false);
 
@@ -36,11 +32,15 @@ export default function FeaturedProducts() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
+  // =========================================================
+  // DRAG / WHEEL REFS
+  // =========================================================
 
-  
-=======
+  const isDraggingRef = useRef(false);
+  const hasDraggedRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const dragStartScrollLeftRef = useRef(0);
 
->>>>>>> origin/main
   // =========================================================
   // FETCH CONTROL
   // =========================================================
@@ -155,115 +155,12 @@ export default function FeaturedProducts() {
     };
   }, []);
 
-<<<<<<< HEAD
-
-  // =========================================================
-// MOUSE WHEEL → HORIZONTAL + MOUSE DRAG SCROLL
-// =========================================================
-
-const isDraggingRef = useRef(false);
-const hasDraggedRef = useRef(false);
-const dragStartXRef = useRef(0);
-const dragStartScrollLeftRef = useRef(0);
-
-useEffect(() => {
-  const scroller = scrollRef.current;
-  if (!scroller) return;
-
-  // ---------- Wheel: vertical wheel moves the carousel sideways ----------
-  const handleWheel = (event) => {
-    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
-
-    const maxScroll = scroller.scrollWidth - scroller.clientWidth;
-    if (maxScroll <= 0) return;
-
-    const nextScroll = scroller.scrollLeft + event.deltaY;
-
-    // Only hijack the wheel while horizontal scrolling is possible,
-    // so the page can still scroll vertically at either end.
-    if (nextScroll > 0 && nextScroll < maxScroll) {
-      event.preventDefault();
-      scroller.scrollLeft = nextScroll;
-    }
-  };
-
-  // ---------- Drag (mouse only) ----------
-  const handlePointerDown = (event) => {
-    if (event.pointerType !== "mouse" || event.button !== 0) return;
-
-    isDraggingRef.current = true;
-    hasDraggedRef.current = false;
-    dragStartXRef.current = event.clientX;
-    dragStartScrollLeftRef.current = scroller.scrollLeft;
-  };
-
-  const handlePointerMove = (event) => {
-    if (!isDraggingRef.current || event.pointerType !== "mouse") return;
-
-    const distance = event.clientX - dragStartXRef.current;
-
-    // Small threshold so normal clicks on cards still work
-    if (Math.abs(distance) > 5) {
-      hasDraggedRef.current = true;
-      scroller.style.cursor = "grabbing";
-      scroller.style.userSelect = "none";
-    }
-
-    scroller.scrollLeft = dragStartScrollLeftRef.current - distance;
-  };
-
-  const stopDragging = () => {
-    if (!isDraggingRef.current) return;
-    isDraggingRef.current = false;
-    scroller.style.cursor = "";
-    scroller.style.userSelect = "";
-  };
-
-  // Block the click that fires right after a drag (prevents accidental navigation)
-  const handleClickCapture = (event) => {
-    if (hasDraggedRef.current) {
-      event.preventDefault();
-      event.stopPropagation();
-      hasDraggedRef.current = false;
-    }
-  };
-
-  // Stop native image/link ghost-dragging
-  const handleDragStart = (event) => event.preventDefault();
-
-  scroller.addEventListener("wheel", handleWheel, { passive: false });
-  scroller.addEventListener("pointerdown", handlePointerDown);
-  scroller.addEventListener("pointermove", handlePointerMove);
-  scroller.addEventListener("pointerup", stopDragging);
-  scroller.addEventListener("pointercancel", stopDragging);
-  scroller.addEventListener("pointerleave", stopDragging);
-  scroller.addEventListener("click", handleClickCapture, true);
-  scroller.addEventListener("dragstart", handleDragStart);
-
-  return () => {
-    scroller.removeEventListener("wheel", handleWheel);
-    scroller.removeEventListener("pointerdown", handlePointerDown);
-    scroller.removeEventListener("pointermove", handlePointerMove);
-    scroller.removeEventListener("pointerup", stopDragging);
-    scroller.removeEventListener("pointercancel", stopDragging);
-    scroller.removeEventListener("pointerleave", stopDragging);
-    scroller.removeEventListener("click", handleClickCapture, true);
-    scroller.removeEventListener("dragstart", handleDragStart);
-  };
-}, [featuredProducts.length]);
-=======
->>>>>>> origin/main
   // =========================================================
   // GET PRODUCT ID
   // =========================================================
 
   const getProductId = useCallback((item) => {
-    return (
-      item?._id ||
-      item?.id ||
-      item?.slug ||
-      null
-    );
+    return item?._id || item?.id || item?.slug || null;
   }, []);
 
   // =========================================================
@@ -272,26 +169,18 @@ useEffect(() => {
 
   const fetchProducts = useCallback(
     async (requestedLimit) => {
-      // ---------------------------------------------
       // Prevent duplicate request
-      // ---------------------------------------------
-
       if (isFetchingRef.current) {
         return;
       }
 
-      // ---------------------------------------------
       // Already finished
-      // ---------------------------------------------
-
       if (
         requestedLimit > INITIAL_LIMIT &&
         totalPages > 0 &&
         currentPage >= totalPages
       ) {
-        console.log(
-          "[FeaturedProducts] Fetch blocked - no more products."
-        );
+        console.log("[FeaturedProducts] Fetch blocked - no more products.");
 
         setHasMore(false);
 
@@ -305,9 +194,7 @@ useEffect(() => {
       }
 
       try {
-        console.log(
-          `[FeaturedProducts] Fetching limit=${requestedLimit}`
-        );
+        console.log(`[FeaturedProducts] Fetching limit=${requestedLimit}`);
 
         const result = await dispatch(
           getProducts({
@@ -315,70 +202,42 @@ useEffect(() => {
           })
         );
 
-        // ---------------------------------------------
         // HANDLE RESPONSE
-        // ---------------------------------------------
-
         const {
           products: returnedProducts,
           total,
           pagination: responsePagination,
         } = extractProducts(result?.payload);
 
-        const returnedCount =
-          returnedProducts.length;
+        const returnedCount = returnedProducts.length;
 
-        console.log(
-          "[FeaturedProducts] Response:",
-          {
-            requestedLimit,
-            returnedCount,
-            total,
-            pagination: responsePagination,
-          }
-        );
+        console.log("[FeaturedProducts] Response:", {
+          requestedLimit,
+          returnedCount,
+          total,
+          pagination: responsePagination,
+        });
 
-        // =================================================
         // USE RESPONSE PAGINATION
-        // =================================================
-
-        const responsePage =
-          responsePagination?.page ??
-          currentPage;
+        const responsePage = responsePagination?.page ?? currentPage;
 
         const responseTotalPages =
-          responsePagination?.totalPages ??
-          totalPages;
+          responsePagination?.totalPages ?? totalPages;
 
         if (
           typeof responseTotalPages === "number" &&
           responseTotalPages > 0
         ) {
-          setHasMore(
-            responsePage < responseTotalPages
-          );
+          setHasMore(responsePage < responseTotalPages);
         }
 
-        // =================================================
         // FALLBACK - TOTAL
-        // =================================================
-
-        else if (
-          typeof total === "number" &&
-          total >= 0
-        ) {
-          setHasMore(
-            requestedLimit < total
-          );
+        else if (typeof total === "number" && total >= 0) {
+          setHasMore(requestedLimit < total);
         }
 
-        // =================================================
         // FALLBACK - RESPONSE LENGTH
-        // =================================================
-
-        else if (
-          returnedCount < requestedLimit
-        ) {
+        else if (returnedCount < requestedLimit) {
           console.log(
             "[FeaturedProducts] API returned fewer products than requested."
           );
@@ -386,14 +245,10 @@ useEffect(() => {
           setHasMore(false);
         }
 
-        // =================================================
         // FALLBACK - SAME RESPONSE SIZE
-        // =================================================
-
         else if (
           requestedLimit > INITIAL_LIMIT &&
-          returnedCount <=
-            lastReturnedCountRef.current
+          returnedCount <= lastReturnedCountRef.current
         ) {
           console.log(
             "[FeaturedProducts] Product count did not increase. Stopping."
@@ -402,31 +257,24 @@ useEffect(() => {
           setHasMore(false);
         }
 
-        // =================================================
         // FALLBACK - PRODUCT IDS
-        // =================================================
-
         else {
-          const currentIds =
-            returnedProducts
-              .map(getProductId)
-              .filter(Boolean);
+          const currentIds = returnedProducts
+            .map(getProductId)
+            .filter(Boolean);
 
-          const previousIds =
-            previousProductIdsRef.current;
+          const previousIds = previousProductIdsRef.current;
 
           if (
             requestedLimit > INITIAL_LIMIT &&
             currentIds.length > 0 &&
             previousIds.length > 0
           ) {
-            const previousSet =
-              new Set(previousIds);
+            const previousSet = new Set(previousIds);
 
-            const newProducts =
-              currentIds.filter(
-                (id) => !previousSet.has(id)
-              );
+            const newProducts = currentIds.filter(
+              (id) => !previousSet.has(id)
+            );
 
             if (newProducts.length === 0) {
               console.log(
@@ -442,46 +290,28 @@ useEffect(() => {
           }
         }
 
-        // =================================================
         // SAVE RESPONSE INFORMATION
-        // =================================================
+        lastReturnedCountRef.current = returnedCount;
 
-        lastReturnedCountRef.current =
-          returnedCount;
+        previousProductIdsRef.current = returnedProducts
+          .map(getProductId)
+          .filter(Boolean);
 
-        previousProductIdsRef.current =
-          returnedProducts
-            .map(getProductId)
-            .filter(Boolean);
-
-        // =================================================
         // SAFETY
-        // =================================================
-
         if (returnedCount === 0) {
           setHasMore(false);
         }
       } catch (err) {
-        console.error(
-          "[FeaturedProducts] Failed to fetch products:",
-          err
-        );
+        console.error("[FeaturedProducts] Failed to fetch products:", err);
       } finally {
         isFetchingRef.current = false;
         setIsFetchingMore(false);
       }
     },
-    [
-      dispatch,
-      extractProducts,
-      getProductId,
-      currentPage,
-      totalPages,
-    ]
+    [dispatch, extractProducts, getProductId, currentPage, totalPages]
   );
 
   // =========================================================
-<<<<<<< HEAD
   // VIEWPORT INTERSECTION OBSERVER (BELOW-THE-FOLD LAZY FETCH)
   // =========================================================
 
@@ -510,20 +340,15 @@ useEffect(() => {
   }, [hasEnteredViewport, featuredProducts.length]);
 
   // =========================================================
-=======
->>>>>>> origin/main
   // INITIAL LOAD
   // =========================================================
 
   useEffect(() => {
-<<<<<<< HEAD
     // Only fetch when section approaches viewport
     if (!hasEnteredViewport) {
       return;
     }
 
-=======
->>>>>>> origin/main
     // Don't request again if Redux already has products
     if (featuredProducts.length > 0) {
       return;
@@ -549,10 +374,7 @@ useEffect(() => {
 
     fetchProducts(INITIAL_LIMIT);
   }, [
-<<<<<<< HEAD
     hasEnteredViewport,
-=======
->>>>>>> origin/main
     featuredProducts.length,
     currentPage,
     fetchProducts,
@@ -568,39 +390,25 @@ useEffect(() => {
     }
 
     if (!hasMore) {
-      console.log(
-        "[FeaturedProducts] No more products - scroll ignored."
-      );
+      console.log("[FeaturedProducts] No more products - scroll ignored.");
 
       return;
     }
 
-    // ---------------------------------------------
     // Redux pagination check
-    // ---------------------------------------------
-
-    if (
-      totalPages > 0 &&
-      currentPage >= totalPages
-    ) {
-      console.log(
-        "[FeaturedProducts] Redux pagination reached last page."
-      );
+    if (totalPages > 0 && currentPage >= totalPages) {
+      console.log("[FeaturedProducts] Redux pagination reached last page.");
 
       setHasMore(false);
 
       return;
     }
 
-    const currentLimit =
-      limitRef.current;
+    const currentLimit = limitRef.current;
 
-    const nextLimit =
-      currentLimit + LOAD_MORE_COUNT;
+    const nextLimit = currentLimit + LOAD_MORE_COUNT;
 
-    console.log(
-      `[FeaturedProducts] ${currentLimit} -> ${nextLimit}`
-    );
+    console.log(`[FeaturedProducts] ${currentLimit} -> ${nextLimit}`);
 
     // Update immediately
     limitRef.current = nextLimit;
@@ -608,15 +416,9 @@ useEffect(() => {
     setLimit(nextLimit);
 
     fetchProducts(nextLimit);
-  }, [
-    fetchProducts,
-    hasMore,
-    currentPage,
-    totalPages,
-  ]);
+  }, [fetchProducts, hasMore, currentPage, totalPages]);
 
   // =========================================================
-<<<<<<< HEAD
   // SCROLL CONTROLS & ARROW BUTTONS
   // =========================================================
 
@@ -626,7 +428,7 @@ useEffect(() => {
     if (!container) return;
 
     const { scrollLeft, scrollWidth, clientWidth } = container;
-    // Allow small 3px threshold for subpixel rendering in browsers
+    // Allow small threshold for subpixel rendering in browsers
     setCanScrollLeft(scrollLeft > 3);
     setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 5);
   }, []);
@@ -649,63 +451,29 @@ useEffect(() => {
     });
   };
 
-  // Horizontal scroll listener & resize listener
+  // Horizontal scroll listener (arrow state + load more) & resize listener
   useEffect(() => {
     const container = scrollRef.current;
-=======
-  // INTERNAL SCROLL
-  // =========================================================
-
-  useEffect(() => {
-    const container = scrollRef.current;
-
->>>>>>> origin/main
     if (!container) {
       return;
     }
 
     const handleScroll = () => {
-<<<<<<< HEAD
       updateScrollButtons();
 
       if (isFetchingRef.current || !hasMore) {
         return;
       }
 
-      // Check if user scrolled near right edge to load more products
+      // Near the right edge -> load more products
       const { scrollLeft, scrollWidth, clientWidth } = container;
       const distanceFromRight = scrollWidth - (scrollLeft + clientWidth);
 
       if (distanceFromRight <= SCROLL_THRESHOLD) {
-=======
-      if (isFetchingRef.current) {
-        return;
-      }
-
-      if (!hasMore) {
-        return;
-      }
-
-      const {
-        scrollTop,
-        scrollHeight,
-        clientHeight,
-      } = container;
-
-      const distanceFromBottom =
-        scrollHeight -
-        (scrollTop + clientHeight);
-
-      if (
-        distanceFromBottom <=
-        SCROLL_THRESHOLD
-      ) {
->>>>>>> origin/main
         loadMoreProducts();
       }
     };
 
-<<<<<<< HEAD
     updateScrollButtons();
 
     container.addEventListener("scroll", handleScroll, { passive: true });
@@ -716,23 +484,96 @@ useEffect(() => {
       window.removeEventListener("resize", updateScrollButtons);
     };
   }, [hasMore, loadMoreProducts, updateScrollButtons, featuredProducts.length]);
-=======
-    container.addEventListener(
-      "scroll",
-      handleScroll,
-      {
-        passive: true,
+
+  // =========================================================
+  // MOUSE WHEEL → HORIZONTAL + MOUSE DRAG SCROLL
+  // =========================================================
+
+  useEffect(() => {
+    const scroller = scrollRef.current;
+    if (!scroller) return;
+
+    // Wheel: vertical wheel moves the carousel sideways
+    const handleWheel = (event) => {
+      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+
+      const maxScroll = scroller.scrollWidth - scroller.clientWidth;
+      if (maxScroll <= 0) return;
+
+      const nextScroll = scroller.scrollLeft + event.deltaY;
+
+      // Only hijack the wheel while horizontal scrolling is possible,
+      // so the page can still scroll vertically at either end.
+      if (nextScroll > 0 && nextScroll < maxScroll) {
+        event.preventDefault();
+        scroller.scrollLeft = nextScroll;
       }
-    );
+    };
+
+    // Drag (mouse only)
+    const handlePointerDown = (event) => {
+      if (event.pointerType !== "mouse" || event.button !== 0) return;
+
+      isDraggingRef.current = true;
+      hasDraggedRef.current = false;
+      dragStartXRef.current = event.clientX;
+      dragStartScrollLeftRef.current = scroller.scrollLeft;
+    };
+
+    const handlePointerMove = (event) => {
+      if (!isDraggingRef.current || event.pointerType !== "mouse") return;
+
+      const distance = event.clientX - dragStartXRef.current;
+
+      // Small threshold so normal clicks on cards still work
+      if (Math.abs(distance) > 5) {
+        hasDraggedRef.current = true;
+        scroller.style.cursor = "grabbing";
+        scroller.style.userSelect = "none";
+      }
+
+      scroller.scrollLeft = dragStartScrollLeftRef.current - distance;
+    };
+
+    const stopDragging = () => {
+      if (!isDraggingRef.current) return;
+      isDraggingRef.current = false;
+      scroller.style.cursor = "";
+      scroller.style.userSelect = "";
+    };
+
+    // Block the click that fires right after a drag
+    const handleClickCapture = (event) => {
+      if (hasDraggedRef.current) {
+        event.preventDefault();
+        event.stopPropagation();
+        hasDraggedRef.current = false;
+      }
+    };
+
+    // Stop native image/link ghost-dragging
+    const handleDragStart = (event) => event.preventDefault();
+
+    scroller.addEventListener("wheel", handleWheel, { passive: false });
+    scroller.addEventListener("pointerdown", handlePointerDown);
+    scroller.addEventListener("pointermove", handlePointerMove);
+    scroller.addEventListener("pointerup", stopDragging);
+    scroller.addEventListener("pointercancel", stopDragging);
+    scroller.addEventListener("pointerleave", stopDragging);
+    scroller.addEventListener("click", handleClickCapture, true);
+    scroller.addEventListener("dragstart", handleDragStart);
 
     return () => {
-      container.removeEventListener(
-        "scroll",
-        handleScroll
-      );
+      scroller.removeEventListener("wheel", handleWheel);
+      scroller.removeEventListener("pointerdown", handlePointerDown);
+      scroller.removeEventListener("pointermove", handlePointerMove);
+      scroller.removeEventListener("pointerup", stopDragging);
+      scroller.removeEventListener("pointercancel", stopDragging);
+      scroller.removeEventListener("pointerleave", stopDragging);
+      scroller.removeEventListener("click", handleClickCapture, true);
+      scroller.removeEventListener("dragstart", handleDragStart);
     };
-  }, [hasMore, loadMoreProducts]);
->>>>>>> origin/main
+  }, [featuredProducts.length]);
 
   // =========================================================
   // RETRY
@@ -759,25 +600,21 @@ useEffect(() => {
   // DEBUG
   // =========================================================
 
-  console.log(
-    "[FeaturedProducts]",
-    {
-      page: currentPage,
-      totalPages,
-      limit,
-      products: featuredProducts.length,
-      loading,
-      isFetchingMore,
-      hasMore,
-    }
-  );
+  console.log("[FeaturedProducts]", {
+    page: currentPage,
+    totalPages,
+    limit,
+    products: featuredProducts.length,
+    loading,
+    isFetchingMore,
+    hasMore,
+  });
 
   // =========================================================
   // UI
   // =========================================================
 
   return (
-<<<<<<< HEAD
     <motion.section
       ref={sectionRef}
       initial={{
@@ -796,9 +633,6 @@ useEffect(() => {
         duration: prefersReducedMotion ? 0 : 0.6,
         ease: "easeOut",
       }}
-=======
-    <section
->>>>>>> origin/main
       className="
         w-full
         max-w-7xl
@@ -813,11 +647,7 @@ useEffect(() => {
       "
     >
       {/* =====================================================
-<<<<<<< HEAD
           HEADER WITH TITLE & CAROUSEL CONTROLS
-=======
-          HEADER
->>>>>>> origin/main
       ===================================================== */}
 
       <div
@@ -871,10 +701,8 @@ useEffect(() => {
           </p>
         </div>
 
-<<<<<<< HEAD
         {/* Action Controls: Left/Right arrows + View all */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Smooth 1-card scroll navigation arrows */}
           <div className="flex items-center gap-1 sm:gap-1.5">
             <button
               type="button"
@@ -962,7 +790,7 @@ useEffect(() => {
       </div>
 
       {/* =====================================================
-          INITIAL LOADING SKELETON (HORIZONTAL SNAPPING)
+          INITIAL LOADING SKELETON
       ===================================================== */}
 
       {loading && featuredProducts.length === 0 && (
@@ -991,73 +819,11 @@ useEffect(() => {
           ))}
         </div>
       )}
-=======
-        <button
-          type="button"
-          onClick={() =>
-            navigate("/products")
-          }
-          className="
-            shrink-0
-            whitespace-nowrap
-            text-xs
-            min-[375px]:text-sm
-            sm:text-base
-            font-semibold
-            text-blue-600
-            hover:text-blue-700
-            transition
-          "
-        >
-          View All →
-        </button>
-      </div>
-
-      {/* =====================================================
-          INITIAL LOADING
-      ===================================================== */}
-
-      {loading &&
-        featuredProducts.length === 0 && (
-          <div
-            className="
-              max-h-[70vh]
-              overflow-y-auto
-              overflow-x-hidden
-              pr-1
-            "
-          >
-            <div
-              className="
-                grid
-                grid-cols-1
-                min-[375px]:grid-cols-2
-                sm:grid-cols-3
-                md:grid-cols-4
-                lg:grid-cols-5
-                gap-3
-                min-[375px]:gap-3
-                sm:gap-4
-                lg:gap-5
-              "
-            >
-              {Array.from({
-                length: 10,
-              }).map((_, index) => (
-                <ProductSkeleton
-                  key={index}
-                />
-              ))}
-            </div>
-          </div>
-        )}
->>>>>>> origin/main
 
       {/* =====================================================
           ERROR
       ===================================================== */}
 
-<<<<<<< HEAD
       {!loading && error && featuredProducts.length === 0 && (
         <div
           className="
@@ -1070,24 +836,11 @@ useEffect(() => {
             text-center
           "
         >
-          <p
-            className="
-              font-semibold
-              text-red-600
-            "
-          >
+          <p className="font-semibold text-red-600">
             Unable to load products
           </p>
 
-          <p
-            className="
-              mt-1
-              text-sm
-              text-gray-500
-            "
-          >
-            Please try again.
-          </p>
+          <p className="mt-1 text-sm text-gray-500">Please try again.</p>
 
           <button
             type="button"
@@ -1109,67 +862,11 @@ useEffect(() => {
           </button>
         </div>
       )}
-=======
-      {!loading &&
-        error &&
-        featuredProducts.length === 0 && (
-          <div
-            className="
-              rounded-2xl
-              border
-              border-red-100
-              bg-red-50
-              p-6
-              sm:p-8
-              text-center
-            "
-          >
-            <p
-              className="
-                font-semibold
-                text-red-600
-              "
-            >
-              Unable to load products
-            </p>
-
-            <p
-              className="
-                mt-1
-                text-sm
-                text-gray-500
-              "
-            >
-              Please try again.
-            </p>
-
-            <button
-              type="button"
-              onClick={handleRetry}
-              className="
-                mt-4
-                rounded-xl
-                bg-red-500
-                px-5
-                py-2.5
-                text-sm
-                font-semibold
-                text-white
-                hover:bg-red-600
-                transition
-              "
-            >
-              Try Again
-            </button>
-          </div>
-        )}
->>>>>>> origin/main
 
       {/* =====================================================
           EMPTY
       ===================================================== */}
 
-<<<<<<< HEAD
       {!loading && !error && featuredProducts.length === 0 && (
         <div
           className="
@@ -1182,42 +879,39 @@ useEffect(() => {
             text-center
           "
         >
-          <p
-            className="
-              text-sm
-              sm:text-base
-              text-gray-500
-            "
-          >
+          <p className="text-sm sm:text-base text-gray-500">
             No products available right now.
           </p>
         </div>
       )}
 
       {/* =====================================================
-          PRODUCTS HORIZONTAL SNAP SCROLLER
+          PRODUCTS HORIZONTAL SCROLLER
       ===================================================== */}
 
       {featuredProducts.length > 0 && (
         <div className="relative">
           <div
-  ref={scrollRef}
-  className="
-    flex
-    w-full
-    overflow-x-auto
-    overflow-y-hidden
-    snap-x
-    snap-mandatory
-    md:snap-none
-    gap-4
-    py-2
-    md:cursor-grab
-    [scrollbar-width:none]
-    [&::-webkit-scrollbar]:hidden
-  "
-  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
->
+            ref={scrollRef}
+            className="
+              flex
+              w-full
+              overflow-x-auto
+              overflow-y-hidden
+              snap-x
+              snap-mandatory
+              md:snap-none
+              gap-4
+              py-2
+              md:cursor-grab
+              [scrollbar-width:none]
+              [&::-webkit-scrollbar]:hidden
+            "
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}
+          >
             {featuredProducts.map((item, index) => (
               <div
                 key={
@@ -1237,10 +931,7 @@ useEffect(() => {
                   lg:w-[calc((100%-3rem)/4)]
                 "
               >
-                <ProductCard
-                  {...item}
-                  rating={item?.rating?.average}
-                />
+                <ProductCard {...item} rating={item?.rating?.average} />
               </div>
             ))}
 
@@ -1271,154 +962,10 @@ useEffect(() => {
               </div>
             )}
           </div>
-=======
-      {!loading &&
-        !error &&
-        featuredProducts.length === 0 && (
-          <div
-            className="
-              rounded-2xl
-              border
-              border-gray-200
-              bg-gray-50
-              py-10
-              sm:py-12
-              text-center
-            "
-          >
-            <p
-              className="
-                text-sm
-                sm:text-base
-                text-gray-500
-              "
-            >
-              No products available right now.
-            </p>
-          </div>
-        )}
-
-      {/* =====================================================
-          PRODUCTS
-      ===================================================== */}
-
-      {featuredProducts.length > 0 && (
-        <div
-          ref={scrollRef}
-          className="
-            featured-products-scroll
-            max-h-[70vh]
-            overflow-y-auto
-            overflow-x-hidden
-            pr-1
-            sm:pr-2
-          "
-        >
-          <div
-            className="
-              grid
-              grid-cols-1
-              min-[375px]:grid-cols-2
-              sm:grid-cols-3
-              md:grid-cols-4
-              lg:grid-cols-5
-              gap-3
-              sm:gap-4
-              lg:gap-5
-              items-start
-            "
-          >
-            {featuredProducts.map(
-              (item, index) => (
-                <div
-                  key={
-                    item?._id ||
-                    item?.id ||
-                    item?.slug ||
-                    `product-${index}`
-                  }
-                  className="
-                    min-w-0
-                    w-full
-                  "
-                >
-                  <ProductCard
-                    {...item}
-                    rating={
-                      item?.rating?.average
-                    }
-                  />
-                </div>
-              )
-            )}
-          </div>
-
-          {/* =================================================
-              LOADING MORE
-          ================================================= */}
-
-          {isFetchingMore && (
-            <div
-              className="
-                flex
-                justify-center
-                items-center
-                py-6
-                text-sm
-                text-gray-500
-              "
-            >
-              <div
-                className="
-                  flex
-                  items-center
-                  gap-2
-                "
-              >
-                <span
-                  className="
-                    h-4
-                    w-4
-                    animate-spin
-                    rounded-full
-                    border-2
-                    border-gray-300
-                    border-t-blue-600
-                  "
-                />
-
-                <span>
-                  Loading more products...
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* =================================================
-              NO MORE
-          ================================================= */}
-
-          {!isFetchingMore &&
-            !hasMore &&
-            featuredProducts.length > 0 && (
-              <div
-                className="
-                  flex
-                  justify-center
-                  py-5
-                  text-sm
-                  text-gray-400
-                "
-              >
-                No more products available.
-              </div>
-            )}
->>>>>>> origin/main
         </div>
       )}
 
       {/* =====================================================
-<<<<<<< HEAD
           VIEW ALL BOTTOM LINK
       ===================================================== */}
 
@@ -1458,51 +1005,6 @@ useEffect(() => {
         </div>
       )}
     </motion.section>
-=======
-          VIEW ALL
-      ===================================================== */}
-
-      {!loading &&
-        !error &&
-        featuredProducts.length > 10 && (
-          <div
-            className="
-              flex
-              justify-center
-              mt-6
-              sm:mt-8
-            "
-          >
-            <button
-              type="button"
-              onClick={() =>
-                navigate("/products")
-              }
-              className="
-                rounded-xl
-                border
-                border-gray-200
-                bg-white
-                px-5
-                sm:px-6
-                py-2.5
-                sm:py-3
-                text-xs
-                sm:text-sm
-                font-semibold
-                text-gray-700
-                hover:border-blue-500
-                hover:bg-blue-50
-                hover:text-blue-600
-                transition
-              "
-            >
-              Explore All Products
-            </button>
-          </div>
-        )}
-    </section>
->>>>>>> origin/main
   );
 }
 
@@ -1540,55 +1042,15 @@ function ProductSkeleton() {
           sm:p-4
         "
       >
-        <div
-          className="
-            h-3
-            w-1/3
-            animate-pulse
-            rounded
-            bg-gray-200
-          "
-        />
+        <div className="h-3 w-1/3 animate-pulse rounded bg-gray-200" />
 
-        <div
-          className="
-            h-4
-            w-full
-            animate-pulse
-            rounded
-            bg-gray-200
-          "
-        />
+        <div className="h-4 w-full animate-pulse rounded bg-gray-200" />
 
-        <div
-          className="
-            h-4
-            w-2/3
-            animate-pulse
-            rounded
-            bg-gray-200
-          "
-        />
+        <div className="h-4 w-2/3 animate-pulse rounded bg-gray-200" />
 
-        <div
-          className="
-            h-5
-            w-1/2
-            animate-pulse
-            rounded
-            bg-gray-200
-          "
-        />
+        <div className="h-5 w-1/2 animate-pulse rounded bg-gray-200" />
 
-        <div
-          className="
-            h-10
-            w-full
-            animate-pulse
-            rounded-xl
-            bg-gray-200
-          "
-        />
+        <div className="h-10 w-full animate-pulse rounded-xl bg-gray-200" />
       </div>
     </div>
   );

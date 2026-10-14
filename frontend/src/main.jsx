@@ -15,15 +15,8 @@ createRoot(document.getElementById('root')).render(
    
     <Provider store={store}>
 
-{/* <App /> */}
-{/* <ThemeProvider> */}
         <AppRoutes />
-        {/* <Toaster
-      position="bottom-right"
-      toastOptions={{
-        duration: 3000,
-      }}
-    /> */}
+
 <ToastContainer
   position="bottom-right"
   autoClose={2500}
