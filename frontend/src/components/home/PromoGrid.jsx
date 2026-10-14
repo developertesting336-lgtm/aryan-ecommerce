@@ -668,19 +668,31 @@
 
 
 import React, { useEffect, useMemo, useRef } from "react";
+<<<<<<< HEAD
 import {  useSelector } from "react-redux";
+=======
+import { useDispatch, useSelector } from "react-redux";
+>>>>>>> origin/main
 import { motion } from "motion/react";
 import gsap from "gsap";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+<<<<<<< HEAD
 // import { getHomepage } from "../../redux/slices/content/homepage/homepageSlice";
+=======
+import { getHomepage } from "../../redux/slices/content/homepage/homepageSlice";
+>>>>>>> origin/main
 
 // ======================================================
 // MAIN COMPONENT
 // ======================================================
 
 const PromoGrid = () => {
+<<<<<<< HEAD
   // const dispatch = useDispatch();
+=======
+  const dispatch = useDispatch();
+>>>>>>> origin/main
 const navigate = useNavigate()
 const handleNavigate = (query) => {
   if (!query) return;
@@ -900,8 +912,20 @@ const handleNavigate = (query) => {
         onMouseEnter={() => handleMouseEnter(index)}
         onMouseLeave={() => handleMouseLeave(index)}
         className={`
+<<<<<<< HEAD
           group relative h-full w-full overflow-hidden rounded-[22px] border border-slate-200/70
           shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-shadow duration-500
+=======
+          group
+          relative
+          overflow-hidden
+          rounded-[22px]
+          border
+          border-slate-200/70
+          shadow-[0_4px_20px_rgba(0,0,0,0.04)]
+          transition-shadow
+          duration-500
+>>>>>>> origin/main
           hover:shadow-[0_18px_45px_rgba(0,0,0,0.10)]
 
           ${

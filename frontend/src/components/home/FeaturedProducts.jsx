@@ -7,8 +7,11 @@ import {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+<<<<<<< HEAD
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
+=======
+>>>>>>> origin/main
 
 import { getProducts } from "../../redux/slices/productSlice";
 import ProductCard from "../products/ProductCard";
@@ -22,6 +25,7 @@ export default function FeaturedProducts() {
   const navigate = useNavigate();
 
   const scrollRef = useRef(null);
+<<<<<<< HEAD
   const sectionRef = useRef(null);
   const [hasEnteredViewport, setHasEnteredViewport] = useState(false);
 
@@ -34,6 +38,9 @@ export default function FeaturedProducts() {
 
 
   
+=======
+
+>>>>>>> origin/main
   // =========================================================
   // FETCH CONTROL
   // =========================================================
@@ -148,6 +155,7 @@ export default function FeaturedProducts() {
     };
   }, []);
 
+<<<<<<< HEAD
 
   // =========================================================
 // MOUSE WHEEL → HORIZONTAL + MOUSE DRAG SCROLL
@@ -243,6 +251,8 @@ useEffect(() => {
     scroller.removeEventListener("dragstart", handleDragStart);
   };
 }, [featuredProducts.length]);
+=======
+>>>>>>> origin/main
   // =========================================================
   // GET PRODUCT ID
   // =========================================================
@@ -471,6 +481,7 @@ useEffect(() => {
   );
 
   // =========================================================
+<<<<<<< HEAD
   // VIEWPORT INTERSECTION OBSERVER (BELOW-THE-FOLD LAZY FETCH)
   // =========================================================
 
@@ -499,15 +510,20 @@ useEffect(() => {
   }, [hasEnteredViewport, featuredProducts.length]);
 
   // =========================================================
+=======
+>>>>>>> origin/main
   // INITIAL LOAD
   // =========================================================
 
   useEffect(() => {
+<<<<<<< HEAD
     // Only fetch when section approaches viewport
     if (!hasEnteredViewport) {
       return;
     }
 
+=======
+>>>>>>> origin/main
     // Don't request again if Redux already has products
     if (featuredProducts.length > 0) {
       return;
@@ -533,7 +549,10 @@ useEffect(() => {
 
     fetchProducts(INITIAL_LIMIT);
   }, [
+<<<<<<< HEAD
     hasEnteredViewport,
+=======
+>>>>>>> origin/main
     featuredProducts.length,
     currentPage,
     fetchProducts,
@@ -597,6 +616,7 @@ useEffect(() => {
   ]);
 
   // =========================================================
+<<<<<<< HEAD
   // SCROLL CONTROLS & ARROW BUTTONS
   // =========================================================
 
@@ -632,11 +652,20 @@ useEffect(() => {
   // Horizontal scroll listener & resize listener
   useEffect(() => {
     const container = scrollRef.current;
+=======
+  // INTERNAL SCROLL
+  // =========================================================
+
+  useEffect(() => {
+    const container = scrollRef.current;
+
+>>>>>>> origin/main
     if (!container) {
       return;
     }
 
     const handleScroll = () => {
+<<<<<<< HEAD
       updateScrollButtons();
 
       if (isFetchingRef.current || !hasMore) {
@@ -648,10 +677,35 @@ useEffect(() => {
       const distanceFromRight = scrollWidth - (scrollLeft + clientWidth);
 
       if (distanceFromRight <= SCROLL_THRESHOLD) {
+=======
+      if (isFetchingRef.current) {
+        return;
+      }
+
+      if (!hasMore) {
+        return;
+      }
+
+      const {
+        scrollTop,
+        scrollHeight,
+        clientHeight,
+      } = container;
+
+      const distanceFromBottom =
+        scrollHeight -
+        (scrollTop + clientHeight);
+
+      if (
+        distanceFromBottom <=
+        SCROLL_THRESHOLD
+      ) {
+>>>>>>> origin/main
         loadMoreProducts();
       }
     };
 
+<<<<<<< HEAD
     updateScrollButtons();
 
     container.addEventListener("scroll", handleScroll, { passive: true });
@@ -662,6 +716,23 @@ useEffect(() => {
       window.removeEventListener("resize", updateScrollButtons);
     };
   }, [hasMore, loadMoreProducts, updateScrollButtons, featuredProducts.length]);
+=======
+    container.addEventListener(
+      "scroll",
+      handleScroll,
+      {
+        passive: true,
+      }
+    );
+
+    return () => {
+      container.removeEventListener(
+        "scroll",
+        handleScroll
+      );
+    };
+  }, [hasMore, loadMoreProducts]);
+>>>>>>> origin/main
 
   // =========================================================
   // RETRY
@@ -706,6 +777,7 @@ useEffect(() => {
   // =========================================================
 
   return (
+<<<<<<< HEAD
     <motion.section
       ref={sectionRef}
       initial={{
@@ -724,6 +796,9 @@ useEffect(() => {
         duration: prefersReducedMotion ? 0 : 0.6,
         ease: "easeOut",
       }}
+=======
+    <section
+>>>>>>> origin/main
       className="
         w-full
         max-w-7xl
@@ -738,7 +813,11 @@ useEffect(() => {
       "
     >
       {/* =====================================================
+<<<<<<< HEAD
           HEADER WITH TITLE & CAROUSEL CONTROLS
+=======
+          HEADER
+>>>>>>> origin/main
       ===================================================== */}
 
       <div
@@ -792,6 +871,7 @@ useEffect(() => {
           </p>
         </div>
 
+<<<<<<< HEAD
         {/* Action Controls: Left/Right arrows + View all */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Smooth 1-card scroll navigation arrows */}
@@ -911,11 +991,73 @@ useEffect(() => {
           ))}
         </div>
       )}
+=======
+        <button
+          type="button"
+          onClick={() =>
+            navigate("/products")
+          }
+          className="
+            shrink-0
+            whitespace-nowrap
+            text-xs
+            min-[375px]:text-sm
+            sm:text-base
+            font-semibold
+            text-blue-600
+            hover:text-blue-700
+            transition
+          "
+        >
+          View All →
+        </button>
+      </div>
+
+      {/* =====================================================
+          INITIAL LOADING
+      ===================================================== */}
+
+      {loading &&
+        featuredProducts.length === 0 && (
+          <div
+            className="
+              max-h-[70vh]
+              overflow-y-auto
+              overflow-x-hidden
+              pr-1
+            "
+          >
+            <div
+              className="
+                grid
+                grid-cols-1
+                min-[375px]:grid-cols-2
+                sm:grid-cols-3
+                md:grid-cols-4
+                lg:grid-cols-5
+                gap-3
+                min-[375px]:gap-3
+                sm:gap-4
+                lg:gap-5
+              "
+            >
+              {Array.from({
+                length: 10,
+              }).map((_, index) => (
+                <ProductSkeleton
+                  key={index}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+>>>>>>> origin/main
 
       {/* =====================================================
           ERROR
       ===================================================== */}
 
+<<<<<<< HEAD
       {!loading && error && featuredProducts.length === 0 && (
         <div
           className="
@@ -967,11 +1109,67 @@ useEffect(() => {
           </button>
         </div>
       )}
+=======
+      {!loading &&
+        error &&
+        featuredProducts.length === 0 && (
+          <div
+            className="
+              rounded-2xl
+              border
+              border-red-100
+              bg-red-50
+              p-6
+              sm:p-8
+              text-center
+            "
+          >
+            <p
+              className="
+                font-semibold
+                text-red-600
+              "
+            >
+              Unable to load products
+            </p>
+
+            <p
+              className="
+                mt-1
+                text-sm
+                text-gray-500
+              "
+            >
+              Please try again.
+            </p>
+
+            <button
+              type="button"
+              onClick={handleRetry}
+              className="
+                mt-4
+                rounded-xl
+                bg-red-500
+                px-5
+                py-2.5
+                text-sm
+                font-semibold
+                text-white
+                hover:bg-red-600
+                transition
+              "
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+>>>>>>> origin/main
 
       {/* =====================================================
           EMPTY
       ===================================================== */}
 
+<<<<<<< HEAD
       {!loading && !error && featuredProducts.length === 0 && (
         <div
           className="
@@ -1073,10 +1271,154 @@ useEffect(() => {
               </div>
             )}
           </div>
+=======
+      {!loading &&
+        !error &&
+        featuredProducts.length === 0 && (
+          <div
+            className="
+              rounded-2xl
+              border
+              border-gray-200
+              bg-gray-50
+              py-10
+              sm:py-12
+              text-center
+            "
+          >
+            <p
+              className="
+                text-sm
+                sm:text-base
+                text-gray-500
+              "
+            >
+              No products available right now.
+            </p>
+          </div>
+        )}
+
+      {/* =====================================================
+          PRODUCTS
+      ===================================================== */}
+
+      {featuredProducts.length > 0 && (
+        <div
+          ref={scrollRef}
+          className="
+            featured-products-scroll
+            max-h-[70vh]
+            overflow-y-auto
+            overflow-x-hidden
+            pr-1
+            sm:pr-2
+          "
+        >
+          <div
+            className="
+              grid
+              grid-cols-1
+              min-[375px]:grid-cols-2
+              sm:grid-cols-3
+              md:grid-cols-4
+              lg:grid-cols-5
+              gap-3
+              sm:gap-4
+              lg:gap-5
+              items-start
+            "
+          >
+            {featuredProducts.map(
+              (item, index) => (
+                <div
+                  key={
+                    item?._id ||
+                    item?.id ||
+                    item?.slug ||
+                    `product-${index}`
+                  }
+                  className="
+                    min-w-0
+                    w-full
+                  "
+                >
+                  <ProductCard
+                    {...item}
+                    rating={
+                      item?.rating?.average
+                    }
+                  />
+                </div>
+              )
+            )}
+          </div>
+
+          {/* =================================================
+              LOADING MORE
+          ================================================= */}
+
+          {isFetchingMore && (
+            <div
+              className="
+                flex
+                justify-center
+                items-center
+                py-6
+                text-sm
+                text-gray-500
+              "
+            >
+              <div
+                className="
+                  flex
+                  items-center
+                  gap-2
+                "
+              >
+                <span
+                  className="
+                    h-4
+                    w-4
+                    animate-spin
+                    rounded-full
+                    border-2
+                    border-gray-300
+                    border-t-blue-600
+                  "
+                />
+
+                <span>
+                  Loading more products...
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* =================================================
+              NO MORE
+          ================================================= */}
+
+          {!isFetchingMore &&
+            !hasMore &&
+            featuredProducts.length > 0 && (
+              <div
+                className="
+                  flex
+                  justify-center
+                  py-5
+                  text-sm
+                  text-gray-400
+                "
+              >
+                No more products available.
+              </div>
+            )}
+>>>>>>> origin/main
         </div>
       )}
 
       {/* =====================================================
+<<<<<<< HEAD
           VIEW ALL BOTTOM LINK
       ===================================================== */}
 
@@ -1116,6 +1458,51 @@ useEffect(() => {
         </div>
       )}
     </motion.section>
+=======
+          VIEW ALL
+      ===================================================== */}
+
+      {!loading &&
+        !error &&
+        featuredProducts.length > 10 && (
+          <div
+            className="
+              flex
+              justify-center
+              mt-6
+              sm:mt-8
+            "
+          >
+            <button
+              type="button"
+              onClick={() =>
+                navigate("/products")
+              }
+              className="
+                rounded-xl
+                border
+                border-gray-200
+                bg-white
+                px-5
+                sm:px-6
+                py-2.5
+                sm:py-3
+                text-xs
+                sm:text-sm
+                font-semibold
+                text-gray-700
+                hover:border-blue-500
+                hover:bg-blue-50
+                hover:text-blue-600
+                transition
+              "
+            >
+              Explore All Products
+            </button>
+          </div>
+        )}
+    </section>
+>>>>>>> origin/main
   );
 }
 
