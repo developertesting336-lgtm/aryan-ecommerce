@@ -1,12 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { showSuccess, showError } from "../utils/toast";
 
 // ============================================
 // ROUTE / LAYOUT COMPONENTS
 // ============================================
 
+import ScrollToTop from "../components/ScrollToTop";
 import ProtectedRoute from "../components/ProtectedRoute";
 
 import Layout from "../layouts/Layout";
@@ -14,71 +14,59 @@ import AdminLayout from "../layouts/AdminLayout";
 import VendorLayout from "../layouts/VendorLayout";
 
 // ============================================
-// AUTH PAGES
+// LAZY LOADED ROUTE PAGES
 // ============================================
 
-import Login from "../pages/Login";
-import RegisterPage from "../pages/Register";
+// Auth Pages
+const Login = lazy(() => import("../pages/Login"));
+const RegisterPage = lazy(() => import("../pages/Register"));
 
-// ============================================
-// CUSTOMER PAGES
-// ============================================
+// Customer Pages
+const Home = lazy(() => import("../pages/Home"));
+const Products = lazy(() => import("../pages/Products"));
+const ProductDetails = lazy(() => import("../pages/ProductDetails"));
+const Cart = lazy(() => import("../pages/Cart"));
+const Wishlist = lazy(() => import("../pages/WishList"));
+const Profile = lazy(() => import("../pages/Profile"));
+const Addresses = lazy(() => import("../pages/Addresses"));
+const CategoriesPage = lazy(() => import("../pages/Categories"));
+const SearchPage = lazy(() => import("../pages/SearchProducts"));
+const CreateProduct = lazy(() => import("../pages/CreateProduct"));
+const CreateOrder = lazy(() => import("../pages/CreateOrder"));
+const Orders = lazy(() => import("../pages/Orders"));
+const OrderDetails = lazy(() => import("../pages/OrderDetails"));
+const OrderTracking = lazy(() => import("../pages/OrderTracking"));
+const PaymentSuccess = lazy(() => import("../pages/PaymentSuccess"));
+const PrivacyPolicy = lazy(() => import("../pages/PrivacyPolicy"));
+const Contact = lazy(() => import("../components/Contact"));
+const Help = lazy(() => import("../pages/Help"));
 
-import Home from "../pages/Home";
-import Products from "../pages/Products";
-import ProductDetails from "../pages/ProductDetails";
-import Cart from "../pages/Cart";
-import Wishlist from "../pages/WishList";
-import Profile from "../pages/Profile";
-import Addresses from "../pages/Addresses";
-import CategoriesPage from "../pages/Categories";
-import SearchPage from "../pages/SearchProducts";
-import CreateProduct from "../pages/CreateProduct";
-import CreateOrder from "../pages/CreateOrder";
+// Admin Pages (heavy components + charting)
+const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
+const AdminUsers = lazy(() => import("../pages/admin/AdminUsers"));
+const AdminOrders = lazy(() => import("../pages/admin/AdminOrders"));
+const AdminProducts = lazy(() => import("../pages/admin/AdminProducts"));
+const CreateCategory = lazy(() => import("../pages/admin/CreateCategory"));
+const Categories = lazy(() => import("../pages/admin/Categories"));
+const CategoryDetails = lazy(() => import("../pages/admin/CategoryDetails"));
+const EditProduct = lazy(() => import("../pages/EditProduct"));
+const AdminOrderDetails = lazy(() => import("../pages/admin/AdminOrderDetails"));
+const AdminContent = lazy(() => import("../pages/admin/AdminContent"));
 
-import Orders from "../pages/Orders";
-import OrderDetails from "../pages/OrderDetails";
-import OrderTracking from "../pages/OrderTracking";
-import PaymentSuccess from "../pages/PaymentSuccess";
+// Admin Homepage Content Management
+const HeroManagement = lazy(() => import("../pages/admin/content/homepage/HeroManagement"));
+const PromoCardsManagement = lazy(() => import("../pages/admin/content/homepage/PromoCardsManagement"));
+const PromoGridManagement = lazy(() => import("../pages/admin/content/homepage/PromoGridManagement"));
+const ShopByNeedManagement = lazy(() => import("../pages/admin/content/homepage/ShopByNeedManagement"));
 
-import PrivacyPolicy from "../pages/PrivacyPolicy";
-// ============================================
-// ADMIN PAGES
-// ============================================
-
-import AdminDashboard from "../pages/admin/AdminDashboard";
-import AdminUsers from "../pages/admin/AdminUsers";
-import AdminOrders from "../pages/admin/AdminOrders";
-import AdminProducts from "../pages/admin/AdminProducts";
-
-import CreateCategory from "../pages/admin/CreateCategory";
-import Categories from "../pages/admin/Categories";
-import CategoryDetails from "../pages/admin/CategoryDetails";
-
-import EditProduct from "../pages/EditProduct";
-import AdminOrderDetails from "../pages/admin/AdminOrderDetails";
-// ============================================
-// ADMIN CONTENT / CMS
-// ============================================
-
-import AdminContent from "../pages/admin/AdminContent";
-
-// Homepage Content Management
-import HeroManagement from "../pages/admin/content/homepage/HeroManagement";
-import PromoCardsManagement from "../pages/admin/content/homepage/PromoCardsManagement";
-import PromoGridManagement from "../pages/admin/content/homepage/PromoGridManagement";
-import ShopByNeedManagement from "../pages/admin/content/homepage/ShopByNeedManagement";
-// coupons
-import Coupons from "../pages/vendor/coupons/Coupons";
-import CreateCoupon from "../pages/vendor/coupons/CreateCoupon";
-import EditCoupon from "../pages/vendor/coupons/EditCoupon";
-import CouponDetails from "../pages/vendor/coupons/CouponDetails";
-// ============================================
-// VENDOR PAGES
-// ============================================
-
-import VendorDashboard from "../pages/vendor/VendorDashboard";
-import VendorProducts from "../pages/vendor/VendorProducts";
+// Vendor Pages
+const VendorDashboard = lazy(() => import("../pages/vendor/VendorDashboard"));
+const VendorProducts = lazy(() => import("../pages/vendor/VendorProducts"));
+const VendorOrders = lazy(() => import("../pages/vendor/VendorOrders"));
+const Coupons = lazy(() => import("../pages/vendor/coupons/Coupons"));
+const CreateCoupon = lazy(() => import("../pages/vendor/coupons/CreateCoupon"));
+const EditCoupon = lazy(() => import("../pages/vendor/coupons/EditCoupon"));
+const CouponDetails = lazy(() => import("../pages/vendor/coupons/CouponDetails"));
 
 // ============================================
 // REDUX
@@ -87,12 +75,6 @@ import VendorProducts from "../pages/vendor/VendorProducts";
 import { getCart } from "../redux/slices/cartSlice";
 import { getWishlist } from "../redux/slices/wishlistSlice";
 import { getRootCategories } from "../redux/slices/categorySlice";
-
-import VendorOrders from "../pages/vendor/VendorOrders";
-import Contact from "../components/Contact";
-import Help from "../pages/Help";
-import ScrollToTop from "../components/ScrollToTop";
-
 
 // ============================================================
 // APP ROUTES
@@ -117,9 +99,16 @@ function AppRoutes() {
 
   return (
     <BrowserRouter>
-          <ScrollToTop />
-
-      <Routes>
+      {/* Automatically smooth-scrolls to top on page navigation */}
+      <ScrollToTop />
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+          </div>
+        }
+      >
+        <Routes>
         {/* ======================================================
             AUTH ROUTES
         ====================================================== */}
@@ -444,7 +433,8 @@ function AppRoutes() {
             HEALTH CHECK
         ====================================================== */}
 
-      </Routes>
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }
