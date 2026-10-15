@@ -7,113 +7,88 @@ export default function PageButtons({
 }) {
   if (totalPages <= 1) return null;
 
-  const pagesPerGroup = 3;
+  let pages = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+  } else {
+    const leftSibling = Math.max(page - 1, 1);
+    const rightSibling = Math.min(page + 1, totalPages);
+    const showLeftDots = leftSibling > 2;
+    const showRightDots = rightSibling < totalPages - 1;
 
-  // Find which group the current page belongs to
-  const currentGroup = Math.floor((page - 1) / pagesPerGroup);
-
-  const startPage = currentGroup * pagesPerGroup + 1;
-
-  const endPage = Math.min(
-    startPage + pagesPerGroup - 1,
-    totalPages
-  );
-
-  const pages = [];
-
-  for (let i = startPage; i <= endPage; i++) {
-    pages.push(i);
+    if (!showLeftDots && showRightDots) {
+      pages = [1, 2, 3, 4, "dots-right", totalPages];
+    } else if (showLeftDots && !showRightDots) {
+      pages = [1, "dots-left", totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    } else {
+      pages = [1, "dots-left", leftSibling, page, rightSibling, "dots-right", totalPages];
+    }
   }
-
-  const hasPreviousGroup = startPage > 1;
-  const hasNextGroup = endPage < totalPages;
 
   return (
     <div className="mt-8 flex w-full items-center justify-center">
       <div className="flex items-center gap-1.5 sm:gap-2">
-        {/* Previous Group */}
+        {/* Previous Button */}
         <button
           type="button"
-          disabled={!hasPreviousGroup}
+          disabled={page <= 1}
           onClick={() => {
-            if (hasPreviousGroup) {
-              onPageChange(startPage - 1);
+            if (page > 1) {
+              onPageChange(page - 1);
             }
           }}
-          aria-label="Previous pages"
+          aria-label="Previous page"
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-blue-300 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-40 sm:h-10 sm:w-10"
         >
           <ChevronLeft size={17} />
         </button>
 
-        {/* First Page */}
-        {startPage > 1 && (
-          <>
-            <button
-              type="button"
-              onClick={() => onPageChange(1)}
-              className="flex h-9 min-w-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-2 text-xs font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600 sm:h-10 sm:min-w-10 sm:px-3 sm:text-sm"
-            >
-              1
-            </button>
-
-            {startPage > 2 && (
-              <span className="flex h-9 w-6 items-center justify-center text-sm font-semibold text-slate-400 sm:h-10 sm:w-7">
+        {/* Number Buttons & Dots */}
+        {pages.map((item, index) => {
+          if (item === "dots-left" || item === "dots-right") {
+            return (
+              <span
+                key={`${item}-${index}`}
+                className="flex h-9 w-6 items-center justify-center text-sm font-semibold text-slate-400 sm:h-10 sm:w-7"
+              >
                 ...
               </span>
-            )}
-          </>
-        )}
+            );
+          }
 
-        {/* Current Group */}
-        {pages.map((pageNumber) => (
-          <button
-            key={pageNumber}
-            type="button"
-            onClick={() => onPageChange(pageNumber)}
-            aria-label={`Go to page ${pageNumber}`}
-            aria-current={
-              page === pageNumber ? "page" : undefined
-            }
-            className={`flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-xs font-semibold transition sm:h-10 sm:min-w-10 sm:px-3 sm:text-sm ${
-              page === pageNumber
-                ? "bg-blue-600 text-white shadow-sm"
-                : "border border-slate-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-600"
-            }`}
-          >
-            {pageNumber}
-          </button>
-        ))}
+          const pageNumber = item;
+          const isActive = page === pageNumber;
 
-        {/* Last Page */}
-        {endPage < totalPages && (
-          <>
-            {endPage < totalPages - 1 && (
-              <span className="flex h-9 w-6 items-center justify-center text-sm font-semibold text-slate-400 sm:h-10 sm:w-7">
-                ...
-              </span>
-            )}
-
+          return (
             <button
+              key={pageNumber}
               type="button"
-              onClick={() => onPageChange(totalPages)}
-              className="flex h-9 min-w-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-2 text-xs font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600 sm:h-10 sm:min-w-10 sm:px-3 sm:text-sm"
+              onClick={() => onPageChange(pageNumber)}
+              aria-label={`Go to page ${pageNumber}`}
+              aria-current={isActive ? "page" : undefined}
+              className={`flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-xs font-semibold transition sm:h-10 sm:min-w-10 sm:px-3 sm:text-sm ${
+                isActive
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "border border-slate-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-600"
+              }`}
             >
-              {totalPages}
+              {pageNumber}
             </button>
-          </>
-        )}
+          );
+        })}
 
-        {/* Next Group */}
+        {/* Next Button */}
         <button
           type="button"
-          disabled={!hasNextGroup}
+          disabled={page >= totalPages}
           onClick={() => {
-            if (hasNextGroup) {
-              onPageChange(endPage + 1);
+            if (page < totalPages) {
+              onPageChange(page + 1);
             }
           }}
-          aria-label="Next pages"
+          aria-label="Next page"
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-blue-300 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-40 sm:h-10 sm:w-10"
         >
           <ChevronRight size={17} />

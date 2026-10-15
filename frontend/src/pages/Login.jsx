@@ -10,6 +10,7 @@ import {
 
 import {
   useNavigate,
+  useLocation,
 } from "react-router-dom";
 
 import {
@@ -20,6 +21,8 @@ import {
   showSuccess,
   showError,
 } from "../utils/toast";
+
+import { mergeGuestCart } from "../utils/guestCart";
 
 import {
   motion,
@@ -43,6 +46,7 @@ export default function LoginPage() {
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
+  const location = useLocation();
 
 
   // ======================================
@@ -136,6 +140,12 @@ export default function LoginPage() {
         "Login successful"
       );
 
+      try {
+        await mergeGuestCart(dispatch);
+      } catch (mergeErr) {
+        console.error("Guest cart merge error during login:", mergeErr);
+      }
+
 
     } catch (err) {
 
@@ -165,7 +175,11 @@ export default function LoginPage() {
 
 
     if (user.role === "user") {
-
+      const from = location.state?.from?.pathname || location.state?.from;
+      if (from && typeof from === "string" && !from.startsWith("/login")) {
+        navigate(from, { replace: true });
+        return;
+      }
       navigate("/");
 
     } else if (
@@ -184,6 +198,7 @@ export default function LoginPage() {
   }, [
     user,
     navigate,
+    location.state,
   ]);
 
 

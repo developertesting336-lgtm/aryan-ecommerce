@@ -11,12 +11,15 @@ import {
 
 import {
   useNavigate,
+  useLocation,
 } from "react-router-dom";
 
 import {
   showSuccess,
   showError,
 } from "../utils/toast";
+
+import { mergeGuestCart } from "../utils/guestCart";
 
 import {
   motion,
@@ -40,6 +43,7 @@ export default function RegisterPage() {
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
+  const location = useLocation();
 
 
   // ======================================
@@ -121,9 +125,16 @@ export default function RegisterPage() {
         "Registration successful"
       );
 
+      if (localStorage.getItem("token")) {
+        try {
+          await mergeGuestCart(dispatch);
+        } catch (mergeErr) {
+          console.error("Guest cart merge error during registration:", mergeErr);
+        }
+      }
 
       // Go to login after successful registration
-      navigate("/login");
+      navigate("/login", { state: location.state });
 
 
     } catch (err) {

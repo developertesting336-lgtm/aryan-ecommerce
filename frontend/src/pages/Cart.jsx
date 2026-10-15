@@ -1,9 +1,16 @@
-import React from "react";
+import React, { useMemo, useEffect } from "react";
 import Navbar from "../components/Header";
-import { addProduct, decreaseQuantity } from "../redux/slices/cartSlice";
+import {
+  addProduct,
+  decreaseQuantity,
+  addToGuestCart,
+  decreaseGuestCartQuantity,
+} from "../redux/slices/cartSlice";
+import { enrichGuestCart } from "../utils/guestCart";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { showSuccess, showError } from "../utils/toast";
+import { getProductSlug } from "../utils/productSlug";
 
 export default function Cart() {
   const dispatch = useDispatch();
@@ -12,95 +19,144 @@ export default function Cart() {
   const BASE_URL = "http://localhost:3000/uploads/";
 
   const getImageUrl = (image) => {
-  if (!image) {
-    return "/1786052049893.webp";
-  }
+    if (!image) {
+      return "/1786052049893.webp";
+    }
 
-  // Already a complete URL
-  if (
-    image.startsWith("http://") ||
-    image.startsWith("https://") ||
-    image.startsWith("blob:")
-  ) {
-    return image;
-  }
+    if (
+      image.startsWith("http://") ||
+      image.startsWith("https://") ||
+      image.startsWith("blob:")
+    ) {
+      return image;
+    }
 
-  // Already starts with /uploads/
-  if (image.startsWith("/uploads/")) {
-    return `http://localhost:3000${image}`;
-  }
+    if (image.startsWith("/uploads/")) {
+      return `http://localhost:3000${image}`;
+    }
 
-  // Starts with uploads/
-  if (image.startsWith("uploads/")) {
-    return `http://localhost:3000/${image}`;
-  }
+    if (image.startsWith("uploads/")) {
+      return `http://localhost:3000/${image}`;
+    }
 
-  // Normal filename
-  return `${BASE_URL}${image}`;
-};
+    return `${BASE_URL}${image}`;
+  };
 
   const { loading, error, cart } = useSelector((state) => state.cart);
+  const { user, token } = useSelector((state) => state.auth);
+  const isLoggedIn = Boolean(token || user);
 
- const handleAddCart = async (item) => {
-  try {
-    console.log("carthand");
+  useEffect(() => {
+    if (!isLoggedIn) {
+      enrichGuestCart(dispatch);
+    }
+  }, [isLoggedIn, dispatch]);
 
-    const result = await dispatch(
-      addProduct({
-        productId: item.product._id,
-        price: item.price,
-      })
-    ).unwrap();
+  const getProductPrice = (item) => {
+    const val = item?.price ?? item?.product?.price ?? 0;
+    const num = Number(val);
+    return isNaN(num) ? 0 : num;
+  };
 
-    console.log("add cart:", result);
+  const getProductName = (item) => {
+    return item?.product?.name || item?.name || "Product";
+  };
 
-    showSuccess(
-      result.message || "Product added to cart"
-    );
+  const getProductImage = (item) => {
+    const img = item?.product?.images?.[0] || item?.image || item?.product?.image;
+    return getImageUrl(img);
+  };
 
-  } catch (error) {
-    console.error("Add cart error:", error);
+  const getProductId = (item) => {
+    return item?.productId || item?.product?._id || item?._id;
+  };
 
-    showError(
-      typeof error === "string"
-        ? error
-        : error?.message || "Failed to add product"
-    );
-  }
-};
+  const getProductSlugPath = (item) => {
+    const slug =
+      getProductSlug(item?.product) ||
+      item?.slug ||
+      item?.product?.slug ||
+      getProductId(item) ||
+      "";
+    return `/product/${slug}`;
+  };
 
+  const handleAddCart = async (item) => {
+    const pid = getProductId(item);
+    const itemPrice = getProductPrice(item);
+    if (!pid) return;
 
-const handleQuantity = async (productId) => {
-  try {
-    console.log("quamt", productId);
+    if (!isLoggedIn) {
+      dispatch(
+        addToGuestCart({
+          productId: pid,
+          quantity: 1,
+          name: getProductName(item),
+          price: itemPrice,
+          image: item?.image || item?.product?.images?.[0] || "",
+          slug: item?.slug || item?.product?.slug || "",
+        })
+      );
+      showSuccess("Product added to cart");
+      return;
+    }
 
-    const result = await dispatch(
-      decreaseQuantity(productId)
-    ).unwrap();
+    try {
+      const result = await dispatch(
+        addProduct({
+          productId: pid,
+          price: itemPrice,
+          quantity: 1,
+        })
+      ).unwrap();
 
-    console.log("decrease result:", result);
+      showSuccess(result.message || "Product added to cart");
+    } catch (error) {
+      console.error("Add cart error:", error);
+      showError(
+        typeof error === "string"
+          ? error
+          : error?.message || "Failed to add product"
+      );
+    }
+  };
 
-    showSuccess(
-      result.message || "Quantity decreased successfully"
-    );
+  const handleQuantity = async (item) => {
+    const pid = getProductId(item);
+    if (!pid) return;
 
-  } catch (error) {
-    console.error("Decrease error:", error);
+    if (!isLoggedIn) {
+      dispatch(decreaseGuestCartQuantity(pid));
+      showSuccess("Quantity decreased successfully");
+      return;
+    }
 
-    showError(
-      typeof error === "string"
-        ? error
-        : error?.message || "Failed to decrease quantity"
-    );
-  }
-};
+    try {
+      const result = await dispatch(decreaseQuantity(pid)).unwrap();
+      showSuccess(result.message || "Quantity decreased successfully");
+    } catch (error) {
+      console.error("Decrease error:", error);
+      showError(
+        typeof error === "string"
+          ? error
+          : error?.message || "Failed to decrease quantity"
+      );
+    }
+  };
 
+  const handleBuyThis = (item) => {
+    const pid = getProductId(item);
+    navigate(`/checkout?productId=${pid}&quantity=${item?.quantity || 1}`);
+  };
 
-const handleBuyThis = (item) => {
-  navigate(
-    `/checkout?productId=${item.product._id}&quantity=${item.quantity}`
-  );
-};
+  const totalCartPrice = useMemo(() => {
+    if (Array.isArray(cart?.items) && cart.items.length > 0) {
+      return cart.items.reduce((sum, item) => {
+        return sum + getProductPrice(item) * (Number(item?.quantity) || 1);
+      }, 0);
+    }
+    return 0;
+  }, [cart?.items]);
 
   // Cart is empty if cart doesn't exist OR items array is empty
   const isCartEmpty = !cart?.items?.length;
@@ -166,40 +222,53 @@ const handleBuyThis = (item) => {
                   "
                 >
                   {/* Product Image */}
-                  <img
-                    src={
-                     getImageUrl(item?.product?.images[0]) || (item?.product?.images?.length
-                        ? `${BASE_URL}${item.product.images[0]}`
-                        : "/1786052049893.webp")
-                    }
-                    alt={item?.product?.name || "Product"}
-                    className="
-                      w-full
-                      sm:w-28
-                      md:w-32
-                      h-52
-                      sm:h-28
-                      md:h-32
-                      object-cover
-                      rounded-xl
-                    "
-                  />
+                  <Link
+                    to={getProductSlugPath(item)}
+                    state={{ productId: getProductId(item) }}
+                    className="shrink-0"
+                  >
+                    <img
+                      src={getProductImage(item)}
+                      alt={getProductName(item)}
+                      className="
+                        w-full
+                        sm:w-28
+                        md:w-32
+                        h-52
+                        sm:h-28
+                        md:h-32
+                        object-cover
+                        rounded-xl
+                        cursor-pointer
+                        hover:opacity-90
+                        transition
+                      "
+                    />
+                  </Link>
 
                   {/* Product Information */}
                   <div className="flex-1">
-                    <h2
-                      className="
-                        font-semibold
-                        text-base
-                        sm:text-lg
-                        text-gray-800
-                      "
+                    <Link
+                      to={getProductSlugPath(item)}
+                      state={{ productId: getProductId(item) }}
                     >
-                      {item?.product?.name}
-                    </h2>
+                      <h2
+                        className="
+                          font-semibold
+                          text-base
+                          sm:text-lg
+                          text-gray-800
+                          hover:text-blue-600
+                          transition
+                          cursor-pointer
+                        "
+                      >
+                        {getProductName(item)}
+                      </h2>
+                    </Link>
 
                     <p className="text-gray-500 mt-2 text-sm sm:text-base">
-                      Price: ₹{item?.price}
+                      Price: ₹{getProductPrice(item)}
                     </p>
 
                     {/* Quantity */}
@@ -213,7 +282,7 @@ const handleBuyThis = (item) => {
                           cursor-pointer
                         "
                         onClick={() =>
-                          handleQuantity(item?.product?._id)
+                          handleQuantity(item)
                         }
                       >
                         -
@@ -248,7 +317,7 @@ const handleBuyThis = (item) => {
                       sm:self-center
                     "
                   >
-                    ₹{item.price * item.quantity}
+                    ₹{getProductPrice(item) * (Number(item.quantity) || 1)}
                   </div>
                   <div className="flex items-center gap-3 mt-4">
   <button
@@ -316,7 +385,7 @@ const handleBuyThis = (item) => {
               >
                 <span>Total</span>
 
-                <span>₹{cart.totalPrice}</span>
+                <span>₹{totalCartPrice}</span>
               </div>
 
               <button

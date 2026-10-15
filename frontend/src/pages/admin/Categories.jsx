@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import StatCard from "../../components/admin/StatCard";
+import PageButtons from "../../components/PageButtons";
 import {
   getCategories,
   deleteCategory,
@@ -521,9 +522,8 @@ console.log("catpro",categories)
             PAGINATION
         ===================================================== */}
 
-        {pagination.totalPages > 1 && (
+        {pagination?.totalPages > 1 && (
           <div className="mt-6 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-4 shadow-sm">
-
             <p className="text-sm text-gray-500">
               Page{" "}
               <span className="font-medium text-gray-900">
@@ -535,33 +535,11 @@ console.log("catpro",categories)
               </span>
             </p>
 
-            <div className="flex gap-2">
-
-              <button
-                type="button"
-                disabled={page <= 1}
-                onClick={() =>
-                  setPage((prev) => prev - 1)
-                }
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Previous
-              </button>
-
-              <button
-                type="button"
-                disabled={
-                  page >= pagination.totalPages
-                }
-                onClick={() =>
-                  setPage((prev) => prev + 1)
-                }
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Next
-              </button>
-
-            </div>
+            <PageButtons
+              page={page}
+              totalPages={pagination.totalPages}
+              onPageChange={(p) => setPage(p)}
+            />
           </div>
         )}
 

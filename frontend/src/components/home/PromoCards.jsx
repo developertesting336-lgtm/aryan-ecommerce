@@ -562,18 +562,18 @@ function PromoCard({
     image,
     imageUrl,
   });
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-const handleNavigate = (link) => {
-  if (!link) return;
+  const handleNavigate = (link) => {
+    if (!link) return;
 
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth",
-  });
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
 
-  navigate(link);
-};
+    navigate(link);
+  };
   return (
     <motion.article
       custom={index}
@@ -610,8 +610,8 @@ const handleNavigate = (link) => {
 
       {imageUrl ? (
         <motion.img
-         width={1200}
-    height={675}
+          width={1200}
+          height={675}
           src={imageUrl}
           alt={title || "Promotional banner"}
           loading="lazy"
@@ -672,40 +672,44 @@ const handleNavigate = (link) => {
       )}
 
       {/* ---------------------------------------------------------------
-          Main Gradient Overlay
-      ---------------------------------------------------------------- */}
+    Base Dark Layer (always on, evens out bright images)
+---------------------------------------------------------------- */}
+
+      <div className="pointer-events-none absolute inset-0 z-10 bg-black/30" />
+
+      {/* ---------------------------------------------------------------
+    Main Gradient Overlay
+---------------------------------------------------------------- */}
 
       {normalizeBoolean(overlay) && (
         <div
           className="
-            pointer-events-none
-            absolute
-            inset-0
-            z-10
-            bg-gradient-to-r
-            from-black/60
-            via-black/20
-            to-black/5
-          "
+      pointer-events-none
+      absolute
+      inset-0
+      z-10
+      bg-gradient-to-r
+      from-black/70
+      via-black/35
+      to-black/10
+    "
         />
       )}
 
       {/* ---------------------------------------------------------------
-          Bottom Vignette
-      ---------------------------------------------------------------- */}
+    Bottom Vignette (where the text lives)
+---------------------------------------------------------------- */}
 
       <div
-        className="
-          pointer-events-none
-          absolute
-          inset-x-0
-          bottom-0
-          z-10
-          h-1/2
-          bg-gradient-to-t
-          from-black/30
-          to-transparent
-        "
+        className="pointer-events-none absolute z-10"
+        style={{
+          left: 0,
+          bottom: 0,
+          width: "75%",
+          height: "70%",
+          background:
+            "radial-gradient(ellipse at bottom left, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 70%)",
+        }}
       />
 
       {/* ---------------------------------------------------------------
@@ -779,6 +783,7 @@ const handleNavigate = (link) => {
 
         {title && (
           <motion.h2
+            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.6), 0 4px 20px rgba(0,0,0,0.8)" }}
             initial={{
               opacity: 0,
               y: 12,
@@ -816,6 +821,7 @@ const handleNavigate = (link) => {
 
         {description && (
           <motion.p
+            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.8), 0 2px 10px rgba(0,0,0,0.7)" }}
             initial={{
               opacity: 0,
               y: 10,
@@ -850,35 +856,35 @@ const handleNavigate = (link) => {
         -------------------------------------------------------------- */}
 
         {buttonText && buttonLink && (
-  <motion.button
-    type="button"
-    onClick={() => handleNavigate(buttonLink)}
-    initial={{
-      opacity: 0,
-      y: 10,
-      scale: 0.96,
-    }}
-    whileInView={{
-      opacity: 1,
-      y: 0,
-      scale: 1,
-    }}
-    viewport={{
-      once: true,
-    }}
-    transition={{
-      duration: 0.45,
-      delay: 0.48,
-      ease: [0.22, 1, 0.36, 1],
-    }}
-    whileHover={{
-      y: -2,
-      scale: 1.025,
-    }}
-    whileTap={{
-      scale: 0.97,
-    }}
-    className="
+          <motion.button
+            type="button"
+            onClick={() => handleNavigate(buttonLink)}
+            initial={{
+              opacity: 0,
+              y: 10,
+              scale: 0.96,
+            }}
+            whileInView={{
+              opacity: 1,
+              y: 0,
+              scale: 1,
+            }}
+            viewport={{
+              once: true,
+            }}
+            transition={{
+              duration: 0.45,
+              delay: 0.48,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            whileHover={{
+              y: -2,
+              scale: 1.025,
+            }}
+            whileTap={{
+              scale: 0.97,
+            }}
+            className="
     cursor-pointer
       mt-4
       inline-flex
@@ -900,10 +906,10 @@ const handleNavigate = (link) => {
       focus:ring-white/70
       focus:ring-offset-2
     "
-  >
-    {buttonText}
-  </motion.button>
-)}
+          >
+            {buttonText}
+          </motion.button>
+        )}
       </motion.div>
     </motion.article>
   );

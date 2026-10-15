@@ -170,9 +170,171 @@ console.log( "STRIPE DISCOUNTS:", discounts );
   }
 };
 
+/**
+ * Centralized, idempotent helper to mark an order as PAID and clear ONLY
+ * the purchased products from the user's cart in the database.
+ */
+export const fulfillOrderPayment = async ({ orderId, userId, session }) => {
+  if (!orderId || !userId) {
+    throw new Error("Missing orderId or userId for payment fulfillment");
+  }
+
+  // 1. Verify the order belongs to the user
+  const order = await Order.findOne({
+    _id: orderId,
+    user: userId,
+  });
+
+  if (!order) {
+    console.error(`❌ Order not found or unauthorized: orderId=${orderId}, userId=${userId}`);
+    return { success: false, message: "Order not found or unauthorized" };
+  }
+
+  // 2. Idempotency check: If already marked PAID, return without duplicate actions
+  if (order.paymentStatus === PaymentStatus.PAID) {
+    console.log(`ℹ️ Order ${orderId} is already marked as PAID. Skipping duplicate processing.`);
+    return { success: true, order, alreadyPaid: true };
+  }
+
+  // 3. Update Order to PAID
+  order.paymentStatus = PaymentStatus.PAID;
+  order.status = "CONFIRMED";
+  order.placedAt = new Date();
+  await order.save();
+  console.log(`✅ Order ${orderId} payment status updated to PAID`);
+
+  // 4. Clear ONLY the ordered products from the user's DB cart
+  try {
+    const orderItems = await OrderItem.find({ order: order._id }).select("product");
+    const orderedProductIds = new Set(
+      orderItems.map((item) => item.product?.toString()).filter(Boolean)
+    );
+
+    if (orderedProductIds.size > 0) {
+      const cart = await Cart.findOne({ user: userId });
+      if (cart && Array.isArray(cart.items) && cart.items.length > 0) {
+        const originalCount = cart.items.length;
+        cart.items = cart.items.filter((item) => {
+          const itemProdId = (item.product?._id || item.product)?.toString();
+          return !orderedProductIds.has(itemProdId);
+        });
+
+        if (cart.items.length !== originalCount) {
+          cart.totalPrice = cart.items.reduce(
+            (total, item) => total + (Number(item.price) || 0) * (Number(item.quantity) || 1),
+            0
+          );
+          await cart.save();
+          console.log(`🛒 Removed ${originalCount - cart.items.length} purchased item(s) from user cart.`);
+        }
+      }
+    }
+  } catch (cartError) {
+    // "If clearing the cart fails, do NOT mark the payment or order as failed. Log the error and continue."
+    console.error("⚠️ Error clearing purchased items from cart:", cartError);
+  }
+
+  // 5. Schedule Agenda fulfillment job
+  try {
+    const job = await agenda.schedule("in 15 seconds", "update-order-status", {
+      orderId: order._id.toString(),
+      fulfillmentStatus: "PROCESSING",
+    });
+    console.log("🟢 Agenda Job scheduled:", job?.attrs?._id);
+  } catch (agendaError) {
+    console.error("🔴 Agenda schedule error:", agendaError);
+  }
+
+  // 6. Send coupon email
+  try {
+    const email = session?.customer_details?.email || session?.metadata?.email || "";
+    await getcouponforEmail({ userId, email }, order._id);
+  } catch (couponError) {
+    console.error("🔴 Coupon email error:", couponError);
+  }
+
+  // 7. Handle vendor commission
+  try {
+    await handleCommission(order._id);
+  } catch (commissionError) {
+    console.error("🔴 Commission handling error:", commissionError);
+  }
+
+  return { success: true, order, alreadyPaid: false };
+};
+
+export const verifyPayment = async (req, res) => {
+  try {
+    const sessionId = req.query.session_id || req.body.sessionId;
+    const userId = req.user._id;
+
+    if (!sessionId) {
+      return res.status(400).json({
+        success: false,
+        message: "Session ID is required",
+      });
+    }
+
+    // Retrieve session from Stripe
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        message: "Payment session not found",
+      });
+    }
+
+    // Security check: ensure session metadata userId matches logged-in user
+    if (session.metadata?.userId !== userId.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized: payment session does not belong to this user",
+      });
+    }
+
+    const orderId = session.metadata?.orderId;
+    if (!orderId) {
+      return res.status(400).json({
+        success: false,
+        message: "Order ID missing from payment session metadata",
+      });
+    }
+
+    // Check payment status from Stripe provider response
+    if (session.payment_status === "paid") {
+      const result = await fulfillOrderPayment({
+        orderId,
+        userId: userId.toString(),
+        session,
+      });
+
+      return res.status(200).json({
+        success: true,
+        paid: true,
+        order: result.order,
+        message: "Payment verified successfully",
+      });
+    }
+
+    return res.status(200).json({
+      success: false,
+      paid: false,
+      status: session.payment_status,
+      message: "Payment has not been completed",
+    });
+  } catch (error) {
+    console.error("Verify payment error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to verify payment",
+    });
+  }
+};
+
 export const stripeWebhook = async (req, res) => {
   try {
-    console.log("webhook");
+    console.log("stripeWebhook hit");
     const sig = req.headers["stripe-signature"];
 
     const event = stripe.webhooks.constructEvent(
@@ -180,53 +342,16 @@ export const stripeWebhook = async (req, res) => {
       sig,
       process.env.STRIPE_WEBHOOK_SECRET,
     );
+
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
-      // console.log("event", event);
       const orderId = session.metadata?.orderId;
-      const userId = session.metadata.userId;
-      const email = session.metadata.email;
-      const user = {
-        userId,email
-      }
-      console.log("Order ID:", orderId);
+      const userId = session.metadata?.userId;
 
-      if (orderId) {
-        const order = await Order.findById(orderId);
-
-        console.log("Order found:", order);
-
-        if (order) {
-          order.paymentStatus = PaymentStatus.PAID;
-
-          await order.save();
-           // Schedule fulfillment job
-           console.log("🟡 BEFORE AGENDA");
-
-  try {
-  const job = await agenda.schedule(
-    "in 15 seconds",
-    "update-order-status",
-    {
-      orderId: order._id.toString(),
-      fulfillmentStatus: "PROCESSING",
-    }
-  );
-
-  console.log("🟢 AFTER AGENDA");
-  console.log("Job:", job.attrs);
-} catch (error) {
-  console.error("🔴 AGENDA ERROR:", error);
-}
-
-          if(order.paymentStatus===PaymentStatus.PAID){
-       getcouponforEmail(user,orderId)
-     }
-         handleCommission(orderId)
-          console.log("✅ Order payment status updated to PAID");
-        } else {
-          console.log("❌ Order not found:", orderId);
-        }
+      if (orderId && userId && session.payment_status === "paid") {
+        await fulfillOrderPayment({ orderId, userId, session });
+      } else {
+        console.log(`ℹ️ Session completed but payment_status is '${session?.payment_status}' or missing metadata.`);
       }
     }
 

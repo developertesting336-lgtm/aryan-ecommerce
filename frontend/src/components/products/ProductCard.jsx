@@ -9,7 +9,8 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import fallbackImage from "../../assets/wmpj6_512.avif"
-import { addProduct } from "../../redux/slices/cartSlice";
+import { addProduct, addToGuestCart } from "../../redux/slices/cartSlice";
+import { getProductSlug } from "../../utils/productSlug";
 
 import {
   showSuccess,
@@ -75,7 +76,9 @@ export default function ProductCard({
   discount,
   category,
   stock,
-  rating
+  rating,
+  slug,
+  ...props
 }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -233,10 +236,12 @@ const [currentImage, setCurrentImage] = useState(0);
   // LOGIN
   // =====================================================
 
+  const productSlug = getProductSlug({ _id, name, slug });
+
   const requireLogin = () => {
     navigate("/login", {
       state: {
-        from: `/product/${_id}`,
+        from: `/product/${productSlug}`,
       },
     });
   };
@@ -245,14 +250,36 @@ const [currentImage, setCurrentImage] = useState(0);
   // CART
   // =====================================================
 
-  const handleCartToggle = async () => {
-    if (!isLoggedIn) {
-      requireLogin();
-      return;
+  const handleCartToggle = async (e) => {
+    if (e) {
+      e.preventDefault?.();
+      e.stopPropagation?.();
     }
 
     if (isAdded) {
       navigate("/cart");
+      return;
+    }
+
+    if (!hasStock) {
+      showError(
+        "Product is out of stock"
+      );
+      return;
+    }
+
+    if (!isLoggedIn) {
+      dispatch(
+        addToGuestCart({
+          productId: _id,
+          quantity: 1,
+          name: name || "Product",
+          price: Number(price) || 0,
+          image: images?.[0] || "",
+          slug: slug || "",
+        })
+      );
+      showSuccess("Product added to cart");
       return;
     }
 
@@ -356,7 +383,7 @@ const [currentImage, setCurrentImage] = useState(0);
       behavior: "smooth",
     });
 
-    navigate(`/product/${_id}`);
+    navigate(`/product/${productSlug}`, { state: { productId: _id } });
   };
 
   // =====================================================
@@ -895,7 +922,10 @@ const [currentImage, setCurrentImage] = useState(0);
 
         <motion.button
           type="button"
-          onClick={handleCartToggle}
+          onClick={(e) => {
+            e?.stopPropagation?.();
+            handleCartToggle(e);
+          }}
           whileHover={{
             scale: 1.01,
           }}

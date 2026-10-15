@@ -2124,8 +2124,8 @@ export default function Products() {
 
       {!loading &&
         !error &&
-        filteredProducts.length >
-          0 && (
+        filteredProducts.length > 0 &&
+        totalPages > 1 && (
           <PageButtons
             page={page}
             totalPages={

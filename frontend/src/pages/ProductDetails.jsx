@@ -13,14 +13,16 @@ import {
 import AddonProducts from "../components/products/AddonProducts";
 
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import PageButtons from "../components/PageButtons";
+import { extractIdFromSlug, getProductSlug } from "../utils/productSlug";
 
 import {
   getProducts,
   getRelatedProducts,
 } from "../redux/slices/productSlice";
 
-import { addProduct } from "../redux/slices/cartSlice";
+import { addProduct, addToGuestCart } from "../redux/slices/cartSlice";
 
 import {
   addProductInWish,
@@ -281,9 +283,13 @@ function Benefit({
 ========================================================= */
 
 function ProductDetails() {
-  const { id } = useParams();
+  const { id: slugOrId } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const stateProductId = location?.state?.productId || location?.state?.id;
+  const candidateIdFromSlug = extractIdFromSlug(slugOrId);
 
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] =
@@ -357,12 +363,46 @@ function ProductDetails() {
   ======================================================= */
 
   const currentProduct = useMemo(() => {
-    return product.find(
-      (item) =>
-        String(item?._id) ===
-        String(id)
+    if (!Array.isArray(product) || product.length === 0) return null;
+
+    // 1. Direct ID match (for old URLs like /product/42 or /product/6612...)
+    let found = product.find(
+      (item) => String(item?._id) === String(slugOrId)
     );
-  }, [product, id]);
+    if (found) return found;
+
+    // 2. Router state productId match
+    if (stateProductId) {
+      found = product.find(
+        (item) => String(item?._id) === String(stateProductId)
+      );
+      if (found) return found;
+    }
+
+    // 3. Slug match
+    found = product.find(
+      (item) =>
+        item?.slug &&
+        String(item.slug).toLowerCase() === String(slugOrId).toLowerCase()
+    );
+    if (found) return found;
+
+    // 4. Extracted ID match from slug
+    if (candidateIdFromSlug && candidateIdFromSlug !== slugOrId) {
+      found = product.find(
+        (item) => String(item?._id) === String(candidateIdFromSlug)
+      );
+      if (found) return found;
+    }
+
+    return null;
+  }, [product, slugOrId, stateProductId, candidateIdFromSlug]);
+
+  const resolvedProductId =
+    currentProduct?._id ||
+    stateProductId ||
+    candidateIdFromSlug ||
+    slugOrId;
 
   /* =======================================================
      ACTIVE VARIANTS
@@ -832,14 +872,14 @@ function ProductDetails() {
           return (
             String(
               cartProductId
-            ) === String(id)
+            ) === String(resolvedProductId)
           );
         }
       ) ?? false
     );
   }, [
     cart?.items,
-    id,
+    resolvedProductId,
   ]);
 
   /* =======================================================
@@ -859,14 +899,14 @@ function ProductDetails() {
           return (
             String(
               wishlistProductId
-            ) === String(id)
+            ) === String(resolvedProductId)
           );
         }
       ) ?? false
     );
   }, [
     wishlist?.products,
-    id,
+    resolvedProductId,
   ]);
 
   /* =======================================================
@@ -907,7 +947,7 @@ function ProductDetails() {
     setSelectedImage(0);
     setQuantity(1);
     setSelectedAttributes({});
-  }, [id]);
+  }, [slugOrId]);
 
   /* =======================================================
      IMAGES
@@ -964,7 +1004,7 @@ function ProductDetails() {
   const requireLogin = () => {
     navigate("/login", {
       state: {
-        from: `/product/${id}`,
+        from: `/product/${slugOrId}`,
       },
     });
   };
@@ -1046,10 +1086,10 @@ function ProductDetails() {
      ADD TO CART
   ======================================================= */
 
-  const handleCartClick = async () => {
-    if (!isLoggedIn) {
-      requireLogin();
-      return;
+  const handleCartClick = async (e) => {
+    if (e) {
+      e.preventDefault?.();
+      e.stopPropagation?.();
     }
 
     if (!validateBeforeCart()) {
@@ -1058,6 +1098,21 @@ function ProductDetails() {
 
     if (isInCart) {
       navigate("/cart");
+      return;
+    }
+
+    if (!isLoggedIn) {
+      dispatch(
+        addToGuestCart({
+          productId: resolvedProductId,
+          quantity,
+          name: currentProduct?.name || "Product",
+          price: Number(currentPrice || currentProduct?.price || 0),
+          image: currentProduct?.images?.[0] || "",
+          slug: currentProduct?.slug || slugOrId || "",
+        })
+      );
+      showSuccess("Product added to cart");
       return;
     }
 
@@ -1090,8 +1145,23 @@ function ProductDetails() {
      BUY NOW
   ======================================================= */
 
-  const handleBuyNow = async () => {
+  const handleBuyNow = async (e) => {
+    if (e) {
+      e.preventDefault?.();
+      e.stopPropagation?.();
+    }
+
     if (!isLoggedIn) {
+      dispatch(
+        addToGuestCart({
+          productId: resolvedProductId,
+          quantity,
+          name: currentProduct?.name || "Product",
+          price: Number(currentPrice || currentProduct?.price || 0),
+          image: currentProduct?.images?.[0] || "",
+          slug: currentProduct?.slug || slugOrId || "",
+        })
+      );
       requireLogin();
       return;
     }
@@ -1813,9 +1883,10 @@ function ProductDetails() {
 
                 <button
                   type="button"
-                  onClick={
-                    handleCartClick
-                  }
+                  onClick={(e) => {
+                    e?.stopPropagation?.();
+                    handleCartClick(e);
+                  }}
                   className="
                     flex
                     items-center
@@ -1843,9 +1914,10 @@ function ProductDetails() {
 
                 <button
                   type="button"
-                  onClick={
-                    handleBuyNow
-                  }
+                  onClick={(e) => {
+                    e?.stopPropagation?.();
+                    handleBuyNow(e);
+                  }}
                   className="
                     flex
                     items-center
@@ -2460,84 +2532,12 @@ function ProductDetails() {
               PAGINATION
           ================================================= */}
 
-          {reviewsPagination?.totalPages >
-            1 && (
-            <div className="flex items-center justify-center gap-2 mt-8">
-
-              <button
-                type="button"
-                disabled={
-                  reviewsPage ===
-                  1
-                }
-                onClick={() =>
-                  setReviewsPage(
-                    (page) =>
-                      Math.max(
-                        1,
-                        page - 1
-                      )
-                  )
-                }
-                className="
-                  px-4
-                  py-2
-                  rounded-lg
-                  border
-                  border-gray-200
-                  text-sm
-                  font-medium
-                  text-gray-700
-                  hover:bg-gray-50
-                  disabled:opacity-40
-                  disabled:cursor-not-allowed
-                "
-              >
-                Previous
-              </button>
-
-              <span className="text-sm text-gray-500 px-2">
-                Page{" "}
-                {reviewsPage}{" "}
-                of{" "}
-                {
-                  reviewsPagination.totalPages
-                }
-              </span>
-
-              <button
-                type="button"
-                disabled={
-                  reviewsPage >=
-                  reviewsPagination.totalPages
-                }
-                onClick={() =>
-                  setReviewsPage(
-                    (page) =>
-                      Math.min(
-                        reviewsPagination.totalPages,
-                        page + 1
-                      )
-                  )
-                }
-                className="
-                  px-4
-                  py-2
-                  rounded-lg
-                  border
-                  border-gray-200
-                  text-sm
-                  font-medium
-                  text-gray-700
-                  hover:bg-gray-50
-                  disabled:opacity-40
-                  disabled:cursor-not-allowed
-                "
-              >
-                Next
-              </button>
-
-            </div>
+          {reviewsPagination?.totalPages > 1 && (
+            <PageButtons
+              page={reviewsPage}
+              totalPages={reviewsPagination.totalPages}
+              onPageChange={(nextPage) => setReviewsPage(nextPage)}
+            />
           )}
 
         </section>

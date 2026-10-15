@@ -28,6 +28,7 @@ import {
 } from "react-router-dom";
 
 import { logout } from "../redux/slices/authSlice";
+import { getProductSlug } from "../utils/productSlug";
 
 /* =========================================================
    NAVIGATION
@@ -791,10 +792,8 @@ export default function Navbar() {
                               product.id ||
                               product.name
                             }
-                            to={`/product/${
-                              product._id ||
-                              product.id
-                            }`}
+                            to={`/product/${getProductSlug(product)}`}
+                            state={{ productId: product._id || product.id }}
                             onClick={
                               closeMenu
                             }
@@ -984,10 +983,8 @@ export default function Navbar() {
                                 product.id ||
                                 product.name
                               }
-                              to={`/product/${
-                                product._id ||
-                                product.id
-                              }`}
+                              to={`/product/${getProductSlug(product)}`}
+                              state={{ productId: product._id || product.id }}
                               onClick={
                                 closeMenu
                               }
@@ -1639,7 +1636,8 @@ function MobileBestSelling({
   {products.map((product) => (
     <Link
       key={product._id || product.id || product.name}
-      to={`/product/${product._id || product.id}`}
+      to={`/product/${getProductSlug(product)}`}
+      state={{ productId: product._id || product.id }}
       onClick={onClose}
       draggable={false}
       className="

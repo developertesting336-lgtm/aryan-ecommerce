@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -18,11 +18,11 @@ import PageButtons from "../components/PageButtons";
 
 export default function SearchPage() {
   const dispatch = useDispatch();
-  const [searchParams] = useSearchParams();
-
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const search = searchParams.get("q") || "";
+  const rawPageParam = parseInt(searchParams.get("page"), 10);
+  const page = Number.isInteger(rawPageParam) && rawPageParam > 0 ? rawPageParam : 1;
 
   const {
     searchedproducts = [],
@@ -39,32 +39,8 @@ export default function SearchPage() {
   const [category, setCategory] = useState("all");
   const [price, setPrice] = useState("all");
 
-  /*
-   * =========================================================
-   * PAGINATION DATA
-   * =========================================================
-   *
-   * Your backend should ideally return:
-   *
-   * pagination: {
-   *   currentPage: 1,
-   *   totalPages: 5,
-   *   totalProducts: 20,
-   *   limit: 4
-   * }
-   *
-   * We support a few common names to prevent the buttons
-   * from disappearing if your API uses a different field.
-   */
-
-  const totalPages = useMemo(() => {
-  const parsed = Number(pagination?.totalPages);
-
-  return Number.isFinite(parsed) && parsed > 0
-    ? Math.ceil(parsed)
-    : 1;
-}, [pagination?.totalPages]);
-
+  const [maxPage, setMaxPage] = useState(1);
+  const [isLastPageReached, setIsLastPageReached] = useState(false);
 
   /*
    * =========================================================
@@ -72,9 +48,19 @@ export default function SearchPage() {
    * =========================================================
    */
 
+  const prevSearchRef = useRef(search);
   useEffect(() => {
-    setPage(1);
-  }, [search]);
+    if (prevSearchRef.current !== search) {
+      prevSearchRef.current = search;
+      setMaxPage(1);
+      setIsLastPageReached(false);
+      if (searchParams.get("page") && searchParams.get("page") !== "1") {
+        const nextParams = new URLSearchParams(searchParams);
+        nextParams.delete("page");
+        setSearchParams(nextParams, { replace: true });
+      }
+    }
+  }, [search, searchParams, setSearchParams]);
 
   /*
    * =========================================================
@@ -96,18 +82,77 @@ export default function SearchPage() {
 
   /*
    * =========================================================
-   * SAFETY CHECK FOR PAGE
+   * MATCHING RESULTS PAGINATION CALCULATION
+   * Backend counts all DB products instead of filtered products.
+   * We calculate totalPages dynamically based on real returned products:
+   * - Hide pagination when page 1 has fewer products than limit (10).
+   * - Enable Next only when returned products length equals limit.
+   * - If next page comes back empty, redirect back and disable Next.
    * =========================================================
-   *
-   * If the backend says there are only 2 pages while the user
-   * is currently on page 4, move back to the last valid page.
    */
 
   useEffect(() => {
-    if (page > totalPages) {
-      setPage(totalPages);
+    if (loading || !search.trim()) return;
+
+    const returnedCount = Array.isArray(searchedproducts) ? searchedproducts.length : 0;
+
+    // Next page returned empty: go back to previous page and mark it as the last page
+    if (page > 1 && returnedCount === 0) {
+      const fallbackPage = Math.max(1, page - 1);
+      setMaxPage(fallbackPage);
+      setIsLastPageReached(true);
+      const nextParams = new URLSearchParams(searchParams);
+      if (fallbackPage === 1) {
+        nextParams.delete("page");
+      } else {
+        nextParams.set("page", String(fallbackPage));
+      }
+      setSearchParams(nextParams, { replace: true });
+      return;
     }
-  }, [page, totalPages]);
+
+    if (page === 1) {
+      if (returnedCount < 10) {
+        setMaxPage(1);
+        setIsLastPageReached(true);
+      } else {
+        if (!isLastPageReached) {
+          setMaxPage((prev) => Math.max(prev, 2));
+        }
+      }
+    } else {
+      if (returnedCount < 10) {
+        setMaxPage(page);
+        setIsLastPageReached(true);
+      } else {
+        if (!isLastPageReached) {
+          setMaxPage((prev) => Math.max(prev, page + 1));
+        }
+      }
+    }
+  }, [loading, searchedproducts, page, search, isLastPageReached, searchParams, setSearchParams]);
+
+  const totalPages = useMemo(() => {
+    return Math.max(1, maxPage);
+  }, [maxPage]);
+
+  /*
+   * =========================================================
+   * SAFETY CHECK FOR PAGE
+   * =========================================================
+   */
+
+  useEffect(() => {
+    if (totalPages > 0 && page > totalPages) {
+      const nextParams = new URLSearchParams(searchParams);
+      if (totalPages === 1) {
+        nextParams.delete("page");
+      } else {
+        nextParams.set("page", String(totalPages));
+      }
+      setSearchParams(nextParams, { replace: true });
+    }
+  }, [page, totalPages, searchParams, setSearchParams]);
 
   /*
    * =========================================================
@@ -118,23 +163,17 @@ export default function SearchPage() {
   const handlePageChange = (newPage) => {
     const nextPage = Number(newPage);
 
-    if (!Number.isInteger(nextPage)) {
+    if (!Number.isInteger(nextPage) || nextPage < 1 || nextPage > totalPages || nextPage === page) {
       return;
     }
 
-    if (nextPage < 1) {
-      return;
+    const nextParams = new URLSearchParams(searchParams);
+    if (nextPage === 1) {
+      nextParams.delete("page");
+    } else {
+      nextParams.set("page", String(nextPage));
     }
-
-    if (nextPage > totalPages) {
-      return;
-    }
-
-    if (nextPage === page) {
-      return;
-    }
-
-    setPage(nextPage);
+    setSearchParams(nextParams);
 
     window.scrollTo({
       top: 0,
@@ -446,9 +485,8 @@ export default function SearchPage() {
 
                       <ChevronDown
                         size={13}
-                        className={`transition-transform ${
-                          sortOpen ? "rotate-180" : ""
-                        }`}
+                        className={`transition-transform ${sortOpen ? "rotate-180" : ""
+                          }`}
                       />
                     </button>
 
@@ -462,11 +500,10 @@ export default function SearchPage() {
                               setSortBy(option.value);
                               setSortOpen(false);
                             }}
-                            className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-xs font-medium transition ${
-                              sortBy === option.value
+                            className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-xs font-medium transition ${sortBy === option.value
                                 ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
                                 : "text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
-                            }`}
+                              }`}
                           >
                             {option.label}
 
@@ -537,27 +574,28 @@ export default function SearchPage() {
                   PAGE BUTTONS
               ================================================= */}
 
-              <div className="mt-10 border-t border-gray-200 pt-6 dark:border-gray-800">
-                <div className="flex flex-col items-center gap-3">
+              {totalPages > 1 && (
+                <div className="mt-10 border-t border-gray-200 pt-6 dark:border-gray-800">
+                  <div className="flex flex-col items-center gap-3">
+                    <p className="text-xs text-gray-400">
+                      Page{" "}
+                      <span className="font-semibold text-gray-700 dark:text-gray-300">
+                        {page}
+                      </span>{" "}
+                      of{" "}
+                      <span className="font-semibold text-gray-700 dark:text-gray-300">
+                        {totalPages}
+                      </span>
+                    </p>
 
-                  <p className="text-xs text-gray-400">
-                    Page{" "}
-                    <span className="font-semibold text-gray-700 dark:text-gray-300">
-                      {page}
-                    </span>{" "}
-                    of{" "}
-                    <span className="font-semibold text-gray-700 dark:text-gray-300">
-                      {totalPages}
-                    </span>
-                  </p>
-
-                  <PageButtons
-                    page={page}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                  />
+                    <PageButtons
+                      page={page}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
             </div>
           )}
@@ -688,20 +726,18 @@ function FilterItem({ label, active, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-xs transition ${
-        active
+      className={`flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-xs transition ${active
           ? "bg-blue-50 font-semibold text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
           : "text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
-      }`}
+        }`}
     >
       <span>{label}</span>
 
       <span
-        className={`flex h-4 w-4 items-center justify-center rounded-full border ${
-          active
+        className={`flex h-4 w-4 items-center justify-center rounded-full border ${active
             ? "border-blue-600 bg-blue-600 text-white"
             : "border-gray-300 dark:border-gray-600"
-        }`}
+          }`}
       >
         {active && <Check size={9} strokeWidth={3} />}
       </span>

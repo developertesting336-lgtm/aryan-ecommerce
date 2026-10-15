@@ -215,7 +215,8 @@ export const createOrder = async (req, res) => {
     const order = await Order.create({
       orderNumber: createOrderNumber(),
       user: user._id,
-      status: OrderStatus.CONFIRMED,
+      status: OrderStatus.PENDING,
+      paymentStatus: PaymentStatus.PENDING,
 
       subtotal,
       shippingCharge,
@@ -294,47 +295,7 @@ export const createOrder = async (req, res) => {
     });
 
     // =====================================================
-    // 16. REMOVE ORDERED PRODUCTS FROM CART
-    // =====================================================
-
-    if (productId) {
-      // -------------------------------------------------
-      // BUY NOW
-      // Remove only selected product
-      // -------------------------------------------------
-
-      cart.items = cart.items.filter(
-        (item) =>
-          item.product && item.product._id.toString() !== productId.toString(),
-      );
-    } else {
-      // -------------------------------------------------
-      // BUY ALL
-      // -------------------------------------------------
-
-      cart.items = [];
-    }
-
-    // =====================================================
-    // 17. RECALCULATE CART TOTAL
-    // =====================================================
-
-    cart.totalPrice = cart.items.reduce(
-      (total, item) =>
-        total + Number(item.product.price) * Number(item.quantity),
-      0,
-    );
-
-    // =====================================================
-    // 18. SAVE ORDER + CART
-    // =====================================================
-
-    await order.save();
-
-    await cart.save();
-
-    // =====================================================
-    // 19. RECORD COUPON USAGE
+    // 16. RECORD COUPON USAGE
     // =====================================================
 
     if (couponId) {

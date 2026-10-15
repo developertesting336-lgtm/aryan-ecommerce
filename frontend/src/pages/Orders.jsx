@@ -81,67 +81,73 @@ console.log("orderlist",orders)
   // STATUS CONFIG
   // ==========================================
 
-  const getStatusConfig = (status) => {
-    const normalizedStatus = status?.toUpperCase();
+  const getStatusConfig = (itemOrStatus) => {
+    const item = typeof itemOrStatus === "object" ? itemOrStatus : null;
+    const fulfillmentStatus = (item ? item.fulfillmentStatus : itemOrStatus)?.toUpperCase();
+    const paymentStatus = item?.paymentStatus?.toUpperCase();
+    const overallStatus = item?.status?.toUpperCase();
 
-    switch (normalizedStatus) {
-      case "CONFIRMED":
-        return {
-          label: "Confirmed",
-          icon: CheckCircle2,
-          className:
-            "bg-blue-50 text-blue-600 border-blue-100",
-        };
-
-      case "PROCESSING":
-        return {
-          label: "Processing",
-          icon: Clock3,
-          className:
-            "bg-yellow-50 text-yellow-600 border-yellow-100",
-        };
-
-      case "SHIPPED":
-        return {
-          label: "Shipped",
-          icon: Truck,
-          className:
-            "bg-purple-50 text-purple-600 border-purple-100",
-        };
-
-      case "DELIVERED":
-        return {
-          label: "Delivered",
-          icon: CheckCircle2,
-          className:
-            "bg-green-50 text-green-600 border-green-100",
-        };
-
-      case "CANCELLED":
-      case "CANCELED":
-        return {
-          label: "Cancelled",
-          icon: XCircle,
-          className:
-            "bg-red-50 text-red-600 border-red-100",
-        };
-
-      case "PENDING":
-        return {
-          label: "UNFULFILLED",
-          icon: Clock3,
-          className:
-            "bg-gray-100 text-gray-600 border-gray-200",
-        };
-
-      default:
-        return {
-          label: status || "Unknown",
-          icon: Clock3,
-          className:
-            "bg-gray-100 text-gray-600 border-gray-200",
-        };
+    if (fulfillmentStatus === "CANCELLED" || fulfillmentStatus === "CANCELED" || overallStatus === "CANCELLED") {
+      return {
+        label: "Cancelled",
+        icon: XCircle,
+        className: "bg-red-50 text-red-600 border-red-100",
+      };
     }
+
+    if (fulfillmentStatus === "DELIVERED") {
+      return {
+        label: "Delivered",
+        icon: CheckCircle2,
+        className: "bg-green-50 text-green-600 border-green-100",
+      };
+    }
+
+    if (fulfillmentStatus === "SHIPPED") {
+      return {
+        label: "Shipped",
+        icon: Truck,
+        className: "bg-purple-50 text-purple-600 border-purple-100",
+      };
+    }
+
+    if (fulfillmentStatus === "PROCESSING") {
+      return {
+        label: "Processing",
+        icon: Clock3,
+        className: "bg-yellow-50 text-yellow-600 border-yellow-100",
+      };
+    }
+
+    if (paymentStatus === "PAID" || overallStatus === "CONFIRMED") {
+      return {
+        label: "Paid",
+        icon: CheckCircle2,
+        className: "bg-green-50 text-green-600 border-green-100",
+      };
+    }
+
+    if (paymentStatus === "FAILED") {
+      return {
+        label: "Payment Failed",
+        icon: XCircle,
+        className: "bg-red-50 text-red-600 border-red-100",
+      };
+    }
+
+    if (paymentStatus === "PENDING") {
+      return {
+        label: "Payment Pending",
+        icon: Clock3,
+        className: "bg-amber-50 text-amber-600 border-amber-100",
+      };
+    }
+
+    return {
+      label: fulfillmentStatus || "Placed",
+      icon: Clock3,
+      className: "bg-gray-100 text-gray-600 border-gray-200",
+    };
   };
 
 
@@ -554,7 +560,7 @@ console.log("orderlist",orders)
             {filteredOrders.map((item) => {
 
               const status = getStatusConfig(
-                item.fulfillmentStatus
+                item
               );
 
               const StatusIcon = status.icon;

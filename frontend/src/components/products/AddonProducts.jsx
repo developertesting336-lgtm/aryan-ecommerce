@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { ShoppingCart, Check } from "lucide-react";
 import { useDispatch,useSelector } from "react-redux";
-import { addProduct } from "../../redux/slices/cartSlice";
+import { addProduct, addToGuestCart } from "../../redux/slices/cartSlice";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
@@ -14,6 +14,8 @@ export default function AddonProducts({
 const API_URL = "http://localhost:3000";
 
   const [selected, setSelected] = useState([currentProduct._id]);
+  const { token, user } = useSelector((state) => state.auth || {});
+  const isLoggedIn = Boolean(token || user);
 const {relatedProducts} = useSelector((state)=> state.product)
 console.log("related",relatedProducts)
 console.log("currentProduct",currentProduct)
@@ -68,7 +70,38 @@ const addons = useMemo(() => {
     Number(currentProduct.price)
   );
 
-  const addSelectedToCart = async () => {
+  const addSelectedToCart = async (e) => {
+    if (e) {
+      e.preventDefault?.();
+      e.stopPropagation?.();
+    }
+    if (!isLoggedIn) {
+      dispatch(
+        addToGuestCart({
+          productId: currentProduct._id,
+          quantity: 1,
+          name: currentProduct.name || "Product",
+          price: Number(currentProduct.price) || 0,
+          image: currentProduct.images?.[0] || "",
+          slug: currentProduct.slug || "",
+        })
+      );
+      for (const item of selectedProducts) {
+        dispatch(
+          addToGuestCart({
+            productId: item.relatedProduct._id,
+            quantity: 1,
+            name: item.relatedProduct.name || "Product",
+            price: Number(item.relatedProduct.price) || 0,
+            image: item.relatedProduct.images?.[0] || "",
+            slug: item.relatedProduct.slug || "",
+          })
+        );
+      }
+      navigate("/cart");
+      return;
+    }
+
     await dispatch(addProduct({
       productId: currentProduct._id,
           price: currentProduct.price,
@@ -360,7 +393,10 @@ console.log("getImageUrl(currentProduct.image[0])",currentProduct)
 
           <button
             type="button"
-            onClick={addSelectedToCart}
+            onClick={(e) => {
+              e?.stopPropagation?.();
+              addSelectedToCart(e);
+            }}
             className="
               flex
               items-center

@@ -75,6 +75,7 @@ const CouponDetails = lazy(() => import("../pages/vendor/coupons/CouponDetails")
 import { getCart } from "../redux/slices/cartSlice";
 import { getWishlist } from "../redux/slices/wishlistSlice";
 import { getRootCategories } from "../redux/slices/categorySlice";
+import { mergeGuestCart, enrichGuestCart } from "../utils/guestCart";
 
 // ============================================================
 // APP ROUTES
@@ -90,8 +91,12 @@ function AppRoutes() {
   // ============================================================
 
   useEffect(() => {
-    if (!token) return;
+    if (!token) {
+      enrichGuestCart(dispatch);
+      return;
+    }
 
+    mergeGuestCart(dispatch);
     dispatch(getCart());
     dispatch(getWishlist());
     dispatch(getRootCategories());

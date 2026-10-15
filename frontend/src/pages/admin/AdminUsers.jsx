@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getAdminUsers } from "../../redux/slices/adminSlice";
+import PageButtons from "../../components/PageButtons";
 
 export default function AdminUsers() {
   const [search, setSearch] = useState("");
@@ -28,6 +29,8 @@ export default function AdminUsers() {
   }, [dispatch, currentPage]);
 
   const userList = users || [];
+  const totalUsers = stats.totalUsers || userList.length || 0;
+  const totalPages = Math.max(1, Math.ceil(totalUsers / 4));
 
   const filteredUsers = userList.filter((user) => {
     const searchTerm = search.toLowerCase();
@@ -543,7 +546,7 @@ export default function AdminUsers() {
               PAGINATION
           ===================================================== */}
 
-          {!loading && filteredUsers.length > 0 && (
+          {!loading && totalPages > 1 && (
             <div
               className="
                 flex flex-col gap-3
@@ -559,73 +562,18 @@ export default function AdminUsers() {
                 <span className="font-semibold text-(--admin-text-secondary)">
                   {filteredUsers.length}
                 </span>{" "}
+                of{" "}
+                <span className="font-semibold text-(--admin-text-secondary)">
+                  {totalUsers}
+                </span>{" "}
                 customers
               </p>
 
-              <div className="flex items-center gap-2">
-
-                <button
-                  disabled={currentPage === 1}
-                  onClick={() =>
-                    setCurrentPage((page) =>
-                      Math.max(1, page - 1)
-                    )
-                  }
-                  className="
-                    rounded-lg
-                    border border-(--admin-control-border)
-                    bg-(--admin-control-bg)
-                    px-3 py-2
-                    text-[10px]
-                    font-medium
-                    text-(--admin-text-secondary)
-                    transition
-                    hover:border-(--admin-primary)
-                    hover:text-(--admin-primary)
-                    disabled:cursor-not-allowed
-                    disabled:opacity-40
-                  "
-                >
-                  Previous
-                </button>
-
-                <button
-                  className="
-                    rounded-lg
-                    bg-(--admin-primary)
-                    px-3 py-2
-                    text-[10px]
-                    font-semibold
-                    text-white
-                    shadow-sm
-                  "
-                >
-                  {currentPage}
-                </button>
-
-                <button
-                  onClick={() =>
-                    setCurrentPage((page) =>
-                      page + 1
-                    )
-                  }
-                  className="
-                    rounded-lg
-                    border border-(--admin-control-border)
-                    bg-(--admin-control-bg)
-                    px-3 py-2
-                    text-[10px]
-                    font-medium
-                    text-(--admin-text-secondary)
-                    transition
-                    hover:border-(--admin-primary)
-                    hover:text-(--admin-primary)
-                  "
-                >
-                  Next
-                </button>
-
-              </div>
+              <PageButtons
+                page={currentPage}
+                totalPages={totalPages}
+                onPageChange={(page) => setCurrentPage(page)}
+              />
             </div>
           )}
 

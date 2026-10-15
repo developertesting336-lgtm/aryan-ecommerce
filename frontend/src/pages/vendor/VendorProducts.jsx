@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 // Change this import to your actual vendor redux slice/action.
 import { getVendorProducts } from "../../redux/slices/vendorSlice";
+import PageButtons from "../../components/PageButtons";
 
 export default function VendorProducts() {
   const dispatch = useDispatch();
@@ -196,6 +197,11 @@ console.log("productList",productList)
   const totalProducts =
     stats.totalProducts ??
     productList.length;
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil((totalProducts || 0) / limit)
+  );
 
   const activeProducts =
     stats.activeProducts ??
@@ -1032,7 +1038,7 @@ console.log("productList",productList)
           ================================================= */}
 
           {!loading &&
-            filteredProducts.length > 0 && (
+            totalPages > 1 && (
               <div className="
                 flex
                 flex-col
@@ -1049,111 +1055,28 @@ console.log("productList",productList)
                   text-xs
                   text-slate-400
                 ">
-
                   Showing{" "}
-
                   <span className="
                     font-semibold
                     text-slate-600
                   ">
                     {filteredProducts.length}
-                  </span>
-
-                  {" "}products
-
+                  </span>{" "}
+                  of{" "}
+                  <span className="
+                    font-semibold
+                    text-slate-600
+                  ">
+                    {totalProducts}
+                  </span>{" "}
+                  products
                 </p>
 
-                <div className="
-                  flex
-                  items-center
-                  gap-2
-                ">
-
-                  <button
-                    disabled={
-                      currentPage === 1
-                    }
-                    onClick={() =>
-                      setCurrentPage(
-                        (page) =>
-                          Math.max(
-                            1,
-                            page - 1
-                          )
-                      )
-                    }
-                    className="
-                      rounded-xl
-                      border
-                      border-slate-200
-                      bg-white
-                      px-3
-                      py-2
-                      text-xs
-                      font-semibold
-                      text-slate-500
-                      transition
-                      hover:border-blue-200
-                      hover:bg-blue-50
-                      hover:text-[#4779F5]
-                      disabled:cursor-not-allowed
-                      disabled:opacity-40
-                    "
-                  >
-                    Previous
-                  </button>
-
-                  <span className="
-                    flex
-                    h-8
-                    min-w-8
-                    items-center
-                    justify-center
-                    rounded-xl
-                    bg-linear-to-r
-                    from-[#4779F5]
-                    to-[#24B9E8]
-                    px-2
-                    text-xs
-                    font-bold
-                    text-white
-                  ">
-                    {currentPage}
-                  </span>
-
-                  <button
-                    // disabled={
-                    //   products.length > limit
-                    // }
-                    onClick={() =>
-                      setCurrentPage(
-                        (page) =>
-                          page + 1
-                      )
-                    }
-                    className="
-                      rounded-xl
-                      border
-                      border-slate-200
-                      bg-white
-                      px-3
-                      py-2
-                      text-xs
-                      font-semibold
-                      text-slate-500
-                      transition
-                      hover:border-blue-200
-                      hover:bg-blue-50
-                      hover:text-[#4779F5]
-                      disabled:cursor-not-allowed
-                      disabled:opacity-40
-                    "
-                  >
-                    Next
-                  </button>
-
-                </div>
-
+                <PageButtons
+                  page={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={(page) => setCurrentPage(page)}
+                />
               </div>
             )}
 
