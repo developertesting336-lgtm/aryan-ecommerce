@@ -60,8 +60,8 @@ loadRoutes(app);
 app.use(errorHandler);
 const server = createServer(app);
 
-server.listen(port,()=>{
+server.listen(port,async()=>{
     console.log(`🔥 server running on http://localhost:${port}`);
-    database();
+  await  database();
 });
 
