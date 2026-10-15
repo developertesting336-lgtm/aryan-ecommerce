@@ -318,6 +318,7 @@ console.log("orderlist",orders)
                 text-sm
                 font-medium
                 transition
+                cursor-pointer
               "
             >
               <RefreshCw size={16} />
@@ -364,6 +365,7 @@ console.log("orderlist",orders)
               onClick={() => dispatch(getOrders())}
               disabled={loading}
               className="
+               cursor-pointer
                 self-start
                 sm:self-auto
                 h-10
@@ -455,6 +457,7 @@ console.log("orderlist",orders)
                 font-medium
                 border
                 transition
+                cursor-pointer
                 ${
                   filter === item.value
                     ? "bg-blue-600 text-white border-blue-600"
@@ -833,6 +836,7 @@ console.log("orderlist",orders)
                         font-medium
                         text-gray-700
                         transition
+                        cursor-pointer
                       "
                     >
 

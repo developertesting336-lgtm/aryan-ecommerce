@@ -490,6 +490,7 @@ export default function OrderTracking() {
                 text-gray-500
                 hover:text-blue-600
                 transition
+                cursor-pointer
               "
             >
               <ArrowLeft size={17} />
@@ -545,6 +546,7 @@ export default function OrderTracking() {
               text-sm
               font-semibold
               transition
+              cursor-pointer
             "
           >
             <RefreshCw size={16} />
@@ -582,6 +584,7 @@ export default function OrderTracking() {
               text-gray-500
               hover:text-blue-600
               transition
+              cursor-pointer
             "
           >
             <ArrowLeft size={17} />
@@ -1803,6 +1806,7 @@ export default function OrderTracking() {
       whitespace-nowrap
       disabled:opacity-50
       disabled:cursor-not-allowed
+      cursor-pointer
     "
           >
             <RefreshCw
@@ -1840,6 +1844,7 @@ export default function OrderTracking() {
       flex items-center justify-center
       gap-2
       whitespace-nowrap
+      cursor-pointer
     "
           >
             <Package size={17} />

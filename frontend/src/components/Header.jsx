@@ -1119,7 +1119,7 @@ export default function Navbar() {
                   onClick={
                     handleLogout
                   }
-                  className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                  className="cursor-pointer flex w-full items-center gap-2 rounded px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
                 >
                   <LogOut
                     size={14}
@@ -1551,7 +1551,7 @@ export default function Navbar() {
                       onClick={
                         handleLogout
                       }
-                      className="flex items-center gap-2 rounded-lg px-3 py-3 text-left font-medium text-red-600 hover:bg-red-50"
+                      className="cursor-pointer flex items-center gap-2 rounded-lg px-3 py-3 text-left font-medium text-red-600 hover:bg-red-50"
                     >
                       <LogOut
                         size={17}

@@ -757,6 +757,7 @@ export default function OrderDetails() {
                 text-gray-500
                 hover:text-blue-600
                 transition
+                cursor-pointer
               "
             >
               <ArrowLeft size={17} />
@@ -810,6 +811,7 @@ export default function OrderDetails() {
                 text-sm
                 font-medium
                 transition
+                cursor-pointer
               "
             >
               <RefreshCw size={16} />
@@ -846,6 +848,7 @@ export default function OrderDetails() {
                 hover:text-blue-600
                 transition
                 mb-4
+                cursor-pointer
               "
             >
               <ArrowLeft size={17} />
@@ -1166,6 +1169,7 @@ export default function OrderDetails() {
         font-semibold
         transition
         shadow-sm
+        cursor-pointer
       "
                                   >
                                     <Star size={16} fill="currentColor" />
@@ -1190,6 +1194,7 @@ export default function OrderDetails() {
         font-semibold
         transition
         shadow-sm
+        cursor-pointer
       "
                                   >
                                     <Star size={16} fill="currentColor" />
@@ -1423,6 +1428,7 @@ export default function OrderDetails() {
       justify-center
       gap-2
       shadow-sm
+      cursor-pointer
     "
   >
     <Truck size={17} />
@@ -1455,6 +1461,7 @@ export default function OrderDetails() {
                         gap-2
                         disabled:opacity-60
                         disabled:cursor-not-allowed
+                        cursor-pointer
                       "
                     >
                       {cancelLoading ? (
@@ -1493,6 +1500,7 @@ export default function OrderDetails() {
                       items-center
                       justify-center
                       gap-2
+                      cursor-pointer
                     "
                   >
                     <ArrowLeft size={17} />
@@ -1591,6 +1599,7 @@ export default function OrderDetails() {
                   hover:text-gray-800
                   transition
                   disabled:opacity-50
+                  cursor-pointer
                 "
               >
                 <X size={20} />
@@ -1701,6 +1710,7 @@ export default function OrderDetails() {
                           className="
                               transition
                               hover:scale-110
+                              cursor-pointer
                             "
                         >
                           <Star
@@ -1882,6 +1892,7 @@ export default function OrderDetails() {
                                 items-center
                                 justify-center
                                 transition
+                                cursor-pointer
                               "
                             title="Remove image"
                           >
@@ -1942,6 +1953,7 @@ export default function OrderDetails() {
                       hover:bg-gray-50
                       transition
                       disabled:opacity-50
+                      cursor-pointer
                     "
                   >
                     Cancel
@@ -1966,6 +1978,7 @@ export default function OrderDetails() {
                       gap-2
                       disabled:opacity-50
                       disabled:cursor-not-allowed
+                      cursor-pointer
                     "
                   >
                     {reviewLoading ? (
@@ -2062,6 +2075,7 @@ export default function OrderDetails() {
             hover:text-gray-800
             transition
             disabled:opacity-50
+            cursor-pointer
           "
               >
                 <X size={20} />
@@ -2092,6 +2106,7 @@ export default function OrderDetails() {
                         className="
                       transition
                       hover:scale-110
+                      cursor-pointer
                     "
                       >
                         <Star
@@ -2171,6 +2186,7 @@ export default function OrderDetails() {
       justify-center
       disabled:opacity-50
       disabled:cursor-not-allowed
+      cursor-pointer
     "
                 >
                   Cancel
@@ -2200,6 +2216,7 @@ export default function OrderDetails() {
       whitespace-nowrap
       disabled:opacity-50
       disabled:cursor-not-allowed
+      cursor-pointer
     "
                 >
                   {updateReviewLoading ? (
