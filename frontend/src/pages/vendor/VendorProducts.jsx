@@ -1076,6 +1076,7 @@ console.log("productList",productList)
                   page={currentPage}
                   totalPages={totalPages}
                   onPageChange={(page) => setCurrentPage(page)}
+                  colorTheme="vendor"
                 />
               </div>
             )}

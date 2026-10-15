@@ -699,6 +699,7 @@ export default function AdminProducts() {
                 page={currentPage}
                 totalPages={totalPages}
                 onPageChange={(page) => setCurrentPage(page)}
+                 colorTheme="admin"
               />
             </div>
           )}

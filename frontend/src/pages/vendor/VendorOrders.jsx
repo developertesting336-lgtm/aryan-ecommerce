@@ -1148,6 +1148,7 @@ export default function VendorOrders() {
                   page={currentPage}
                   totalPages={totalPages}
                   onPageChange={(page) => setCurrentPage(page)}
+                  colorTheme="vendor"
                 />
               </div>
             )}

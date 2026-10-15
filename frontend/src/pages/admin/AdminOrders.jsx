@@ -583,6 +583,7 @@ export default function AdminOrders() {
                 page={currentPage}
                 totalPages={totalPages}
                 onPageChange={(page) => setCurrentPage(page)}
+                 colorTheme="admin"
               />
             </div>
           )}

@@ -573,6 +573,7 @@ export default function AdminUsers() {
                 page={currentPage}
                 totalPages={totalPages}
                 onPageChange={(page) => setCurrentPage(page)}
+                 colorTheme="admin"
               />
             </div>
           )}

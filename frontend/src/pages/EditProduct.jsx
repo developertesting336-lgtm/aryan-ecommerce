@@ -1347,7 +1347,7 @@ export default function EditProduct() {
       <div className="min-h-screen bg-slate-50">
         <div className="flex min-h-[70vh] items-center justify-center">
           <div className="flex flex-col items-center gap-3">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-600" />
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
 
             <p className="text-sm text-slate-500">
               Loading product...
@@ -1430,7 +1430,7 @@ export default function EditProduct() {
                 type="submit"
                 form="edit-product-form"
                 disabled={saving}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none"
               >
                 <Save size={17} />
 
@@ -1505,7 +1505,7 @@ export default function EditProduct() {
 
                 <div className="flex items-center gap-3">
 
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
                     <Package
                       size={18}
                     />
@@ -2791,7 +2791,7 @@ export default function EditProduct() {
                           )}
 
                           {image.isNew && (
-                            <span className="absolute left-2 top-2 rounded-md bg-indigo-600 px-2 py-1 text-[9px] font-semibold text-white">
+                            <span className="absolute left-2 top-2 rounded-md bg-blue-600 px-2 py-1 text-[9px] font-semibold text-white">
                               NEW
                             </span>
                           )}
@@ -2824,7 +2824,7 @@ export default function EditProduct() {
 
                   {/* ADD IMAGE */}
 
-                  <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 text-slate-400 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600">
+                  <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 text-slate-400 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-blue-600">
 
                     <Upload
                       size={22}
@@ -3183,7 +3183,7 @@ export default function EditProduct() {
           <button
             type="submit"
             disabled={saving}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-60"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-60"
           >
 
             <Save size={17} />
