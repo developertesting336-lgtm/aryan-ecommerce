@@ -942,12 +942,10 @@ function ProductDetails() {
   /* =======================================================
      RESET WHEN PRODUCT CHANGES
   ======================================================= */
-
-  useEffect(() => {
-    setSelectedImage(0);
-    setQuantity(1);
-    setSelectedAttributes({});
-  }, [slugOrId]);
+useEffect(() => {
+  setSelectedImage(0);
+  setQuantity(1);
+}, [slugOrId]);
 
   /* =======================================================
      IMAGES
@@ -1059,28 +1057,20 @@ function ProductDetails() {
   ======================================================= */
 
   const getCartPayload = () => {
-    const payload = {
-      productId: id,
-      price: currentPrice,
-      quantity,
-    };
-
-    const variantId =
-      getVariantId(
-        selectedVariant
-      );
-
-    if (
-      currentProduct?.hasVariants ===
-        true &&
-      variantId
-    ) {
-      payload.variantId =
-        variantId;
-    }
-
-    return payload;
+  const payload = {
+    productId: currentProduct._id,   // was: id
+    price: currentPrice,
+    quantity,
   };
+
+  const variantId = getVariantId(selectedVariant);
+
+  if (currentProduct?.hasVariants === true && variantId) {
+    payload.variantId = variantId;
+  }
+
+  return payload;
+};
 
   /* =======================================================
      ADD TO CART
@@ -1200,50 +1190,27 @@ function ProductDetails() {
      WISHLIST
   ======================================================= */
 
-  const handleWishlist = async () => {
-    if (!isLoggedIn) {
-      requireLogin();
-      return;
+ const handleWishlist = async () => {
+  if (!isLoggedIn) {
+    requireLogin();
+    return;
+  }
+
+  if (!currentProduct?._id) return;
+
+  try {
+    if (isWishlisted) {
+      const res = await dispatch(deleteProducts(currentProduct._id)).unwrap();
+      showSuccess(res?.message || "Removed from wishlist");
+    } else {
+      const res = await dispatch(addProductInWish(currentProduct._id)).unwrap();
+      showSuccess(res?.message || "Added to wishlist");
     }
-
-    if (!currentProduct) {
-      return;
-    }
-
-    try {
-      if (isWishlisted) {
-        const deletefromWish =
-          await dispatch(
-            deleteProducts(id)
-          ).unwrap();
-
-        showSuccess(
-          deletefromWish?.message ||
-            "Removed from wishlist"
-        );
-      } else {
-        const addToWish =
-          await dispatch(
-            addProductInWish(id)
-          ).unwrap();
-
-        showSuccess(
-          addToWish?.message ||
-            "Added to wishlist"
-        );
-      }
-    } catch (error) {
-      console.error(
-        "Wishlist error:",
-        error
-      );
-
-      showError(
-        error?.message ||
-          "Wishlist operation failed"
-      );
-    }
-  };
+  } catch (error) {
+    console.error("Wishlist error:", error);
+    showError(error?.message || "Wishlist operation failed");
+  }
+};
 
   /* =======================================================
      LOADING
