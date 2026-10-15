@@ -477,7 +477,7 @@ const handleSaveUser = async (e) => {
                       onClick={() =>
                         navigate(item.path)
                       }
-                      className={`group mb-1 flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition ${
+                      className={`cursor-pointer group mb-1 flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition ${
                         isActive
                           ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
                           : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
@@ -607,7 +607,7 @@ const handleSaveUser = async (e) => {
                     dispatch(logout());
                     navigate("/login");
                   }}
-                  className="mt-1 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-red-500 transition hover:bg-red-50 dark:hover:bg-red-500/10"
+                  className="cursor-pointer mt-1 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-red-500 transition hover:bg-red-50 dark:hover:bg-red-500/10"
                 >
                   <LogOut size={18} />
                   Logout
@@ -665,7 +665,7 @@ const handleSaveUser = async (e) => {
                   onClick={() =>
                       setShowProfileForm(true)
                   }
-                  className="inline-flex h-10 items-center justify-center rounded-xl border border-gray-200 bg-white px-4 text-sm font-medium transition hover:border-blue-300 hover:text-blue-600 dark:border-gray-700 dark:bg-gray-900 dark:hover:border-blue-500 dark:hover:text-blue-400"
+                  className="cursor-pointer inline-flex h-10 items-center justify-center rounded-xl border border-gray-200 bg-white px-4 text-sm font-medium transition hover:border-blue-300 hover:text-blue-600 dark:border-gray-700 dark:bg-gray-900 dark:hover:border-blue-500 dark:hover:text-blue-400"
                 >
 
                   <Settings
@@ -786,7 +786,7 @@ const handleSaveUser = async (e) => {
                   onClick={() =>
                     navigate("/orders")
                   }
-                  className="text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                  className="cursor-pointer text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400"
                 >
                   View All
                 </button>
@@ -944,7 +944,7 @@ const handleSaveUser = async (e) => {
                     onClick={() =>
                        setShowProfileForm(true)
                     }
-                    className="text-sm font-medium text-blue-600 dark:text-blue-400"
+                    className="cursor-pointer text-sm font-medium text-blue-600 dark:text-blue-400"
                   >
                     Edit
                   </button>
@@ -1020,7 +1020,7 @@ const handleSaveUser = async (e) => {
                     onClick={() =>
                       navigate("/addresses")
                     }
-                    className="text-sm font-medium text-blue-600 dark:text-blue-400"
+                    className="cursor-pointer text-sm font-medium text-blue-600 dark:text-blue-400"
                   >
                     Manage
                   </button>
@@ -1402,7 +1402,7 @@ const handleSaveUser = async (e) => {
                 dark:border-gray-700
                 dark:text-gray-300
                 dark:hover:bg-gray-800
-                sm:w-auto
+                sm:w-auto cursor-pointer
               "
             >
               Cancel
@@ -1421,7 +1421,7 @@ const handleSaveUser = async (e) => {
                 focus:outline-none
                 focus:ring-2
                 focus:ring-blue-500/50
-                sm:w-auto
+                sm:w-auto cursor-pointer
               "
               onClick={handleSaveUser}
             >

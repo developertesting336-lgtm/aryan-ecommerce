@@ -135,6 +135,7 @@ export default function AdminProducts() {
           <button
             onClick={() => navigate("/create-product")}
             className="
+            cursor-pointer
               rounded-lg
               bg-(--admin-primary)
               px-4 py-2.5
@@ -562,6 +563,7 @@ export default function AdminProducts() {
                               )
                             }
                             className="
+                              cursor-pointer
                               rounded-lg
                               p-2
                               text-(--admin-text-muted)

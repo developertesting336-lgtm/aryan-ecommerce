@@ -5890,7 +5890,7 @@ export default function CreateProduct() {
                     disabled={
                       createLoading
                     }
-                    className="w-full mt-5 h-12 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-semibold flex items-center justify-center gap-2 transition shadow-sm"
+                    className="cursor-pointer w-full mt-5 h-12 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-semibold flex items-center justify-center gap-2 transition shadow-sm"
                   >
 
                     {createLoading ? (
@@ -5921,7 +5921,7 @@ export default function CreateProduct() {
                     disabled={
                       createLoading
                     }
-                    className="w-full mt-3 h-11 rounded-xl border border-gray-200 text-gray-600 font-medium hover:bg-gray-50 disabled:opacity-50 transition"
+                    className="cursor-pointer w-full mt-3 h-11 rounded-xl border border-gray-200 text-gray-600 font-medium hover:bg-gray-50 disabled:opacity-50 transition"
                   >
                     Clear Form
                   </button>

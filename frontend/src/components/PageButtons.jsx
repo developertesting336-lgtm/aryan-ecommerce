@@ -76,7 +76,7 @@ export default function PageButtons({
             }
           }}
           aria-label="Previous page"
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition ${selectedColor.hover} disabled:cursor-not-allowed disabled:opacity-40 sm:h-10 sm:w-10`}
+          className={`cursor-pointer flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition ${selectedColor.hover} disabled:cursor-not-allowed disabled:opacity-40 sm:h-10 sm:w-10`}
         >
           <ChevronLeft size={17} />
         </button>
@@ -104,7 +104,7 @@ export default function PageButtons({
               onClick={() => onPageChange(pageNumber)}
               aria-label={`Go to page ${pageNumber}`}
               aria-current={isActive ? "page" : undefined}
-              className={`flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-xs font-semibold transition sm:h-10 sm:min-w-10 sm:px-3 sm:text-sm ${
+              className={`cursor-pointer flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-xs font-semibold transition sm:h-10 sm:min-w-10 sm:px-3 sm:text-sm ${
                 isActive
                   ? `${selectedColor.active} text-white shadow-sm`
                   : `border border-slate-200 bg-white text-slate-600 ${selectedColor.hover}`
@@ -125,7 +125,7 @@ export default function PageButtons({
             }
           }}
           aria-label="Next page"
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition ${selectedColor.hover} disabled:cursor-not-allowed disabled:opacity-40 sm:h-10 sm:w-10`}
+          className={`cursor-pointer flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition ${selectedColor.hover} disabled:cursor-not-allowed disabled:opacity-40 sm:h-10 sm:w-10`}
         >
           <ChevronRight size={17} />
         </button>
