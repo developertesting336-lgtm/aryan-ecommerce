@@ -1063,50 +1063,211 @@ export default function EditProduct() {
      VALIDATION
   ======================================================= */
 
-  const validateForm = () => {
-    if (!formData.name.trim()) {
-      return "Product name is required.";
+  
+/* =======================================================
+   VALIDATION — MATCH CREATE PRODUCT
+======================================================= */
+
+const validateForm = () => {
+  // Basic product validation
+  const name = formData.name.trim();
+  const description = formData.description.trim();
+
+  if (!name) {
+    return "Product name is required.";
+  }
+
+  if (name.length < 3) {
+    return "Product name must contain at least 3 characters.";
+  }
+
+  if (!description) {
+    return "Product description is required.";
+  }
+
+  if (description.length < 10) {
+    return "Product description must contain at least 10 characters.";
+  }
+
+  if (!formData.category) {
+    return "Please select the most specific product category.";
+  }
+
+  // ==========================================
+  // VARIANT VALIDATION
+  // ==========================================
+  if (formData.hasVariants) {
+    const variants = formData.variants;
+
+    if (!Array.isArray(variants) || variants.length === 0) {
+      return "Please add at least one product variant.";
     }
 
-    if (!formData.description.trim()) {
-      return "Product description is required.";
+    const combinations = new Set();
+
+    for (let i = 0; i < variants.length; i++) {
+      const variant = variants[i];
+      const variantNumber = i + 1;
+
+      // Selling price
+      const price = Number(variant.price);
+
+      if (
+        variant.price === "" ||
+        variant.price === null ||
+        variant.price === undefined ||
+        !Number.isFinite(price) ||
+        price < 0
+      ) {
+        return `Variant ${variantNumber}: Please enter a valid selling price.`;
+      }
+
+      // MRP must be >= selling price
+      if (
+        variant.mrp !== "" &&
+        variant.mrp !== null &&
+        variant.mrp !== undefined
+      ) {
+        const mrp = Number(variant.mrp);
+
+        if (
+          !Number.isFinite(mrp) ||
+          mrp < price
+        ) {
+          return `Variant ${variantNumber}: MRP should be greater than or equal to selling price.`;
+        }
+      }
+
+      // Stock validation
+      const stock = Number(variant.stock);
+
+      if (
+        variant.stock === "" ||
+        variant.stock === null ||
+        variant.stock === undefined ||
+        !Number.isFinite(stock) ||
+        stock < 0
+      ) {
+        return `Variant ${variantNumber}: Please enter a valid stock quantity.`;
+      }
+
+      // Attribute validation
+      if (
+        !Array.isArray(variant.attributes) ||
+        variant.attributes.length === 0
+      ) {
+        return `Variant ${variantNumber}: At least one attribute is required.`;
+      }
+
+      const normalizedAttributes = [];
+
+      for (let j = 0; j < variant.attributes.length; j++) {
+        const attribute = variant.attributes[j];
+        const attributeNumber = j + 1;
+
+        const attributeName =
+          typeof attribute?.name === "string"
+            ? attribute.name.trim()
+            : "";
+
+        const attributeValue =
+          typeof attribute?.value === "string"
+            ? attribute.value.trim()
+            : "";
+
+        if (!attributeName) {
+          return `Variant ${variantNumber}: Attribute ${attributeNumber} name is required.`;
+        }
+
+        if (!attributeValue) {
+          return `Variant ${variantNumber}: Attribute ${attributeNumber} value is required.`;
+        }
+
+        normalizedAttributes.push({
+          name: attributeName.toLowerCase(),
+          value: attributeValue.toLowerCase(),
+        });
+      }
+
+      // Normalize attribute order so equivalent
+      // combinations are detected as duplicates.
+      const combination = normalizedAttributes
+        .sort((a, b) =>
+          `${a.name}:${a.value}`.localeCompare(
+            `${b.name}:${b.value}`
+          )
+        )
+        .map(
+          (attribute) =>
+            `${attribute.name}:${attribute.value}`
+        )
+        .join("|");
+
+      if (combinations.has(combination)) {
+        return `Variant ${variantNumber}: This variant combination already exists.`;
+      }
+
+      combinations.add(combination);
     }
 
-    if (!formData.category) {
-      return "Please select the final product category.";
-    }
+    // Variant pricing and stock are validated above.
+    // Do not validate the parent product's price/stock.
+    return "";
+  }
+
+  // ==========================================
+  // REGULAR PRODUCT VALIDATION
+  // ==========================================
+
+  const price = Number(formData.price);
+
+  if (
+    formData.price === "" ||
+    !Number.isFinite(price) ||
+    price <= 0
+  ) {
+    return "Please enter a valid product price.";
+  }
+
+  if (
+    formData.mrp !== "" &&
+    formData.mrp !== null &&
+    formData.mrp !== undefined
+  ) {
+    const mrp = Number(formData.mrp);
 
     if (
-      formData.price === "" ||
-      Number(formData.price) <= 0
-    ) {
-      return "Please enter a valid price.";
-    }
-
-    if (
-      formData.mrp !== "" &&
-      Number(formData.mrp) < 0
+      !Number.isFinite(mrp) ||
+      mrp < 0
     ) {
       return "MRP cannot be negative.";
     }
+  }
 
-    if (
-      formData.discount !== "" &&
-      (Number(formData.discount) < 0 ||
-        Number(formData.discount) > 100)
-    ) {
-      return "Discount must be between 0 and 100.";
-    }
+  if (
+    formData.discount !== "" &&
+    (
+      !Number.isFinite(Number(formData.discount)) ||
+      Number(formData.discount) < 0 ||
+      Number(formData.discount) > 100
+    )
+  ) {
+    return "Discount must be between 0 and 100.";
+  }
 
-    if (
-      formData.stock === "" ||
-      Number(formData.stock) < 0
-    ) {
-      return "Please enter a valid stock quantity.";
-    }
+  const stock = Number(formData.stock);
 
-    return "";
-  };
+  if (
+    formData.stock === "" ||
+    !Number.isFinite(stock) ||
+    stock < 0
+  ) {
+    return "Please enter a valid stock quantity.";
+  }
+
+  return "";
+};
+
 
   /* =======================================================
      SUBMIT
