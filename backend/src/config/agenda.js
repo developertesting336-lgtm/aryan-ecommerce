@@ -1,9 +1,19 @@
 import { Agenda } from "agenda";
 import { MongoBackend } from "@agendajs/mongo-backend";
 
+const mongoUri = process.env.DATABASE;
+if (
+  !mongoUri ||
+  !/^mongodb(\+srv)?:\/\//.test(mongoUri)
+) {
+  throw new Error(
+    "Invalid or missing DATABASE environment variable. " +
+    "Expected a MongoDB connection string."
+  );
+}
 export const agenda = new Agenda({
   backend: new MongoBackend({
-    address: process.env.DATABASE,
+    address: mongoUri,
     collection: "agendaJobs",
   }),
   processEvery: "5 seconds",
