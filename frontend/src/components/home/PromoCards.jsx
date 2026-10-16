@@ -891,7 +891,7 @@ function PromoCard({
       items-center
       justify-center
       rounded-full
-      bg-white
+      bg-white!
       px-5
       py-2.5
       text-[11px]

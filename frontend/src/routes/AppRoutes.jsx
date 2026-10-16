@@ -108,7 +108,7 @@ function AppRoutes() {
       <ScrollToTop />
       <Suspense
         fallback={
-          <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
           </div>
         }

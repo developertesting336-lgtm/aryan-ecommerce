@@ -40,13 +40,13 @@ export default function InventoryAlerts({
     //   : fallbackProducts;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
 
       {/* =================================
           HEADER
       ================================= */}
 
-      <div className="flex items-center justify-between border-b border-slate-100 p-5">
+      <div className="flex items-center justify-between border-b border-slate-100 p-5 dark:border-gray-800">
 
         <div>
 
@@ -54,13 +54,13 @@ export default function InventoryAlerts({
 
             <span className="h-2.5 w-2.5 rounded-full bg-orange-400" />
 
-            <h2 className="text-base font-bold text-slate-900">
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">
               Inventory Alerts
             </h2>
 
           </div>
 
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-slate-400 dark:text-gray-400">
             Products requiring attention
           </p>
 
@@ -69,7 +69,7 @@ export default function InventoryAlerts({
 
         <button
           onClick={onViewAll}
-          className="flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700"
+          className="flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
         >
           View All
           <ArrowUpRight size={13} />
@@ -82,7 +82,7 @@ export default function InventoryAlerts({
           PRODUCTS
       ================================= */}
 
-      <div className="divide-y divide-slate-100">
+      <div className="divide-y divide-slate-100 dark:divide-gray-800">
 
         {list.slice(0, 5).map(
           (product) => {
@@ -101,7 +101,7 @@ export default function InventoryAlerts({
             return (
               <div
                 key={product._id}
-                className="flex items-center gap-3 p-4 transition hover:bg-slate-50"
+                className="flex items-center gap-3 p-4 transition hover:bg-slate-50 dark:hover:bg-gray-800/50"
               >
 
                 {/* Icon */}
@@ -117,8 +117,8 @@ export default function InventoryAlerts({
                     rounded-xl
                     ${
                       outOfStock
-                        ? "bg-red-50 text-red-500"
-                        : "bg-amber-50 text-amber-500"
+                        ? "bg-red-50 text-red-500 dark:bg-red-950/40 dark:text-red-400"
+                        : "bg-amber-50 text-amber-500 dark:bg-amber-950/40 dark:text-amber-400"
                     }
                   `}
                 >
@@ -134,7 +134,7 @@ export default function InventoryAlerts({
 
                 <div className="min-w-0 flex-1">
 
-                  <p className="truncate text-xs font-bold text-slate-800">
+                  <p className="truncate text-xs font-bold text-slate-800 dark:text-white">
                     {product.name}
                   </p>
 
@@ -145,10 +145,10 @@ export default function InventoryAlerts({
                       font-medium
                       ${
                         outOfStock
-                          ? "text-red-500"
+                          ? "text-red-500 dark:text-red-400"
                           : critical
-                          ? "text-amber-500"
-                          : "text-emerald-500"
+                          ? "text-amber-500 dark:text-amber-400"
+                          : "text-emerald-500 dark:text-emerald-400"
                       }
                     `}
                   >
@@ -166,7 +166,7 @@ export default function InventoryAlerts({
 
                 <div className="text-right">
 
-                  <p className="text-[9px] uppercase tracking-wide text-slate-400">
+                  <p className="text-[9px] uppercase tracking-wide text-slate-400 dark:text-gray-400">
                     Stock
                   </p>
 
@@ -177,10 +177,10 @@ export default function InventoryAlerts({
                       font-bold
                       ${
                         outOfStock
-                          ? "text-red-500"
+                          ? "text-red-500 dark:text-red-400"
                           : critical
-                          ? "text-amber-500"
-                          : "text-slate-800"
+                          ? "text-amber-500 dark:text-amber-400"
+                          : "text-slate-800 dark:text-white"
                       }
                     `}
                   >
@@ -201,7 +201,7 @@ export default function InventoryAlerts({
           FOOTER
       ================================= */}
 
-      <div className="border-t border-slate-100 p-4">
+      <div className="border-t border-slate-100 p-4 dark:border-gray-800">
 
         <button
           onClick={onViewAll}
@@ -218,6 +218,11 @@ export default function InventoryAlerts({
             transition
             hover:from-indigo-100
             hover:to-violet-100
+            dark:from-indigo-950/50
+            dark:to-violet-950/50
+            dark:text-indigo-300
+            dark:hover:from-indigo-900/50
+            dark:hover:to-violet-900/50
           "
         >
           Manage Inventory

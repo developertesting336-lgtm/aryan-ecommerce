@@ -9,7 +9,7 @@ export default function StatusBadge({
 
 
   let classes =
-    "bg-slate-100 text-slate-600";
+    "bg-slate-100 text-slate-600 dark:bg-gray-800 dark:text-gray-300";
 
 
   if (
@@ -17,7 +17,7 @@ export default function StatusBadge({
     normalized === "completed"
   ) {
     classes =
-      "bg-emerald-50 text-emerald-600";
+      "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border dark:border-emerald-800/40";
   }
 
 
@@ -26,13 +26,13 @@ export default function StatusBadge({
     normalized === "processing"
   ) {
     classes =
-      "bg-amber-50 text-amber-600";
+      "bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400 dark:border dark:border-amber-800/40";
   }
 
 
   if (normalized === "shipped") {
     classes =
-      "bg-indigo-50 text-indigo-600";
+      "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400 dark:border dark:border-indigo-800/40";
   }
 
 
@@ -41,7 +41,7 @@ export default function StatusBadge({
     normalized === "canceled"
   ) {
     classes =
-      "bg-red-50 text-red-600";
+      "bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400 dark:border dark:border-red-800/40";
   }
 
 

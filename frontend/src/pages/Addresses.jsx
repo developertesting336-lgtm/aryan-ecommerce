@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTheme } from "../context/ThemeContext";
 
 import {
   User,
@@ -270,9 +271,7 @@ export default function Addresses() {
   // THEME
   // =====================================================
 
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem("theme") === "dark";
-  });
+  const { darkMode, toggleTheme } = useTheme();
 
   // =====================================================
   // REDUX
@@ -319,21 +318,6 @@ export default function Addresses() {
     dispatch(getAddresses());
   }, [dispatch]);
 
-  // =====================================================
-  // THEME
-  // =====================================================
-
-  useEffect(() => {
-    const root = document.documentElement;
-
-    if (darkMode) {
-      root.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      root.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  }, [darkMode]);
 
   // =====================================================
   // CLEAR SUCCESS
@@ -678,18 +662,17 @@ export default function Addresses() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setDarkMode((prev) => !prev)
-                  }
-                  className="group flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-gray-600 transition-all hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
+                  onClick={toggleTheme}
+                  aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+                  className="group flex w-full cursor-pointer items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-gray-600 transition-all hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
                   <span className="flex items-center gap-3">
 
                     <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
                       {darkMode ? (
-                        <Moon size={17} />
+                        <Sun size={17} className="text-amber-400" />
                       ) : (
-                        <Sun size={17} />
+                        <Moon size={17} />
                       )}
                     </span>
 
@@ -715,14 +698,14 @@ export default function Addresses() {
                       }`}
                     >
                       {darkMode ? (
-                        <Moon
-                          size={11}
-                          className="text-blue-600"
-                        />
-                      ) : (
                         <Sun
                           size={11}
-                          className="text-yellow-500"
+                          className="text-amber-500"
+                        />
+                      ) : (
+                        <Moon
+                          size={11}
+                          className="text-slate-700"
                         />
                       )}
                     </span>

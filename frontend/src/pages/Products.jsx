@@ -356,8 +356,8 @@ function FilterContent({
             rounded-xl transition
             ${
               active
-                ? "bg-blue-50 text-blue-700"
-                : "text-slate-600 hover:bg-slate-50"
+                ? "bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"
+                : "text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800"
             }
           `}
         >
@@ -550,8 +550,8 @@ function FilterContent({
                 ${
                   selectedCategory ===
                   "all"
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-slate-600 hover:bg-slate-50"
+                    ? "bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"
+                    : "text-slate-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800"
                 }
               `}
             >
@@ -585,7 +585,7 @@ function FilterContent({
         )}
       </div>
 
-      <div className="h-px bg-slate-100" />
+      <div className="h-px bg-slate-100 dark:bg-gray-800" />
 
       {/* =====================================================
           PRICE
@@ -593,7 +593,7 @@ function FilterContent({
 
       <div>
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-[13px] font-bold uppercase tracking-wide text-slate-900">
+          <h3 className="text-[13px] font-bold uppercase tracking-wide text-slate-900 dark:text-white">
             Price range
           </h3>
 
@@ -657,14 +657,14 @@ function FilterContent({
               }
               className="
                 h-10 w-full rounded-xl
-                border border-slate-200
-                bg-slate-50
+                border border-slate-200 dark:border-gray-700
+                bg-slate-50 dark:bg-gray-800
                 pl-7 pr-2
-                text-sm text-slate-900
+                text-sm text-slate-900 dark:text-white
                 outline-none
                 transition
                 focus:border-blue-500
-                focus:bg-white
+                focus:bg-white dark:focus:bg-gray-800
                 focus:ring-4
                 focus:ring-blue-500/10
               "
@@ -709,14 +709,14 @@ function FilterContent({
               }
               className="
                 h-10 w-full rounded-xl
-                border border-slate-200
-                bg-slate-50
+                border border-slate-200 dark:border-gray-700
+                bg-slate-50 dark:bg-gray-800
                 pl-7 pr-2
-                text-sm text-slate-900
+                text-sm text-slate-900 dark:text-white
                 outline-none
                 transition
                 focus:border-blue-500
-                focus:bg-white
+                focus:bg-white dark:focus:bg-gray-800
                 focus:ring-4
                 focus:ring-blue-500/10
               "
@@ -1452,13 +1452,13 @@ export default function Products() {
   ========================================================= */
 
   return (
-    <main className="min-h-screen bg-[#f7f8fa]">
+    <main className="min-h-screen bg-[#f7f8fa] dark:bg-gray-950 dark:text-gray-100">
 
       {/* =====================================================
           HEADER
       ====================================================== */}
 
-      <section className="border-b border-slate-200 bg-white">
+      <section className="border-b border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
 
           <div className="flex items-center gap-2 pt-6 text-xs">
@@ -1471,7 +1471,7 @@ export default function Products() {
               className="text-slate-300"
             />
 
-            <span className="font-semibold text-slate-700">
+            <span className="font-semibold text-slate-700 dark:text-gray-200">
               Products
             </span>
           </div>
@@ -1487,11 +1487,11 @@ export default function Products() {
                 </span>
               </div>
 
-              <h1 className="text-3xl font-black tracking-[-0.04em] text-slate-950 sm:text-4xl">
+              <h1 className="text-3xl font-black tracking-[-0.04em] text-slate-950 dark:text-white sm:text-4xl">
                 Explore products
               </h1>
 
-              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500 sm:text-base">
+              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500 dark:text-gray-400 sm:text-base">
                 Find products you'll love, with carefully
                 selected items for every need.
               </p>
@@ -1520,14 +1520,14 @@ export default function Products() {
             className="
               absolute bottom-0 left-0 right-0
               max-h-[90vh] overflow-y-auto
-              rounded-t-[28px] bg-white
+              rounded-t-[28px] bg-white dark:bg-gray-900 dark:border-t dark:border-gray-800
               p-6 shadow-2xl
             "
           >
             <div className="mb-6 flex items-center justify-between">
 
               <div>
-                <h2 className="text-lg font-black text-slate-950">
+                <h2 className="text-lg font-black text-slate-950 dark:text-white">
                   Filters
                 </h2>
 
@@ -1638,15 +1638,15 @@ export default function Products() {
               className="
                 sticky top-6
                 rounded-2xl
-                border border-slate-200
-                bg-white p-5
+                border border-slate-200 dark:border-gray-800
+                bg-white dark:bg-gray-900 p-5
               "
             >
 
               <div className="mb-6 flex items-start justify-between">
 
                 <div>
-                  <h2 className="text-sm font-black text-slate-950">
+                  <h2 className="text-sm font-black text-slate-950 dark:text-white">
                     Filters
                   </h2>
 
@@ -1726,8 +1726,8 @@ export default function Products() {
               className="
                 mb-6
                 rounded-2xl
-                border border-slate-200
-                bg-white
+                border border-slate-200 dark:border-gray-800
+                bg-white dark:bg-gray-900
                 p-3 sm:p-4
               "
             >

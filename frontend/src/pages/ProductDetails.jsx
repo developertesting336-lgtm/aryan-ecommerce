@@ -120,11 +120,11 @@ const getPricing = (product) => {
 
 function LoadingState() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
       <div className="text-center">
         <div className="w-12 h-12 mx-auto mb-4 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
 
-        <p className="text-gray-600 font-medium">
+        <p className="text-gray-600 dark:text-gray-400 font-medium">
           Loading product...
         </p>
       </div>
@@ -138,13 +138,13 @@ function LoadingState() {
 
 function ErrorState({ error, onBack }) {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-sm p-8 text-center">
-        <h2 className="text-2xl font-bold text-gray-800">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4">
+      <div className="w-full max-w-md bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl shadow-sm p-8 text-center">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
           Something went wrong
         </h2>
 
-        <p className="text-gray-500 mt-2 mb-6">
+        <p className="text-gray-500 dark:text-gray-400 mt-2 mb-6">
           {error || "Unable to load product."}
         </p>
 
@@ -175,17 +175,17 @@ function ErrorState({ error, onBack }) {
 
 function ProductNotFound({ onBack }) {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4">
       <div className="text-center">
         <div className="text-6xl mb-4">
           🛍️
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-800">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
           Product Not Found
         </h2>
 
-        <p className="text-gray-500 mt-2 mb-6">
+        <p className="text-gray-500 dark:text-gray-400 mt-2 mb-6">
           The product you're looking for doesn't exist.
         </p>
 
@@ -1250,7 +1250,7 @@ useEffect(() => {
   ======================================================= */
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 dark:text-gray-100">
 
       {/* ===================================================
           BREADCRUMB
@@ -1289,7 +1289,7 @@ useEffect(() => {
 
           <span>/</span>
 
-          <span className="text-gray-900 font-medium truncate">
+          <span className="text-gray-900 dark:text-white font-medium truncate">
             {currentProduct.name}
           </span>
 
@@ -1305,9 +1305,11 @@ useEffect(() => {
         <section
           className="
             bg-white
+            dark:bg-gray-900
             rounded-3xl
             border
             border-gray-100
+            dark:border-gray-800
             shadow-sm
             overflow-hidden
           "
@@ -1326,7 +1328,10 @@ useEffect(() => {
                   relative
                   h-[400px]
                   md:h-[520px]
-                  bg-gray-50
+                  bg-white
+                  border
+                  border-gray-200
+                  dark:border-gray-800
                   rounded-2xl
                   flex
                   items-center
@@ -1440,13 +1445,13 @@ useEffect(() => {
                           rounded-xl
                           overflow-hidden
                           border-2
-                          bg-gray-50
+                          bg-white
                           transition
                           ${
                             selectedImage ===
                             index
                               ? "border-blue-600"
-                              : "border-gray-200 hover:border-gray-400"
+                              : "border-gray-200 dark:border-gray-700 hover:border-gray-400"
                           }
                         `}
                       >
@@ -1498,6 +1503,7 @@ useEffect(() => {
                   md:text-3xl
                   font-bold
                   text-gray-900
+                  dark:text-white
                   leading-tight
                 "
               >
@@ -1603,7 +1609,7 @@ useEffect(() => {
                         }
                       >
 
-                        <p className="font-semibold text-gray-800 mb-3">
+                        <p className="font-semibold text-gray-800 dark:text-gray-100 mb-3">
                           {attributeName}
                         </p>
 
@@ -1640,8 +1646,8 @@ useEffect(() => {
                                     transition-all
                                     ${
                                       isSelected
-                                        ? "border-gray-900 bg-gray-900 text-white"
-                                        : "border-gray-300 bg-white text-gray-700 hover:border-gray-900"
+                                        ? "border-gray-900 bg-gray-900 dark:border-blue-500 dark:bg-blue-600 text-white"
+                                        : "border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:border-gray-900 dark:hover:border-gray-500"
                                     }
                                   `}
                                 >
@@ -1693,6 +1699,7 @@ useEffect(() => {
                       md:text-4xl
                       font-bold
                       text-gray-900
+                      dark:text-white
                     "
                   >
                     ₹
@@ -2005,9 +2012,11 @@ useEffect(() => {
         <section
           className="
             bg-white
+            dark:bg-gray-900
             rounded-3xl
             border
             border-gray-100
+            dark:border-gray-800
             shadow-sm
             mt-10
             p-6
@@ -2015,13 +2024,13 @@ useEffect(() => {
           "
         >
 
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             Product Description
           </h2>
 
           <div className="w-16 h-1 bg-blue-600 rounded-full mt-3 mb-6" />
 
-          <p className="text-gray-600 leading-7 whitespace-pre-line">
+          <p className="text-gray-600 dark:text-gray-300 leading-7 whitespace-pre-line">
             {currentProduct.description ||
               "Experience premium quality and excellent performance with this product. Designed with modern features and high-quality materials, this product is perfect for everyday use."}
           </p>
@@ -2035,9 +2044,11 @@ useEffect(() => {
         <section
           className="
             bg-white
+            dark:bg-gray-900
             rounded-3xl
             border
             border-gray-100
+            dark:border-gray-800
             shadow-sm
             mt-6
             p-6
@@ -2045,7 +2056,7 @@ useEffect(() => {
           "
         >
 
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
             Product Highlights
           </h2>
 
@@ -2125,9 +2136,11 @@ useEffect(() => {
         <section
           className="
             bg-white
+            dark:bg-gray-900
             rounded-3xl
             border
             border-gray-100
+            dark:border-gray-800
             shadow-sm
             mt-6
             p-6
@@ -2137,7 +2150,7 @@ useEffect(() => {
 
           <div>
 
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
               Customer Reviews
             </h2>
 

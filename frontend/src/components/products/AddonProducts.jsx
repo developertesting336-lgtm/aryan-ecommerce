@@ -135,11 +135,11 @@ console.log("getImageUrl(currentProduct.image[0])",currentProduct)
           Complete Your Purchase
         </p>
 
-        <h2 className="text-2xl font-bold text-gray-900 mt-1">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
           Frequently Bought Together
         </h2>
 
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           Add accessories to complete your purchase
         </p>
 
@@ -161,11 +161,12 @@ console.log("getImageUrl(currentProduct.image[0])",currentProduct)
               className={`
                 relative
                 bg-white
+                dark:bg-gray-900
                 rounded-2xl
                 border-2
                 p-4
                 transition
-                    "border-blue-600 shadow-md"                
+                border-blue-600 shadow-md                
               `}
             >
 
@@ -187,9 +188,7 @@ console.log("getImageUrl(currentProduct.image[0])",currentProduct)
                   flex
                   items-center
                   justify-center
-                 
-                       "bg-blue-600 border-blue-600 text-white"
-                  
+                  bg-blue-600 border-blue-600 text-white
                 `}
               >
                
@@ -201,7 +200,7 @@ console.log("getImageUrl(currentProduct.image[0])",currentProduct)
 
               <div className="
                 h-40
-                bg-gray-50
+                bg-white
                 rounded-xl
                 flex
                 items-center
@@ -229,6 +228,7 @@ console.log("getImageUrl(currentProduct.image[0])",currentProduct)
                 <h3 className="
                   font-semibold
                   text-gray-900
+                  dark:text-white
                   line-clamp-2
                   min-h-12
                 ">
@@ -263,6 +263,7 @@ console.log("getImageUrl(currentProduct.image[0])",currentProduct)
               className={`
                 relative
                 bg-white
+                dark:bg-gray-900
                 rounded-2xl
                 border-2
                 p-4
@@ -271,7 +272,7 @@ console.log("getImageUrl(currentProduct.image[0])",currentProduct)
                 ${
                   isSelected
                     ? "border-blue-600 shadow-md"
-                    : "border-gray-100"
+                    : "border-gray-100 dark:border-gray-800"
                 }
               `}
             >
@@ -297,7 +298,7 @@ console.log("getImageUrl(currentProduct.image[0])",currentProduct)
                   ${
                     isSelected
                       ? "bg-blue-600 border-blue-600 text-white"
-                      : "bg-white border-gray-300"
+                      : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700"
                   }
                 `}
               >
@@ -310,7 +311,7 @@ console.log("getImageUrl(currentProduct.image[0])",currentProduct)
 
               <div className="
                 h-40
-                bg-gray-50
+                bg-white
                 rounded-xl
                 flex
                 items-center
@@ -338,6 +339,7 @@ console.log("getImageUrl(currentProduct.image[0])",currentProduct)
                 <h3 className="
                   font-semibold
                   text-gray-900
+                  dark:text-white
                   line-clamp-2
                   min-h-12
                 ">
@@ -367,8 +369,10 @@ console.log("getImageUrl(currentProduct.image[0])",currentProduct)
         <div className="
           mt-5
           bg-blue-50
+          dark:bg-blue-950/40
           border
           border-blue-100
+          dark:border-blue-900/50
           rounded-2xl
           p-5
           flex
@@ -381,11 +385,11 @@ console.log("getImageUrl(currentProduct.image[0])",currentProduct)
 
           <div>
 
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Selected addons
             </p>
 
-            <p className="text-xl font-bold text-gray-900">
+            <p className="text-xl font-bold text-gray-900 dark:text-white">
               ₹{total.toLocaleString("en-IN")}
             </p>
 

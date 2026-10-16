@@ -50,13 +50,13 @@ export default function RecentOrders({
 
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
 
       {/* =================================
           HEADER
       ================================= */}
 
-      <div className="flex items-center justify-between border-b border-slate-100 p-5 sm:p-6">
+      <div className="flex items-center justify-between border-b border-slate-100 p-5 sm:p-6 dark:border-gray-800">
 
         <div>
 
@@ -64,13 +64,13 @@ export default function RecentOrders({
 
             <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
 
-            <h2 className="text-base font-bold text-slate-900">
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">
               Recent Orders
             </h2>
 
           </div>
 
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-slate-400 dark:text-gray-400">
             Your latest customer orders
           </p>
 
@@ -79,7 +79,7 @@ export default function RecentOrders({
 
         <button
           onClick={onViewAll}
-          className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-bold text-indigo-600 transition hover:bg-indigo-50"
+          className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-bold text-indigo-600 transition hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-950/40"
         >
           View All
           <ArrowUpRight size={13} />
@@ -98,25 +98,25 @@ export default function RecentOrders({
 
           <thead>
 
-            <tr className="bg-slate-50/70">
+            <tr className="bg-slate-50/70 dark:bg-gray-800/60">
 
-              <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-gray-400">
                 Order
               </th>
 
-              <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-gray-400">
                 Customer
               </th>
 
-              <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-gray-400">
                 Product
               </th>
 
-              <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-gray-400">
                 Amount
               </th>
 
-              <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-gray-400">
                 Status
               </th>
 
@@ -131,12 +131,12 @@ export default function RecentOrders({
               (order) => (
                 <tr
                   key={order._id}
-                  className="border-t border-slate-100 transition hover:bg-indigo-50/30"
+                  className="border-t border-slate-100 transition hover:bg-indigo-50/30 dark:border-gray-800 dark:hover:bg-indigo-950/20"
                 >
 
                   <td className="px-6 py-4">
 
-                    <span className="text-xs font-bold text-indigo-600">
+                    <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
                       #
                       {String(
                         order.orderNumber
@@ -150,7 +150,7 @@ export default function RecentOrders({
 
                     <div className="flex items-center gap-2">
 
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-50 to-violet-100 text-[10px] font-bold text-indigo-600">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-50 to-violet-100 text-[10px] font-bold text-indigo-600 dark:from-indigo-950/40 dark:to-violet-950/40 dark:text-indigo-400">
                         {getInitials(
                           order.user ||
                             order.customer?.name ||
@@ -158,7 +158,7 @@ export default function RecentOrders({
                         )}
                       </div>
 
-                      <span className="text-xs font-medium text-slate-700">
+                      <span className="text-xs font-medium text-slate-700 dark:text-gray-300">
                         {order.user ||
                           order.customer?.name ||
                           "Customer"}
@@ -173,11 +173,11 @@ export default function RecentOrders({
 
                     <div className="flex items-center gap-2">
 
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-gray-800 dark:text-gray-400">
                         <ShoppingBag size={14} />
                       </div>
 
-                      <span className="truncate text-xs text-slate-600">
+                      <span className="truncate text-xs text-slate-600 dark:text-gray-300">
                         {order.productName ||
                           order.product?.name ||
                           "Product"}
@@ -188,7 +188,7 @@ export default function RecentOrders({
                   </td>
 
 
-                  <td className="px-6 py-4 text-xs font-bold text-slate-800">
+                  <td className="px-6 py-4 text-xs font-bold text-slate-800 dark:text-white">
                     ₹
                     {Number(
                       order.amount ||
@@ -223,7 +223,7 @@ export default function RecentOrders({
           MOBILE
       ================================= */}
 
-      <div className="divide-y divide-slate-100 md:hidden">
+      <div className="divide-y divide-slate-100 md:hidden dark:divide-gray-800">
 
         {list.slice(0, 5).map(
           (order) => (
@@ -236,7 +236,7 @@ export default function RecentOrders({
 
                 <div className="flex min-w-0 items-center gap-2">
 
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-xs font-bold text-indigo-600">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-xs font-bold text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400">
                     {getInitials(
                       order.customerName ||
                         "Customer"
@@ -245,14 +245,14 @@ export default function RecentOrders({
 
                   <div className="min-w-0">
 
-                    <p className="text-xs font-bold text-slate-800">
+                    <p className="text-xs font-bold text-slate-800 dark:text-white">
                       #
                       {String(
                         order._id
                       ).slice(-6)}
                     </p>
 
-                    <p className="mt-0.5 truncate text-[10px] text-slate-400">
+                    <p className="mt-0.5 truncate text-[10px] text-slate-400 dark:text-gray-400">
                       {order.user ||
                         "Customer"}
                     </p>
@@ -272,13 +272,13 @@ export default function RecentOrders({
 
               <div className="mt-3 flex items-center justify-between">
 
-                <span className="max-w-[180px] truncate text-[11px] text-slate-500">
+                <span className="max-w-[180px] truncate text-[11px] text-slate-500 dark:text-gray-400">
                   {order.productName ||
                     order.product?.name ||
                     "Product"}
                 </span>
 
-                <span className="text-xs font-bold text-slate-800">
+                <span className="text-xs font-bold text-slate-800 dark:text-white">
                   ₹
                   {Number(
                     order.amount ||

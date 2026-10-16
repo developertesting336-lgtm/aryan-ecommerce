@@ -431,22 +431,22 @@ export default function OrderTracking() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gray-50">
-        <section className="bg-white border-b">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <section className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+            <div className="h-4 w-32 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />
 
-            <div className="h-8 w-64 bg-gray-200 rounded mt-4 animate-pulse" />
+            <div className="h-8 w-64 bg-gray-200 dark:bg-gray-800 rounded mt-4 animate-pulse" />
           </div>
         </section>
 
         <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 sm:p-10 animate-pulse">
-            <div className="mx-auto w-20 h-20 rounded-full bg-gray-200" />
+          <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 sm:p-10 animate-pulse">
+            <div className="mx-auto w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-800" />
 
-            <div className="h-6 w-52 bg-gray-200 rounded mx-auto mt-5" />
+            <div className="h-6 w-52 bg-gray-200 dark:bg-gray-800 rounded mx-auto mt-5" />
 
-            <div className="h-4 w-80 max-w-full bg-gray-100 rounded mx-auto mt-3" />
+            <div className="h-4 w-80 max-w-full bg-gray-100 dark:bg-gray-800 rounded mx-auto mt-3" />
 
             <div className="mt-12 space-y-8">
               {[1, 2, 3, 4, 5].map((item) => (
@@ -454,12 +454,12 @@ export default function OrderTracking() {
                   key={item}
                   className="flex items-center gap-4"
                 >
-                  <div className="w-12 h-12 rounded-full bg-gray-200 shrink-0" />
+                  <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-800 shrink-0" />
 
                   <div className="flex-1">
-                    <div className="h-4 w-32 bg-gray-200 rounded" />
+                    <div className="h-4 w-32 bg-gray-200 dark:bg-gray-800 rounded" />
 
-                    <div className="h-3 w-56 bg-gray-100 rounded mt-2" />
+                    <div className="h-3 w-56 bg-gray-100 dark:bg-gray-800 rounded mt-2" />
                   </div>
                 </div>
               ))}
@@ -476,8 +476,8 @@ export default function OrderTracking() {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-gray-50">
-        <section className="bg-white border-b">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <section className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <button
               type="button"
@@ -488,7 +488,9 @@ export default function OrderTracking() {
                 gap-2
                 text-sm
                 text-gray-500
+                dark:text-gray-400
                 hover:text-blue-600
+                dark:hover:text-blue-400
                 transition
                 cursor-pointer
               "
@@ -507,7 +509,9 @@ export default function OrderTracking() {
               mx-auto
               rounded-2xl
               bg-red-50
+              dark:bg-red-950/30
               text-red-500
+              dark:text-red-400
               flex
               items-center
               justify-center
@@ -516,11 +520,11 @@ export default function OrderTracking() {
             <XCircle size={30} />
           </div>
 
-          <h2 className="mt-5 text-xl font-bold text-gray-900">
+          <h2 className="mt-5 text-xl font-bold text-gray-900 dark:text-white">
             Unable to load tracking
           </h2>
 
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             {typeof error === "string"
               ? error
               : error?.message ||
@@ -562,13 +566,13 @@ export default function OrderTracking() {
   ======================================================= */
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-950 dark:text-gray-100">
 
       {/* ===================================================
           HEADER
       =================================================== */}
 
-      <section className="bg-white border-b">
+      <section className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
           <button
@@ -598,7 +602,7 @@ export default function OrderTracking() {
                 Track Your Order
               </p>
 
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1">
                 #{orderNumber}
               </h1>
             </div>
@@ -656,9 +660,11 @@ export default function OrderTracking() {
           }}
           className="
             bg-white
+            dark:bg-gray-900
             rounded-3xl
             border
             border-gray-100
+            dark:border-gray-800
             shadow-sm
             overflow-hidden
           "
@@ -1421,14 +1427,16 @@ export default function OrderTracking() {
                           sm:w-24
                           sm:h-24
                           rounded-xl
-                          bg-gray-50
+                          bg-white
                           border
                           border-gray-100
+                          dark:border-gray-800
                           overflow-hidden
                           shrink-0
                           flex
                           items-center
                           justify-center
+                          p-1
                         "
                       >
 
@@ -1446,13 +1454,13 @@ export default function OrderTracking() {
                             className="
                               w-full
                               h-full
-                              object-cover
+                              object-contain
                             "
                           />
                         ) : (
                           <Package
                             size={25}
-                            className="text-gray-300"
+                            className="text-gray-300 dark:text-gray-600"
                           />
                         )}
                       </div>
@@ -1465,15 +1473,15 @@ export default function OrderTracking() {
 
                           <div>
 
-                            <h3 className="font-semibold text-gray-900 line-clamp-2">
+                            <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2">
                               {item.productName ||
                                 item.product?.name ||
                                 "Product"}
                             </h3>
 
-                            <p className="text-sm text-gray-500 mt-1">
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                               Quantity:{" "}
-                              <span className="font-medium text-gray-700">
+                              <span className="font-medium text-gray-700 dark:text-gray-300">
                                 {item.quantity ||
                                   1}
                               </span>
@@ -1491,11 +1499,11 @@ export default function OrderTracking() {
 
                           <div className="sm:text-right">
 
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
                               Item Total
                             </p>
 
-                            <p className="text-base font-bold text-gray-900 mt-1">
+                            <p className="text-base font-bold text-gray-900 dark:text-white mt-1">
                               ₹
                               {Number(
                                 item.total ??

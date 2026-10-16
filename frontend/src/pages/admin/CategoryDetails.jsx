@@ -383,10 +383,10 @@ const CategoryDetails = () => {
     !selectedCategory
   ) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="flex items-center gap-3 text-gray-600">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
 
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 dark:border-gray-700 dark:border-t-blue-500" />
 
           Loading category...
 
@@ -401,7 +401,7 @@ const CategoryDetails = () => {
 
   if (!selectedCategory) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 dark:bg-gray-950">
 
         <div className="text-center">
 
@@ -409,11 +409,11 @@ const CategoryDetails = () => {
             📁
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Category not found
           </h1>
 
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             The category you're looking for does not exist.
           </p>
 
@@ -505,7 +505,7 @@ const CategoryView = ({
   onViewCategory,
 }) => {
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 px-4 py-8 sm:px-6 lg:px-8 dark:bg-gray-950">
 
       <div className="mx-auto max-w-6xl">
 
@@ -516,7 +516,7 @@ const CategoryView = ({
           <button
             type="button"
             onClick={onBack}
-            className="text-left text-sm font-medium text-gray-600 hover:text-gray-900"
+            className="text-left text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
           >
             ← Back to Categories
           </button>
@@ -551,7 +551,7 @@ const CategoryView = ({
         {/* SUCCESS */}
 
         {message && (
-          <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+          <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 dark:border-green-800/50 dark:bg-green-950/30 dark:text-green-400">
             {message}
           </div>
         )}
@@ -559,29 +559,31 @@ const CategoryView = ({
         {/* ERROR */}
 
         {error && (
-          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800/50 dark:bg-red-950/30 dark:text-red-400">
             {error}
           </div>
         )}
 
         {/* MAIN CARD */}
 
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
 
-          <div className="border-b border-gray-200 bg-linear-to-r from-blue-50 to-white p-6 sm:p-8">
+          <div className="border-b border-gray-200 bg-linear-to-r from-blue-50 to-white p-6 sm:p-8 dark:border-gray-800 dark:from-gray-800/80 dark:to-gray-900">
 
             <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
 
               {/* IMAGE */}
 
               {category.image?.url ? (
-                <img
-                  src={category.image.url}
-                  alt={category.name}
-                  className="h-28 w-28 rounded-2xl border border-gray-200 object-cover shadow-sm"
-                />
+                <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-2xl border border-gray-200 bg-white p-2 shadow-sm dark:border-gray-700">
+                  <img
+                    src={category.image.url}
+                    alt={category.name}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
               ) : (
-                <div className="flex h-28 w-28 items-center justify-center rounded-2xl bg-blue-100 text-5xl">
+                <div className="flex h-28 w-28 items-center justify-center rounded-2xl bg-blue-100 text-5xl dark:bg-gray-800 dark:text-blue-400">
                   📁
                 </div>
               )}
@@ -592,28 +594,28 @@ const CategoryView = ({
 
                 <div className="flex flex-wrap items-center gap-3">
 
-                  <h1 className="text-3xl font-bold text-gray-900">
+                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                     {category.name}
                   </h1>
 
                   {category.isActive ? (
-                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 dark:bg-green-950/40 dark:text-green-300 dark:border dark:border-green-800/40">
                       Active
                     </span>
                   ) : (
-                    <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                    <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-300 dark:border dark:border-red-800/40">
                       Inactive
                     </span>
                   )}
 
                 </div>
 
-                <p className="mt-2 text-sm text-gray-500">
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                   /{category.slug}
                 </p>
 
                 {category.description && (
-                  <p className="mt-4 max-w-2xl text-sm leading-6 text-gray-600">
+                  <p className="mt-4 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-300">
                     {category.description}
                   </p>
                 )}
@@ -626,7 +628,7 @@ const CategoryView = ({
 
           <div className="p-6 sm:p-8">
 
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Category Information
             </h2>
 
@@ -660,9 +662,9 @@ const CategoryView = ({
             {/* IMAGE INFO */}
 
             {category.image?.url && (
-              <div className="mt-8 border-t border-gray-200 pt-6">
+              <div className="mt-8 border-t border-gray-200 pt-6 dark:border-gray-800">
 
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Image
                 </h2>
 
@@ -673,7 +675,7 @@ const CategoryView = ({
                       Image URL
                     </p>
 
-                    <p className="mt-1 break-all text-sm text-gray-700">
+                    <p className="mt-1 break-all text-sm text-gray-700 dark:text-gray-300">
                       {category.image.url}
                     </p>
                   </div>
@@ -683,7 +685,7 @@ const CategoryView = ({
                       Public ID
                     </p>
 
-                    <p className="mt-1 break-all text-sm text-gray-700">
+                    <p className="mt-1 break-all text-sm text-gray-700 dark:text-gray-300">
                       {category.image.publicId || "—"}
                     </p>
                   </div>
@@ -694,9 +696,9 @@ const CategoryView = ({
 
             {/* TIMESTAMPS */}
 
-            <div className="mt-8 border-t border-gray-200 pt-6">
+            <div className="mt-8 border-t border-gray-200 pt-6 dark:border-gray-800">
 
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Timestamps
               </h2>
 
@@ -707,7 +709,7 @@ const CategoryView = ({
                     Created
                   </p>
 
-                  <p className="mt-1 text-sm text-gray-700">
+                  <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
                     {category.createdAt
                       ? new Date(
                           category.createdAt
@@ -721,7 +723,7 @@ const CategoryView = ({
                     Last Updated
                   </p>
 
-                  <p className="mt-1 text-sm text-gray-700">
+                  <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
                     {category.updatedAt
                       ? new Date(
                           category.updatedAt
@@ -739,34 +741,36 @@ const CategoryView = ({
         {/* PARENT */}
 
         {category.parent && (
-          <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
 
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Parent Category
             </h2>
 
-            <div className="mt-5 flex items-center justify-between rounded-xl bg-gray-50 p-4">
+            <div className="mt-5 flex items-center justify-between rounded-xl bg-gray-50 p-4 dark:bg-gray-800/60">
 
               <div className="flex items-center gap-4">
 
                 {category.parent.image?.url ? (
-                  <img
-                    src={category.parent.image.url}
-                    alt={category.parent.name}
-                    className="h-14 w-14 rounded-lg object-cover"
-                  />
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-white p-1 border border-gray-200 dark:border-gray-700">
+                    <img
+                      src={category.parent.image.url}
+                      alt={category.parent.name}
+                      className="h-full w-full object-contain"
+                    />
+                  </div>
                 ) : (
-                  <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-blue-100 text-xl">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-blue-100 text-xl dark:bg-gray-800 dark:text-blue-400">
                     📁
                   </div>
                 )}
 
                 <div>
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">
                     {category.parent.name}
                   </h3>
 
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     /{category.parent.slug}
                   </p>
                 </div>
@@ -780,7 +784,7 @@ const CategoryView = ({
                     category.parent._id
                   )
                 }
-                className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
               >
                 View →
               </button>
@@ -791,16 +795,16 @@ const CategoryView = ({
 
         {/* CHILDREN */}
 
-        <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
 
-          <div className="flex items-center justify-between border-b border-gray-200 p-6">
+          <div className="flex items-center justify-between border-b border-gray-200 p-6 dark:border-gray-800">
 
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Child Categories
               </h2>
 
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Categories under {category.name}.
               </p>
             </div>
@@ -810,7 +814,7 @@ const CategoryView = ({
               onClick={() =>
                 onViewCategory
               }
-              className="rounded-lg bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
+              className="rounded-lg bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100 dark:bg-blue-950/30 dark:text-blue-400"
             >
               {children.length}{" "}
               {children.length === 1
@@ -827,44 +831,46 @@ const CategoryView = ({
                 📂
               </div>
 
-              <h3 className="font-semibold text-gray-900">
+              <h3 className="font-semibold text-gray-900 dark:text-white">
                 No child categories
               </h3>
 
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 This category doesn't have any subcategories yet.
               </p>
 
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-100 dark:divide-gray-800">
 
               {children.map((child) => (
                 <div
                   key={child._id}
-                  className="flex items-center justify-between p-5 transition hover:bg-gray-50"
+                  className="flex items-center justify-between p-5 transition hover:bg-gray-50 dark:hover:bg-gray-800/40"
                 >
 
                   <div className="flex items-center gap-4">
 
                     {child.image?.url ? (
-                      <img
-                        src={child.image.url}
-                        alt={child.name}
-                        className="h-12 w-12 rounded-lg object-cover"
-                      />
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white p-1 border border-gray-200 dark:border-gray-700">
+                        <img
+                          src={child.image.url}
+                          alt={child.name}
+                          className="h-full w-full object-contain"
+                        />
+                      </div>
                     ) : (
-                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400">
                         📁
                       </div>
                     )}
 
                     <div>
-                      <h3 className="font-medium text-gray-900">
+                      <h3 className="font-medium text-gray-900 dark:text-white">
                         {child.name}
                       </h3>
 
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         /{child.slug}
                       </p>
                     </div>
@@ -874,11 +880,11 @@ const CategoryView = ({
                   <div className="flex items-center gap-4">
 
                     {child.isActive ? (
-                      <span className="hidden rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 sm:inline-block">
+                      <span className="hidden rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-950/40 dark:text-green-300 dark:border dark:border-green-800/40 sm:inline-block">
                         Active
                       </span>
                     ) : (
-                      <span className="hidden rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700 sm:inline-block">
+                      <span className="hidden rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300 dark:border dark:border-red-800/40 sm:inline-block">
                         Inactive
                       </span>
                     )}
@@ -890,7 +896,7 @@ const CategoryView = ({
                           child._id
                         )
                       }
-                      className="rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                      className="rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                     >
                       View
                     </button>
@@ -930,7 +936,7 @@ const CategoryEditForm = ({
   onSubmit,
 }) => {
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 px-4 py-8 sm:px-6 lg:px-8 dark:bg-gray-950">
 
       <div className="mx-auto max-w-4xl">
 
@@ -942,16 +948,16 @@ const CategoryEditForm = ({
             <button
               type="button"
               onClick={onCancel}
-              className="mb-3 text-sm font-medium text-gray-600 hover:text-gray-900"
+              className="mb-3 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
             >
               ← Cancel Editing
             </button>
 
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               Edit Category
             </h1>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Update the category information below.
             </p>
           </div>
@@ -961,7 +967,7 @@ const CategoryEditForm = ({
         {/* SUCCESS */}
 
         {message && (
-          <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+          <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 dark:border-green-800/50 dark:bg-green-950/30 dark:text-green-400">
             {message}
           </div>
         )}
@@ -969,7 +975,7 @@ const CategoryEditForm = ({
         {/* ERROR */}
 
         {error && (
-          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800/50 dark:bg-red-950/30 dark:text-red-400">
             {error}
           </div>
         )}
@@ -978,14 +984,14 @@ const CategoryEditForm = ({
 
         <form
           onSubmit={onSubmit}
-          className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+          className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
         >
 
           {/* BASIC INFO */}
 
-          <div className="border-b border-gray-200 p-6">
+          <div className="border-b border-gray-200 p-6 dark:border-gray-800">
 
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Basic Information
             </h2>
 
@@ -994,7 +1000,7 @@ const CategoryEditForm = ({
               {/* NAME */}
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Category Name
                 </label>
 
@@ -1003,14 +1009,14 @@ const CategoryEditForm = ({
                   value={formData.name}
                   onChange={onChange}
                   required
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:ring-blue-900/40"
                 />
               </div>
 
               {/* SLUG */}
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Slug
                 </label>
 
@@ -1019,10 +1025,10 @@ const CategoryEditForm = ({
                   value={formData.slug}
                   onChange={onSlugChange}
                   required
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:ring-blue-900/40"
                 />
 
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   {slugEdited
                     ? "Custom slug"
                     : "Automatically generated"}
@@ -1033,7 +1039,7 @@ const CategoryEditForm = ({
 
               <div className="md:col-span-2">
 
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Description
                 </label>
 
@@ -1042,7 +1048,7 @@ const CategoryEditForm = ({
                   value={formData.description}
                   onChange={onChange}
                   rows={5}
-                  className="w-full resize-none rounded-lg border border-gray-300 px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full resize-none rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-900/40"
                 />
 
               </div>
@@ -1052,9 +1058,9 @@ const CategoryEditForm = ({
 
           {/* HIERARCHY */}
 
-          <div className="border-b border-gray-200 p-6">
+          <div className="border-b border-gray-200 p-6 dark:border-gray-800">
 
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Category Hierarchy
             </h2>
 
@@ -1064,7 +1070,7 @@ const CategoryEditForm = ({
 
               <div>
 
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Parent Category
                 </label>
 
@@ -1072,7 +1078,7 @@ const CategoryEditForm = ({
                   name="parent"
                   value={formData.parent}
                   onChange={onChange}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:ring-blue-900/40"
                 >
 
                   <option value="">
@@ -1101,14 +1107,14 @@ const CategoryEditForm = ({
 
               <div>
 
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Category Level
                 </label>
 
                 <input
                   value={calculatedLevel}
                   disabled
-                  className="w-full cursor-not-allowed rounded-lg border border-gray-200 bg-gray-100 px-4 py-2.5 text-gray-600"
+                  className="w-full cursor-not-allowed rounded-lg border border-gray-200 bg-gray-100 px-4 py-2.5 text-gray-600 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-400"
                 />
 
               </div>
@@ -1117,7 +1123,7 @@ const CategoryEditForm = ({
 
               <div>
 
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Sort Order
                 </label>
 
@@ -1127,7 +1133,7 @@ const CategoryEditForm = ({
                   min="0"
                   value={formData.sortOrder}
                   onChange={onChange}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:ring-blue-900/40"
                 />
 
               </div>
@@ -1136,21 +1142,21 @@ const CategoryEditForm = ({
 
               <div>
 
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Status
                 </label>
 
-                <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-300 px-4 py-3">
+                <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-300 px-4 py-3 dark:border-gray-700 dark:bg-gray-800/40">
 
                   <input
                     name="isActive"
                     type="checkbox"
                     checked={formData.isActive}
                     onChange={onChange}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600"
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 dark:border-gray-600"
                   />
 
-                  <span className="text-sm text-gray-700">
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
                     Active Category
                   </span>
 
@@ -1161,7 +1167,7 @@ const CategoryEditForm = ({
             </div>
 
             {selectedParent && (
-              <div className="mt-5 rounded-lg bg-blue-50 p-4 text-sm text-blue-800">
+              <div className="mt-5 rounded-lg bg-blue-50 p-4 text-sm text-blue-800 dark:bg-blue-950/30 dark:text-blue-300">
                 This category will be under{" "}
                 <strong>
                   {selectedParent.name}
@@ -1177,9 +1183,9 @@ const CategoryEditForm = ({
 
           {/* IMAGE */}
 
-          <div className="border-b border-gray-200 p-6">
+          <div className="border-b border-gray-200 p-6 dark:border-gray-800">
 
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Category Image
             </h2>
 
@@ -1187,7 +1193,7 @@ const CategoryEditForm = ({
 
               <div>
 
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Image URL
                 </label>
 
@@ -1197,14 +1203,14 @@ const CategoryEditForm = ({
                   value={formData.image.url}
                   onChange={onImageChange}
                   placeholder="https://..."
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-900/40"
                 />
 
               </div>
 
               <div>
 
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Public ID
                 </label>
 
@@ -1213,7 +1219,7 @@ const CategoryEditForm = ({
                   value={formData.image.publicId}
                   onChange={onImageChange}
                   placeholder="category/electronics"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-900/40"
                 />
 
               </div>
@@ -1223,19 +1229,21 @@ const CategoryEditForm = ({
             {formData.image.url && (
               <div className="mt-6">
 
-                <p className="mb-2 text-sm font-medium text-gray-700">
+                <p className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                   Preview
                 </p>
 
-                <img
-                  src={formData.image.url}
-                  alt="Category preview"
-                  className="h-32 w-32 rounded-lg border border-gray-200 object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display =
-                      "none";
-                  }}
-                />
+                <div className="flex h-32 w-32 items-center justify-center rounded-lg border border-gray-200 bg-white p-2 dark:border-gray-700">
+                  <img
+                    src={formData.image.url}
+                    alt="Category preview"
+                    className="h-full w-full object-contain"
+                    onError={(e) => {
+                      e.currentTarget.style.display =
+                        "none";
+                    }}
+                  />
+                </div>
 
               </div>
             )}
@@ -1244,13 +1252,13 @@ const CategoryEditForm = ({
 
           {/* ACTIONS */}
 
-          <div className="flex flex-col-reverse gap-3 bg-gray-50 p-6 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-3 bg-gray-50 p-6 sm:flex-row sm:justify-end dark:bg-gray-800/60">
 
             <button
               type="button"
               onClick={onCancel}
               disabled={updateLoading}
-              className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+              className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               Cancel
             </button>
@@ -1291,13 +1299,13 @@ const InfoCard = ({
   value,
 }) => {
   return (
-    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-800/60">
 
       <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
         {label}
       </p>
 
-      <p className="mt-2 text-sm font-semibold text-gray-900">
+      <p className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">
         {value}
       </p>
 

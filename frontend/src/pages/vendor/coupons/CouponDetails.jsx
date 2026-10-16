@@ -78,11 +78,11 @@ const couponBasePath =
 
   if (detailsLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
         <div className="text-center">
-          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-900" />
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-900 dark:border-gray-800 dark:border-t-indigo-500" />
 
-          <p className="mt-3 text-sm text-gray-500">
+          <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
             Loading coupon...
           </p>
         </div>
@@ -92,13 +92,13 @@ const couponBasePath =
 
   if (!selectedCoupon) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6 dark:bg-gray-950">
         <div className="text-center">
-          <h2 className="text-xl font-bold">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
             Coupon not found
           </h2>
 
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             {error}
           </p>
 
@@ -107,7 +107,7 @@ const couponBasePath =
               // navigate("/vendor/coupons")
               navigate(`${couponBasePath}/`)
             }
-            className="mt-5 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white"
+            className="mt-5 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white dark:bg-indigo-600 dark:hover:bg-indigo-500"
           >
             Back to Coupons
           </button>
@@ -135,7 +135,7 @@ console.log("seletcou",coupon.coupon)
       : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8 dark:bg-gray-950">
       <div className="mx-auto max-w-5xl">
         {/* Header */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -145,13 +145,13 @@ console.log("seletcou",coupon.coupon)
                 // navigate("/vendor/coupons")
                 navigate(`${couponBasePath}/`)
               }
-              className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+              className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Coupons
             </button>
 
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Coupon Details
             </h1>
           </div>
@@ -164,7 +164,7 @@ console.log("seletcou",coupon.coupon)
 
               navigate(`${couponBasePath}/${id}/edit`)
             }
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-indigo-600 dark:hover:bg-indigo-500"
           >
             <Edit className="h-4 w-4" />
             Edit Coupon
@@ -172,28 +172,28 @@ console.log("seletcou",coupon.coupon)
         </div>
 
         {/* Main coupon card */}
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <div className="border-b border-gray-200 p-6 sm:p-8">
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <div className="border-b border-gray-200 p-6 sm:p-8 dark:border-gray-800">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-900">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-900 dark:bg-indigo-600">
                     <TicketPercent className="h-6 w-6 text-white" />
                   </div>
 
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                       {coupon.code}
                     </h2>
 
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       {coupon.name}
                     </p>
                   </div>
                 </div>
 
                 {coupon.description && (
-                  <p className="mt-5 max-w-2xl text-sm leading-6 text-gray-600">
+                  <p className="mt-5 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-300">
                     {coupon.description}
                   </p>
                 )}
@@ -208,13 +208,13 @@ console.log("seletcou",coupon.coupon)
           </div>
 
           {/* Discount */}
-          <div className="grid grid-cols-1 gap-4 border-b border-gray-200 p-6 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-xl bg-gray-50 p-4">
-              <p className="text-xs font-medium text-gray-500">
+          <div className="grid grid-cols-1 gap-4 border-b border-gray-200 p-6 sm:grid-cols-2 lg:grid-cols-4 dark:border-gray-800">
+            <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-800/60">
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                 Discount
               </p>
 
-              <p className="mt-2 text-xl font-bold text-gray-900">
+              <p className="mt-2 text-xl font-bold text-gray-900 dark:text-white">
                 {coupon.discountType ===
                 "percentage"
                   ? `${coupon.discountValue}%`
@@ -225,12 +225,12 @@ console.log("seletcou",coupon.coupon)
               </p>
             </div>
 
-            <div className="rounded-xl bg-gray-50 p-4">
-              <p className="text-xs font-medium text-gray-500">
+            <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-800/60">
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                 Maximum Discount
               </p>
 
-              <p className="mt-2 text-xl font-bold text-gray-900">
+              <p className="mt-2 text-xl font-bold text-gray-900 dark:text-white">
                 {coupon.maxDiscountAmount
                   ? formatCurrency(
                       coupon.maxDiscountAmount,
@@ -240,12 +240,12 @@ console.log("seletcou",coupon.coupon)
               </p>
             </div>
 
-            <div className="rounded-xl bg-gray-50 p-4">
-              <p className="text-xs font-medium text-gray-500">
+            <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-800/60">
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                 Minimum Order
               </p>
 
-              <p className="mt-2 text-xl font-bold text-gray-900">
+              <p className="mt-2 text-xl font-bold text-gray-900 dark:text-white">
                 {formatCurrency(
                   coupon.minOrderAmount,
                   coupon.currency
@@ -253,12 +253,12 @@ console.log("seletcou",coupon.coupon)
               </p>
             </div>
 
-            <div className="rounded-xl bg-gray-50 p-4">
-              <p className="text-xs font-medium text-gray-500">
+            <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-800/60">
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
                 Currency
               </p>
 
-              <p className="mt-2 text-xl font-bold text-gray-900">
+              <p className="mt-2 text-xl font-bold text-gray-900 dark:text-white">
                 {coupon.currency || "INR"}
               </p>
             </div>
@@ -267,22 +267,22 @@ console.log("seletcou",coupon.coupon)
           {/* Details */}
           <div className="grid grid-cols-1 gap-6 p-6 lg:grid-cols-2">
             {/* Validity */}
-            <div className="rounded-xl border border-gray-200 p-5">
+            <div className="rounded-xl border border-gray-200 p-5 dark:border-gray-800 dark:bg-gray-850/50">
               <div className="flex items-center gap-3">
-                <Calendar className="h-5 w-5 text-gray-600" />
+                <Calendar className="h-5 w-5 text-gray-600 dark:text-gray-400" />
 
-                <h3 className="font-bold text-gray-900">
+                <h3 className="font-bold text-gray-900 dark:text-white">
                   Validity
                 </h3>
               </div>
 
               <div className="mt-5 space-y-4">
                 <div>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-400 dark:text-gray-500">
                     Starts At
                   </p>
 
-                  <p className="mt-1 text-sm font-medium text-gray-800">
+                  <p className="mt-1 text-sm font-medium text-gray-800 dark:text-gray-200">
                     {formatDateTime(
                       coupon.startsAt
                     )}
@@ -290,11 +290,11 @@ console.log("seletcou",coupon.coupon)
                 </div>
 
                 <div>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-400 dark:text-gray-500">
                     Expires At
                   </p>
 
-                  <p className="mt-1 text-sm font-medium text-gray-800">
+                  <p className="mt-1 text-sm font-medium text-gray-800 dark:text-gray-200">
                     {formatDateTime(
                       coupon.expiresAt
                     )}
@@ -304,31 +304,31 @@ console.log("seletcou",coupon.coupon)
             </div>
 
             {/* Usage */}
-            <div className="rounded-xl border border-gray-200 p-5">
+            <div className="rounded-xl border border-gray-200 p-5 dark:border-gray-800 dark:bg-gray-850/50">
               <div className="flex items-center gap-3">
-                <Users className="h-5 w-5 text-gray-600" />
+                <Users className="h-5 w-5 text-gray-600 dark:text-gray-400" />
 
-                <h3 className="font-bold text-gray-900">
+                <h3 className="font-bold text-gray-900 dark:text-white">
                   Usage
                 </h3>
               </div>
 
               <div className="mt-5">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">
+                  <span className="text-gray-500 dark:text-gray-400">
                     Used
                   </span>
 
-                  <span className="font-semibold text-gray-900">
+                  <span className="font-semibold text-gray-900 dark:text-white">
                     {usedCount} /{" "}
                     {usageLimit || "Unlimited"}
                   </span>
                 </div>
 
                 {usageLimit && (
-                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-100">
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
                     <div
-                      className="h-full rounded-full bg-gray-900 transition-all"
+                      className="h-full rounded-full bg-gray-900 dark:bg-indigo-500 transition-all"
                       style={{
                         width: `${usagePercentage}%`,
                       }}
@@ -337,11 +337,11 @@ console.log("seletcou",coupon.coupon)
                 )}
 
                 <div className="mt-5">
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-400 dark:text-gray-500">
                     Usage Limit Per User
                   </p>
 
-                  <p className="mt-1 text-sm font-semibold">
+                  <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
                     {coupon.usageLimitPerUser ||
                       "Unlimited"}
                   </p>
@@ -350,16 +350,16 @@ console.log("seletcou",coupon.coupon)
             </div>
 
             {/* Eligibility */}
-            <div className="rounded-xl border border-gray-200 p-5">
+            <div className="rounded-xl border border-gray-200 p-5 dark:border-gray-800 dark:bg-gray-850/50">
               <div className="flex items-center gap-3">
-                <Users className="h-5 w-5 text-gray-600" />
+                <Users className="h-5 w-5 text-gray-600 dark:text-gray-400" />
 
-                <h3 className="font-bold text-gray-900">
+                <h3 className="font-bold text-gray-900 dark:text-white">
                   Eligibility
                 </h3>
               </div>
 
-              <p className="mt-5 text-sm font-medium capitalize text-gray-800">
+              <p className="mt-5 text-sm font-medium capitalize text-gray-800 dark:text-gray-200">
                 {formatLabel(
                   coupon.eligibility
                 )}
@@ -367,16 +367,16 @@ console.log("seletcou",coupon.coupon)
             </div>
 
             {/* Applicability */}
-            <div className="rounded-xl border border-gray-200 p-5">
+            <div className="rounded-xl border border-gray-200 p-5 dark:border-gray-800 dark:bg-gray-850/50">
               <div className="flex items-center gap-3">
-                <Package className="h-5 w-5 text-gray-600" />
+                <Package className="h-5 w-5 text-gray-600 dark:text-gray-400" />
 
-                <h3 className="font-bold text-gray-900">
+                <h3 className="font-bold text-gray-900 dark:text-white">
                   Applicability
                 </h3>
               </div>
 
-              <p className="mt-5 text-sm font-medium capitalize text-gray-800">
+              <p className="mt-5 text-sm font-medium capitalize text-gray-800 dark:text-gray-200">
                 {formatLabel(
                   coupon.applicability
                 )}
@@ -385,7 +385,7 @@ console.log("seletcou",coupon.coupon)
           </div>
 
           {/* Status */}
-          <div className="border-t border-gray-200 p-6">
+          <div className="border-t border-gray-200 p-6 dark:border-gray-800">
             <button
               onClick={() =>
                 dispatch(
@@ -395,7 +395,7 @@ console.log("seletcou",coupon.coupon)
                   })
                 )
               }
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
             >
               <Power className="h-4 w-4" />
 

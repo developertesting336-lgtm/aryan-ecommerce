@@ -58,7 +58,7 @@ export default function OrderSummary({
 console.log("tosal",total)
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 dark:border-gray-800 dark:bg-gray-900">
 
       <div>
 
@@ -66,13 +66,13 @@ console.log("tosal",total)
 
           <span className="h-2.5 w-2.5 rounded-full bg-violet-500" />
 
-          <h2 className="text-base font-bold text-slate-900">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white">
             Order Summary
           </h2>
 
         </div>
 
-        <p className="mt-1 text-xs text-slate-400">
+        <p className="mt-1 text-xs text-slate-400 dark:text-gray-400">
           Current order status
         </p>
 
@@ -123,11 +123,11 @@ console.log("tosal",total)
         {/* Center */}
         <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
 
-          <p className="text-2xl font-bold text-slate-900">
+          <p className="text-2xl font-bold text-slate-900 dark:text-white">
             {total}
           </p>
 
-          <p className="text-[10px] text-slate-400">
+          <p className="text-[10px] text-slate-400 dark:text-gray-400">
             Total Orders
           </p>
 
@@ -169,7 +169,7 @@ console.log("tosal",total)
                   }}
                 />
 
-                <span className="text-xs font-medium text-slate-600">
+                <span className="text-xs font-medium text-slate-600 dark:text-gray-300">
                   {item.label}
                 </span>
 
@@ -177,11 +177,11 @@ console.log("tosal",total)
 
               <div className="flex items-center gap-3">
 
-                <span className="text-[10px] text-slate-400">
+                <span className="text-[10px] text-slate-400 dark:text-gray-400">
                   {percentage}%
                 </span>
 
-                <span className="min-w-[24px] text-right text-xs font-bold text-slate-800">
+                <span className="min-w-[24px] text-right text-xs font-bold text-slate-800 dark:text-white">
                   {item.value}
                 </span>
 

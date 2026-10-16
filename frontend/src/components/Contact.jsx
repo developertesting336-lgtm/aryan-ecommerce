@@ -101,22 +101,22 @@ export default function Contact() {
   };
 
   return (
-    <main className="min-h-screen bg-white text-gray-900">
+    <main className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       {/* =====================================================
           HERO
       ====================================================== */}
 
-      <section className="relative overflow-hidden border-b border-gray-100 bg-gray-50">
+      <section className="relative overflow-hidden border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
         {/* Decorative background */}
 
         <div className="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full bg-app-primary/10 blur-3xl" />
 
-        <div className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-blue-100/60 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-blue-100/60 dark:bg-blue-900/20 blur-3xl" />
 
         <div className="relative mx-auto max-w-[1440px] px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
           {/* Breadcrumb */}
 
-          <div className="mb-7 flex items-center gap-2 text-sm text-gray-500">
+          <div className="mb-7 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <Link
               to="/"
               className="transition hover:text-app-primary"
@@ -124,17 +124,17 @@ export default function Contact() {
               Home
             </Link>
 
-            <span className="text-gray-300">
+            <span className="text-gray-300 dark:text-gray-600">
               /
             </span>
 
-            <span className="font-medium text-gray-800">
+            <span className="font-medium text-gray-800 dark:text-gray-200">
               Contact Us
             </span>
           </div>
 
           <div className="max-w-3xl">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white px-3.5 py-1.5 text-xs font-semibold text-app-primary shadow-sm">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-100 dark:border-blue-900/60 bg-white dark:bg-gray-800 px-3.5 py-1.5 text-xs font-semibold text-app-primary shadow-sm">
               <MessageCircle
                 size={15}
               />
@@ -142,7 +142,7 @@ export default function Contact() {
               We're here to help
             </div>
 
-            <h1 className="text-4xl font-black tracking-[-0.04em] text-gray-950 sm:text-5xl lg:text-6xl">
+            <h1 className="text-4xl font-black tracking-[-0.04em] text-gray-950 dark:text-white sm:text-5xl lg:text-6xl">
               Let's talk.
               <span className="text-app-primary">
                 {" "}
@@ -150,7 +150,7 @@ export default function Contact() {
               </span>
             </h1>
 
-            <p className="mt-5 max-w-2xl text-base leading-7 text-gray-600 sm:text-lg sm:leading-8">
+            <p className="mt-5 max-w-2xl text-base leading-7 text-gray-600 dark:text-gray-300 sm:text-lg sm:leading-8">
               Have a question about an order,
               product, delivery, payment, or
               anything else? Send us a message and
@@ -164,7 +164,7 @@ export default function Contact() {
           SUPPORT CARDS
       ====================================================== */}
 
-      <section className="border-b border-gray-100 bg-white">
+      <section className="border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
         <div className="mx-auto grid max-w-[1440px] grid-cols-1 px-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
           <ContactCard
             icon={Mail}
@@ -215,11 +215,11 @@ export default function Contact() {
                 Customer support
               </span>
 
-              <h2 className="mt-3 text-3xl font-bold tracking-[-0.03em] text-gray-950 sm:text-4xl">
+              <h2 className="mt-3 text-3xl font-bold tracking-[-0.03em] text-gray-950 dark:text-white sm:text-4xl">
                 How can we help?
               </h2>
 
-              <p className="mt-4 text-base leading-7 text-gray-600">
+              <p className="mt-4 text-base leading-7 text-gray-600 dark:text-gray-300">
                 Whether you have a question about a
                 product or need help after placing
                 an order, we're here to make things
@@ -262,20 +262,20 @@ export default function Contact() {
 
             {/* PRIVACY CARD */}
 
-            <div className="mt-8 rounded-2xl border border-blue-100 bg-blue-50/60 p-5 sm:p-6">
+            <div className="mt-8 rounded-2xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 p-5 sm:p-6">
               <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-app-primary shadow-sm">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-gray-900 text-app-primary shadow-sm">
                   <ShieldCheck
                     size={19}
                   />
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-bold text-gray-950">
+                  <h3 className="text-sm font-bold text-gray-950 dark:text-white">
                     Privacy & security
                   </h3>
 
-                  <p className="mt-1.5 text-xs leading-5 text-gray-600">
+                  <p className="mt-1.5 text-xs leading-5 text-gray-600 dark:text-gray-300">
                     For privacy-related questions,
                     please review our Privacy Policy
                     or contact our privacy support team.
@@ -296,20 +296,20 @@ export default function Contact() {
 
             {/* LOCATION */}
 
-            <div className="mt-8 rounded-2xl border border-gray-200 bg-gray-50 p-5 sm:p-6">
+            <div className="mt-8 rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-5 sm:p-6">
               <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-app-primary shadow-sm">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-gray-800 text-app-primary shadow-sm">
                   <MapPin
                     size={19}
                   />
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-bold text-gray-950">
+                  <h3 className="text-sm font-bold text-gray-950 dark:text-white">
                     NovaCart
                   </h3>
 
-                  <p className="mt-1 text-sm leading-6 text-gray-600">
+                  <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-300">
                     Customer Support
                     <br />
                     India
@@ -323,13 +323,13 @@ export default function Contact() {
               CONTACT FORM
           ================================================== */}
 
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-[0_15px_50px_rgba(15,23,42,0.07)] sm:p-7 lg:p-8">
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-[0_15px_50px_rgba(15,23,42,0.07)] dark:shadow-none sm:p-7 lg:p-8">
             <div className="mb-7">
-              <h2 className="text-2xl font-bold tracking-[-0.02em] text-gray-950">
+              <h2 className="text-2xl font-bold tracking-[-0.02em] text-gray-950 dark:text-white">
                 Send us a message
               </h2>
 
-              <p className="mt-2 text-sm leading-6 text-gray-500">
+              <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
                 Fill out the form below and we'll
                 get back to you as soon as possible.
               </p>
@@ -338,18 +338,18 @@ export default function Contact() {
             {/* SUCCESS */}
 
             {submitted && (
-              <div className="mb-6 flex items-start gap-3 rounded-xl border border-green-100 bg-green-50 p-4">
+              <div className="mb-6 flex items-start gap-3 rounded-xl border border-green-100 dark:border-green-900/60 bg-green-50 dark:bg-green-950/40 p-4">
                 <CheckCircle2
                   size={19}
-                  className="mt-0.5 shrink-0 text-green-600"
+                  className="mt-0.5 shrink-0 text-green-600 dark:text-green-400"
                 />
 
                 <div>
-                  <p className="text-sm font-bold text-green-800">
+                  <p className="text-sm font-bold text-green-800 dark:text-green-300">
                     Message sent successfully
                   </p>
 
-                  <p className="mt-1 text-xs leading-5 text-green-700">
+                  <p className="mt-1 text-xs leading-5 text-green-700 dark:text-green-400">
                     Thank you for contacting NovaCart.
                     Our team will get back to you
                     shortly.
@@ -399,7 +399,7 @@ export default function Contact() {
                 <div>
                   <label
                     htmlFor="subject"
-                    className="mb-2 block text-sm font-semibold text-gray-800"
+                    className="mb-2 block text-sm font-semibold text-gray-800 dark:text-gray-200"
                   >
                     Subject
                     <span className="ml-1 text-red-500">
@@ -413,37 +413,37 @@ export default function Contact() {
                     value={form.subject}
                     onChange={handleChange}
                     required
-                    className="h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-800 outline-none transition focus:border-app-primary focus:ring-2 focus:ring-app-primary/10"
+                    className="h-11 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 text-sm text-gray-800 dark:text-gray-100 outline-none transition focus:border-app-primary focus:ring-2 focus:ring-app-primary/10"
                   >
-                    <option value="">
+                    <option value="" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                       Select a topic
                     </option>
 
-                    <option value="order">
+                    <option value="order" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                       Order support
                     </option>
 
-                    <option value="delivery">
+                    <option value="delivery" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                       Delivery
                     </option>
 
-                    <option value="return">
+                    <option value="return" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                       Return / refund
                     </option>
 
-                    <option value="payment">
+                    <option value="payment" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                       Payment
                     </option>
 
-                    <option value="product">
+                    <option value="product" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                       Product question
                     </option>
 
-                    <option value="account">
+                    <option value="account" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                       Account
                     </option>
 
-                    <option value="other">
+                    <option value="other" className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                       Other
                     </option>
                   </select>
@@ -455,7 +455,7 @@ export default function Contact() {
               <div>
                 <label
                   htmlFor="message"
-                  className="mb-2 block text-sm font-semibold text-gray-800"
+                  className="mb-2 block text-sm font-semibold text-gray-800 dark:text-gray-200"
                 >
                   Message
                   <span className="ml-1 text-red-500">
@@ -471,7 +471,7 @@ export default function Contact() {
                   required
                   rows={6}
                   placeholder="Tell us how we can help..."
-                  className="w-full resize-y rounded-lg border border-gray-200 bg-white px-3 py-3 text-sm leading-6 text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-app-primary focus:ring-2 focus:ring-app-primary/10"
+                  className="w-full resize-y rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-3 text-sm leading-6 text-gray-800 dark:text-gray-100 outline-none transition placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-app-primary focus:ring-2 focus:ring-app-primary/10"
                 />
               </div>
 
@@ -479,7 +479,7 @@ export default function Contact() {
 
               <button
                 type="submit"
-                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-app-primary px-5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-app-primary/30 active:translate-y-0 sm:w-auto"
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-app-primary px-5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-app-primary/30 active:translate-y-0 sm:w-auto cursor-pointer"
               >
                 <Send size={16} />
 
@@ -503,7 +503,7 @@ export default function Contact() {
 
       <section
         id="faq"
-        className="border-y border-gray-100 bg-gray-50"
+        className="border-y border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50"
       >
         <div className="mx-auto max-w-[1000px] px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-2xl text-center">
@@ -511,11 +511,11 @@ export default function Contact() {
               Quick answers
             </span>
 
-            <h2 className="mt-3 text-3xl font-bold tracking-[-0.03em] text-gray-950 sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-bold tracking-[-0.03em] text-gray-950 dark:text-white sm:text-4xl">
               Frequently asked questions
             </h2>
 
-            <p className="mt-4 text-sm leading-6 text-gray-600 sm:text-base">
+            <p className="mt-4 text-sm leading-6 text-gray-600 dark:text-gray-400 sm:text-base">
               Here are answers to some common
               questions. If you still need help,
               send us a message.
@@ -530,10 +530,10 @@ export default function Contact() {
               return (
                 <div
                   key={faq.question}
-                  className={`overflow-hidden rounded-xl border bg-white transition ${
+                  className={`overflow-hidden rounded-xl border bg-white dark:bg-gray-900 transition ${
                     isOpen
-                      ? "border-blue-100 shadow-sm"
-                      : "border-gray-200"
+                      ? "border-blue-100 dark:border-blue-900/60 shadow-sm"
+                      : "border-gray-200 dark:border-gray-800"
                   }`}
                 >
                   <button
@@ -548,7 +548,7 @@ export default function Contact() {
                     className="flex w-full items-center justify-between gap-5 px-5 py-4 text-left sm:px-6 sm:py-5"
                     aria-expanded={isOpen}
                   >
-                    <span className="text-sm font-semibold text-gray-900 sm:text-base">
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white sm:text-base">
                       {faq.question}
                     </span>
 
@@ -563,8 +563,8 @@ export default function Contact() {
                   </button>
 
                   {isOpen && (
-                    <div className="border-t border-gray-100 px-5 pb-5 pt-4 sm:px-6">
-                      <p className="text-sm leading-6 text-gray-600">
+                    <div className="border-t border-gray-100 dark:border-gray-800 px-5 pb-5 pt-4 sm:px-6">
+                      <p className="text-sm leading-6 text-gray-600 dark:text-gray-300">
                         {faq.answer}
                       </p>
                     </div>

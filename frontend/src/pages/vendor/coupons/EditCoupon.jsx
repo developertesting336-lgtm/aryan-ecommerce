@@ -56,11 +56,11 @@ const couponBasePath =
 
   if (detailsLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6 dark:bg-gray-950">
         <div className="text-center">
-          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-900" />
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-gray-900 dark:border-gray-800 dark:border-t-indigo-500" />
 
-          <p className="mt-3 text-sm text-gray-500">
+          <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
             Loading coupon...
           </p>
         </div>
@@ -70,13 +70,13 @@ const couponBasePath =
 
   if (!selectedCoupon) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6 dark:bg-gray-950">
         <div className="text-center">
-          <h2 className="text-xl font-bold text-gray-900">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
             Coupon not found
           </h2>
 
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             {error || "Unable to load this coupon."}
           </p>
 
@@ -85,7 +85,7 @@ const couponBasePath =
               // navigate("/vendor/coupons")
               navigate(`${couponBasePath}/`)
             }
-            className="mt-5 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white"
+            className="mt-5 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white dark:bg-indigo-600 dark:hover:bg-indigo-500"
           >
             Back to Coupons
           </button>
@@ -95,9 +95,9 @@ const couponBasePath =
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8 dark:bg-gray-950">
       {error && (
-        <div className="mx-auto mb-5 max-w-5xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mx-auto mb-5 max-w-5xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800/40 dark:bg-red-950/40 dark:text-red-300">
           <div className="flex items-center justify-between">
             <span>{error}</span>
 

@@ -1659,13 +1659,13 @@ export default function CreateProduct() {
   // =====================================================
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
 
       {/* =================================================
           HEADER
       ================================================= */}
 
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
 
           <button
@@ -1673,7 +1673,7 @@ export default function CreateProduct() {
             onClick={() =>
               navigate(-1)
             }
-            className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-blue-600 transition mb-5"
+            className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-blue-600 transition mb-5 dark:text-gray-400 dark:hover:text-blue-400"
           >
             <ArrowLeft size={17} />
             Back
@@ -1683,23 +1683,23 @@ export default function CreateProduct() {
 
             <div className="flex items-center gap-3">
 
-              <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center dark:bg-blue-950/40 dark:text-blue-400">
                 <Package size={22} />
               </div>
 
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                   Create Product
                 </h1>
 
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">
                   Add a new product to your store
                 </p>
               </div>
 
             </div>
 
-            <div className="inline-flex items-center gap-2 w-fit rounded-full bg-gray-100 border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600">
+            <div className="inline-flex items-center gap-2 w-fit rounded-full bg-gray-100 border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300">
               <span className="w-2 h-2 rounded-full bg-gray-500" />
 
               {user?.role === "admin"
@@ -1760,11 +1760,11 @@ export default function CreateProduct() {
                   BASIC INFORMATION
               ================================================= */}
 
-              <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 sm:p-6">
+              <section className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-5 sm:p-6">
 
                 <SectionHeader
                   icon={<FileText size={19} />}
-                  iconClass="bg-blue-50 text-blue-600"
+                  iconClass="bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400"
                   title="Basic Information"
                   description="Enter the main product details"
                 />
@@ -1798,7 +1798,7 @@ export default function CreateProduct() {
                     onChange={handleChange}
                     rows={6}
                     placeholder="Describe your product, features, materials, specifications..."
-                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none resize-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                    className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-gray-900 dark:text-white outline-none resize-none transition placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/40 disabled:bg-gray-50 dark:disabled:bg-gray-900 disabled:cursor-not-allowed"
                     disabled={createLoading}
                   />
 
@@ -1819,13 +1819,13 @@ export default function CreateProduct() {
                   CATEGORY
               ================================================= */}
 
-              <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 sm:p-6">
+              <section className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-5 sm:p-6">
 
                 <SectionHeader
                   icon={
                     <Layers size={19} />
                   }
-                  iconClass="bg-purple-50 text-purple-600"
+                  iconClass="bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400"
                   title="Product Category"
                   description="Select categories level by level until you reach the most specific category"
                 />
@@ -1852,9 +1852,9 @@ export default function CreateProduct() {
 
                   {selectedCategoryPath.length >
                     0 && (
-                    <div className="mb-4 rounded-xl border border-blue-100 bg-blue-50/60 p-3">
+                    <div className="mb-4 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/30 p-3">
 
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                         <FolderTree
                           size={14}
                         />
@@ -1896,7 +1896,7 @@ export default function CreateProduct() {
                                     isFinal &&
                                     hasFinalCategory
                                       ? "bg-blue-600 text-white"
-                                      : "bg-white border border-blue-100 text-gray-700"
+                                      : "bg-white dark:bg-gray-800 border border-blue-100 dark:border-blue-900 text-gray-700 dark:text-gray-300"
                                   }`}
                                 >
                                   {
@@ -1914,14 +1914,14 @@ export default function CreateProduct() {
                       {/* FINAL CATEGORY STATUS */}
 
                       {hasFinalCategory && (
-                        <div className="mt-3 flex items-center gap-2 rounded-lg bg-green-50 border border-green-100 px-3 py-2">
+                        <div className="mt-3 flex items-center gap-2 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-100 dark:border-green-900/50 px-3 py-2">
 
                           <CheckCircle
                             size={15}
-                            className="text-green-600"
+                            className="text-green-600 dark:text-green-400"
                           />
 
-                          <p className="text-xs font-medium text-green-700">
+                          <p className="text-xs font-medium text-green-700 dark:text-green-300">
                             Product category:
                             {" "}
                             <strong>
@@ -1949,7 +1949,7 @@ export default function CreateProduct() {
                     onClick={
                       handleCategoryDropdownOpen
                     }
-                    className="w-full min-h-12 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition flex items-center justify-between gap-3 text-left hover:border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                    className="w-full min-h-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-gray-900 dark:text-white outline-none transition flex items-center justify-between gap-3 text-left hover:border-gray-300 dark:hover:border-gray-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/40 disabled:bg-gray-50 dark:disabled:bg-gray-900 disabled:cursor-not-allowed"
                   >
 
                     <div className="min-w-0">
@@ -1970,7 +1970,7 @@ export default function CreateProduct() {
                       ) : hasFinalCategory ? (
                         <div>
 
-                          <p className="text-sm font-semibold text-gray-900 truncate">
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                             {
                               finalCategory?.name
                             }
@@ -1996,7 +1996,7 @@ export default function CreateProduct() {
                         0 ? (
                         <div>
 
-                          <p className="text-sm font-semibold text-gray-900 truncate">
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
                             {
                               currentCategory?.name
                             }
@@ -2031,13 +2031,13 @@ export default function CreateProduct() {
                   ================================================= */}
 
                   {categoryOpen && (
-                    <div className="absolute z-50 left-0 right-0 mt-2 rounded-2xl border border-gray-200 bg-white shadow-xl overflow-hidden">
+                    <div className="absolute z-50 left-0 right-0 mt-2 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl overflow-hidden">
 
                       {/* =================================================
                           SEARCH
                       ================================================= */}
 
-                      <div className="p-3 border-b border-gray-100 bg-white">
+                      <div className="p-3 border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
 
                         <div className="relative">
 
@@ -2064,7 +2064,7 @@ export default function CreateProduct() {
                                 ? `Search inside ${currentCategory?.name}...`
                                 : "Search categories..."
                             }
-                            className="w-full h-10 rounded-lg border border-gray-200 pl-9 pr-3 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50"
+                            className="w-full h-10 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-3 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 dark:focus:ring-blue-950/40 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                             autoFocus
                           />
 
@@ -2075,13 +2075,13 @@ export default function CreateProduct() {
                           LEVEL HEADER
                       ================================================= */}
 
-                      <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
+                      <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-850/60">
 
                         <div className="flex items-center justify-between gap-3">
 
                           <div className="min-w-0">
 
-                            <p className="text-xs font-bold uppercase tracking-wide text-gray-500">
+                            <p className="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                               Level{" "}
                               {
                                 selectedCategoryPath.length +
@@ -2089,7 +2089,7 @@ export default function CreateProduct() {
                               }
                             </p>
 
-                            <p className="text-sm font-semibold text-gray-800 mt-1 truncate">
+                            <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mt-1 truncate">
                               {selectedCategoryPath.length ===
                               0
                                 ? "Select a category"
@@ -2108,7 +2108,7 @@ export default function CreateProduct() {
                               disabled={
                                 categoryLoading
                               }
-                              className="inline-flex items-center gap-1.5 shrink-0 text-xs font-semibold text-blue-600 hover:text-blue-700 disabled:opacity-50"
+                              className="inline-flex items-center gap-1.5 shrink-0 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-50"
                             >
                               <ArrowLeft
                                 size={
@@ -2147,7 +2147,7 @@ export default function CreateProduct() {
                                     </span>
                                   )}
 
-                                  <span className="text-xs font-medium text-gray-600">
+                                  <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
                                     {
                                       item.name
                                     }
@@ -2167,7 +2167,7 @@ export default function CreateProduct() {
                       ================================================= */}
 
                       {categoryError && (
-                        <div className="mx-3 mt-3 rounded-lg border border-red-100 bg-red-50 px-3 py-2">
+                        <div className="mx-3 mt-3 rounded-lg border border-red-100 dark:border-red-900/40 bg-red-50 dark:bg-red-950/30 px-3 py-2">
 
                           <div className="flex items-start gap-2">
 
@@ -2176,7 +2176,7 @@ export default function CreateProduct() {
                               className="text-red-500 shrink-0 mt-0.5"
                             />
 
-                            <p className="text-xs text-red-600">
+                            <p className="text-xs text-red-600 dark:text-red-400">
                               {
                                 categoryError
                               }
@@ -2203,7 +2203,7 @@ export default function CreateProduct() {
                               className="text-blue-600 animate-spin"
                             />
 
-                            <p className="mt-3 text-sm font-medium text-gray-600">
+                            <p className="mt-3 text-sm font-medium text-gray-600 dark:text-gray-300">
                               Loading categories...
                             </p>
 
@@ -2220,10 +2220,10 @@ export default function CreateProduct() {
                               size={
                                 27
                               }
-                              className="mx-auto text-gray-300"
+                              className="mx-auto text-gray-300 dark:text-gray-600"
                             />
 
-                            <p className="mt-3 text-sm font-medium text-gray-600">
+                            <p className="mt-3 text-sm font-medium text-gray-600 dark:text-gray-300">
                               {categorySearch
                                 ? "No matching categories found"
                                 : "No more subcategories found"}
@@ -2242,7 +2242,7 @@ export default function CreateProduct() {
                                 onClick={
                                   handleCategoryBack
                                 }
-                                className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700"
+                                className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
                               >
                                 <ArrowLeft
                                   size={
@@ -2279,14 +2279,14 @@ export default function CreateProduct() {
                                   disabled={
                                     categoryLoading
                                   }
-                                  className="w-full text-left px-4 py-3 transition text-gray-700 hover:bg-blue-50 disabled:opacity-60"
+                                  className="w-full text-left px-4 py-3 transition text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-700/60 disabled:opacity-60"
                                 >
 
                                   <div className="flex items-center justify-between gap-3">
 
                                     <div className="flex items-center gap-3 min-w-0">
 
-                                      <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                                      <div className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-300 shrink-0">
                                         <Layers
                                           size={
                                             17
@@ -2335,7 +2335,7 @@ export default function CreateProduct() {
 
                       {selectedCategoryPath.length >
                         0 && (
-                        <div className="border-t border-gray-100 p-3">
+                        <div className="border-t border-gray-100 dark:border-gray-700 p-3">
 
                           <button
                             type="button"
@@ -2345,7 +2345,7 @@ export default function CreateProduct() {
                             disabled={
                               categoryLoading
                             }
-                            className="w-full h-10 rounded-lg border border-gray-200 text-xs font-semibold text-gray-600 hover:bg-gray-50 transition disabled:opacity-50"
+                            className="w-full h-10 rounded-lg border border-gray-200 dark:border-gray-700 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 transition disabled:opacity-50"
                           >
                             Start from root categories
                           </button>
@@ -2380,7 +2380,7 @@ export default function CreateProduct() {
                   PRICING
               ================================================= */}
 
-              <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 sm:p-6">
+              <section className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-5 sm:p-6">
 
                 <SectionHeader
                   icon={
@@ -2388,7 +2388,7 @@ export default function CreateProduct() {
                       size={19}
                     />
                   }
-                  iconClass="bg-green-50 text-green-600"
+                  iconClass="bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400"
                   title="Pricing & Inventory"
                   description={
                     hasVariants
@@ -2397,16 +2397,16 @@ export default function CreateProduct() {
                   }
                 />
 
-                <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 mb-6">
+                <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-4 mb-6">
 
                   <div className="flex items-center justify-between gap-4">
 
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white">
                         This product has variants
                       </p>
 
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         Enable this for different sizes,
                         colors, RAM, storage, processors,
                         etc.
@@ -2426,7 +2426,7 @@ export default function CreateProduct() {
                       className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition ${
                         hasVariants
                           ? "bg-blue-600"
-                          : "bg-gray-300"
+                          : "bg-gray-300 dark:bg-gray-700"
                       }`}
                     >
                       <span
@@ -2441,8 +2441,8 @@ export default function CreateProduct() {
                   </div>
 
                   {hasVariants && (
-                    <div className="mt-3 rounded-lg bg-blue-50 border border-blue-100 px-3 py-2">
-                      <p className="text-xs text-blue-700">
+                    <div className="mt-3 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/50 px-3 py-2">
+                      <p className="text-xs text-blue-700 dark:text-blue-300">
                         Variant mode enabled. Product
                         price and stock are calculated
                         automatically from the variants
@@ -2468,7 +2468,7 @@ export default function CreateProduct() {
 
                       <div className="relative">
 
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">
                           ₹
                         </span>
 
@@ -2506,7 +2506,7 @@ export default function CreateProduct() {
 
                       <div className="relative">
 
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">
                           ₹
                         </span>
 
@@ -2554,7 +2554,7 @@ export default function CreateProduct() {
                         }
                         min="0"
                         step="1"
-                        placeholder="20"
+                        placeholder="50"
                         className={
                           inputClass
                         }
@@ -2607,19 +2607,19 @@ export default function CreateProduct() {
                           key={
                             variantIndex
                           }
-                          className="rounded-2xl border border-gray-200 bg-white shadow-sm"
+                          className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/80 shadow-sm"
                         >
 
-                          <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-gray-100 bg-gray-50 rounded-t-2xl">
+                          <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-2xl">
 
                             <div>
-                              <p className="text-sm font-bold text-gray-900">
+                              <p className="text-sm font-bold text-gray-900 dark:text-white">
                                 Variant{" "}
                                 {variantIndex +
                                   1}
                               </p>
 
-                              <p className="text-xs text-gray-500 mt-0.5">
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                                 Configure price,
                                 stock and
                                 attributes
@@ -2667,7 +2667,7 @@ export default function CreateProduct() {
 
                                 <div className="relative">
 
-                                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+                                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">
                                     ₹
                                   </span>
 
@@ -2712,7 +2712,7 @@ export default function CreateProduct() {
 
                                 <div className="relative">
 
-                                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+                                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">
                                     ₹
                                   </span>
 
@@ -2817,7 +2817,7 @@ export default function CreateProduct() {
                                   disabled={
                                     createLoading
                                   }
-                                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700"
+                                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
                                 >
                                   <Plus
                                     size={
@@ -2911,7 +2911,7 @@ export default function CreateProduct() {
                                             .length ===
                                             1
                                         }
-                                        className="h-11 w-11 rounded-xl border border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500 disabled:opacity-40 flex items-center justify-center"
+                                        className="h-11 w-11 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-400 hover:border-red-200 dark:hover:border-red-500/50 hover:text-red-500 disabled:opacity-40 flex items-center justify-center"
                                       >
                                         <X
                                           size={
@@ -2928,12 +2928,12 @@ export default function CreateProduct() {
 
                             </div>
 
-                            <div className="rounded-xl bg-gray-50 border border-gray-200 px-3 py-3">
+                            <div className="rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 px-3 py-3">
 
                               <div className="flex items-center justify-between gap-3">
 
                                 <div>
-                                  <p className="text-xs font-semibold text-gray-700">
+                                  <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                                     SKU
                                   </p>
 
@@ -2966,7 +2966,7 @@ export default function CreateProduct() {
                       disabled={
                         createLoading
                       }
-                      className="w-full h-12 rounded-xl border-2 border-dashed border-gray-200 text-sm font-semibold text-blue-600 hover:border-blue-300 hover:bg-blue-50/50 transition flex items-center justify-center gap-2 disabled:opacity-50"
+                      className="w-full h-12 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-blue-50/50 dark:hover:bg-blue-950/20 transition flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                       <Plus
                         size={18}
@@ -2975,9 +2975,9 @@ export default function CreateProduct() {
                       Add Another Variant
                     </button>
 
-                    <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+                    <div className="rounded-xl border border-blue-100 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 p-4">
 
-                      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-blue-700">
+                      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-blue-700 dark:text-blue-300">
 
                         <span>
                           <strong>
@@ -3042,7 +3042,7 @@ export default function CreateProduct() {
                   IMAGES
               ================================================= */}
 
-              <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 sm:p-6">
+              <section className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-5 sm:p-6">
 
                 <div className="flex items-center justify-between gap-4 mb-6">
 
@@ -3052,7 +3052,7 @@ export default function CreateProduct() {
                         size={19}
                       />
                     }
-                    iconClass="bg-purple-50 text-purple-600"
+                    iconClass="bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400"
                     title="Product Images"
                     description="Upload up to 5 images"
                     noMargin
@@ -3067,15 +3067,15 @@ export default function CreateProduct() {
 
                 {images.length <
                   MAX_IMAGES && (
-                  <label className="relative flex flex-col items-center justify-center min-h-44 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 hover:border-blue-400 hover:bg-blue-50/50 cursor-pointer transition p-6 text-center">
+                  <label className="relative flex flex-col items-center justify-center min-h-44 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-950/20 cursor-pointer transition p-6 text-center">
 
-                    <div className="w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-blue-600 shadow-sm">
+                    <div className="w-12 h-12 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm">
                       <Upload
                         size={21}
                       />
                     </div>
 
-                    <p className="mt-3 text-sm font-semibold text-gray-700">
+                    <p className="mt-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
                       Click to upload images
                     </p>
 
@@ -3114,7 +3114,7 @@ export default function CreateProduct() {
                       ) => (
                         <div
                           key={`${preview}-${index}`}
-                          className="group relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50"
+                          className="group relative aspect-square rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white flex items-center justify-center"
                         >
 
                           <img
@@ -3125,7 +3125,7 @@ export default function CreateProduct() {
                               index +
                               1
                             }`}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain p-1"
                           />
 
                           <button
@@ -3138,7 +3138,7 @@ export default function CreateProduct() {
                             disabled={
                               createLoading
                             }
-                            className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white text-gray-600 shadow flex items-center justify-center hover:bg-red-500 hover:text-white disabled:opacity-50 transition"
+                            className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 shadow flex items-center justify-center hover:bg-red-500 hover:text-white disabled:opacity-50 transition"
                           >
                             <X
                               size={
@@ -3167,20 +3167,20 @@ export default function CreateProduct() {
                   ADDONS
               ================================================= */}
 
-              <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 sm:p-6">
+              <section className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-5 sm:p-6">
 
                 <SectionHeader
                   icon={
                     <Plus size={19} />
                   }
-                  iconClass="bg-orange-50 text-orange-600"
+                  iconClass="bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400"
                   title="Add-on Products"
                   description="Select products customers may want with this product"
                 />
 
                 {activeProducts.length ===
                 0 ? (
-                  <div className="rounded-xl bg-gray-50 border border-gray-200 p-4 text-sm text-gray-500">
+                  <div className="rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 p-4 text-sm text-gray-500 dark:text-gray-400">
                     No active products available for add-ons.
                   </div>
                 ) : (
@@ -3202,8 +3202,8 @@ export default function CreateProduct() {
                             }
                             className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${
                               selected
-                                ? "border-blue-400 bg-blue-50"
-                                : "border-gray-200 hover:bg-gray-50"
+                                ? "border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-950/40"
+                                : "border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50"
                             }`}
                           >
 
@@ -3223,7 +3223,7 @@ export default function CreateProduct() {
                               className="w-4 h-4 accent-blue-600 shrink-0"
                             />
 
-                            <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden shrink-0">
+                            <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 dark:border-gray-700 overflow-hidden shrink-0 flex items-center justify-center">
 
                               {addonProduct
                                 .images?.[0] ? (
@@ -3235,7 +3235,7 @@ export default function CreateProduct() {
                                   alt={
                                     addonProduct.name
                                   }
-                                  className="w-full h-full object-cover"
+                                  className="w-full h-full object-contain p-0.5"
                                 />
                               ) : (
                                 <Package
@@ -3250,13 +3250,13 @@ export default function CreateProduct() {
 
                             <div className="min-w-0 flex-1">
 
-                              <p className="text-sm font-semibold text-gray-800 truncate">
+                              <p className="text-sm font-semibold text-gray-800 dark:text-white truncate">
                                 {
                                   addonProduct.name
                                 }
                               </p>
 
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
                                 ₹
                                 {
                                   addonProduct.price
@@ -3275,7 +3275,7 @@ export default function CreateProduct() {
 
                 {selectedAccessories.length >
                   0 && (
-                  <p className="text-xs text-blue-600 font-medium mt-3">
+                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-3">
                     {
                       selectedAccessories.length
                     }{" "}
@@ -3300,13 +3300,13 @@ export default function CreateProduct() {
 
               <div className="lg:sticky lg:top-24 space-y-6">
 
-                <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 sm:p-6">
+                <section className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-5 sm:p-6">
 
-                  <h2 className="font-bold text-gray-900">
+                  <h2 className="font-bold text-gray-900 dark:text-white">
                     Publish Product
                   </h2>
 
-                  <p className="text-sm text-gray-500 mt-1 leading-6">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 leading-6">
                     {user?.role ===
                     "admin"
                       ? "As an admin, this product will become active immediately."
@@ -3317,8 +3317,8 @@ export default function CreateProduct() {
                     className={`mt-5 rounded-xl border p-4 ${
                       user?.role ===
                       "admin"
-                        ? "bg-green-50 border-green-100"
-                        : "bg-yellow-50 border-yellow-100"
+                        ? "bg-green-50 dark:bg-green-950/30 border-green-100 dark:border-green-900/50"
+                        : "bg-yellow-50 dark:bg-yellow-950/30 border-yellow-100 dark:border-yellow-900/50"
                     }`}
                   >
 
@@ -3328,8 +3328,8 @@ export default function CreateProduct() {
                         className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                           user?.role ===
                           "admin"
-                            ? "bg-green-100 text-green-600"
-                            : "bg-yellow-100 text-yellow-600"
+                            ? "bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400"
+                            : "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-600 dark:text-yellow-400"
                         }`}
                       >
                         <CheckCircle
@@ -3345,8 +3345,8 @@ export default function CreateProduct() {
                           className={`text-sm font-semibold ${
                             user?.role ===
                             "admin"
-                              ? "text-green-800"
-                              : "text-yellow-800"
+                              ? "text-green-800 dark:text-green-300"
+                              : "text-yellow-800 dark:text-yellow-300"
                           }`}
                         >
                           {user?.role ===
@@ -3359,8 +3359,8 @@ export default function CreateProduct() {
                           className={`text-xs mt-1 leading-5 ${
                             user?.role ===
                             "admin"
-                              ? "text-green-700"
-                              : "text-yellow-700"
+                              ? "text-green-700 dark:text-green-400"
+                              : "text-yellow-700 dark:text-yellow-400"
                           }`}
                         >
                           {user?.role ===
@@ -3377,7 +3377,7 @@ export default function CreateProduct() {
 
                   {/* CATEGORY STATUS */}
 
-                  <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-3">
+                  <div className="mt-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-3">
 
                     <div className="flex items-start gap-2">
 
@@ -3390,19 +3390,19 @@ export default function CreateProduct() {
 
                       <div className="min-w-0">
 
-                        <p className="text-xs font-semibold text-gray-700">
+                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                           Product Category
                         </p>
 
                         {hasFinalCategory ? (
                           <>
-                            <p className="text-sm font-semibold text-gray-900 mt-1 truncate">
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white mt-1 truncate">
                               {
                                 finalCategory?.name
                               }
                             </p>
 
-                            <p className="text-[11px] text-gray-400 mt-1 leading-4">
+                            <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 leading-4">
                               {
                                 selectedCategoryPath
                                   .map(
@@ -3465,20 +3465,20 @@ export default function CreateProduct() {
                     disabled={
                       createLoading
                     }
-                    className="cursor-pointer w-full mt-3 h-11 rounded-xl border border-gray-200 text-gray-600 font-medium hover:bg-gray-50 disabled:opacity-50 transition"
+                    className="cursor-pointer w-full mt-3 h-11 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition"
                   >
                     Clear Form
                   </button>
 
                 </section>
 
-                <section className="bg-blue-50 rounded-2xl border border-blue-100 p-5">
+                <section className="bg-blue-50 dark:bg-blue-950/30 rounded-2xl border border-blue-100 dark:border-blue-900/50 p-5">
 
-                  <h3 className="font-semibold text-blue-900">
+                  <h3 className="font-semibold text-blue-900 dark:text-blue-300">
                     Product Guidelines
                   </h3>
 
-                  <ul className="mt-3 space-y-2.5 text-sm text-blue-800">
+                  <ul className="mt-3 space-y-2.5 text-sm text-blue-800 dark:text-blue-200/80">
 
                     <li className="flex gap-2">
                       <span>
@@ -3591,11 +3591,11 @@ function SectionHeader({
 
       <div>
 
-        <h2 className="font-bold text-gray-900">
+        <h2 className="font-bold text-gray-900 dark:text-white">
           {title}
         </h2>
 
-        <p className="text-xs text-gray-500 mt-0.5">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
           {description}
         </p>
 
@@ -3614,6 +3614,7 @@ const labelClass = `
   text-sm
   font-semibold
   text-gray-700
+  dark:text-gray-300
   mb-2
 `;
 
@@ -3623,17 +3624,23 @@ const inputClass = `
   rounded-xl
   border
   border-gray-200
+  dark:border-gray-700
   bg-white
+  dark:bg-gray-800
   px-4
   text-sm
   text-gray-900
+  dark:text-white
   outline-none
   transition
   placeholder:text-gray-400
+  dark:placeholder:text-gray-500
   focus:border-blue-500
   focus:ring-4
   focus:ring-blue-50
+  dark:focus:ring-blue-950/40
   disabled:bg-gray-50
+  dark:disabled:bg-gray-900
   disabled:cursor-not-allowed
 `;
 
@@ -3643,17 +3650,23 @@ const currencyInputClass = `
   rounded-xl
   border
   border-gray-200
+  dark:border-gray-700
   bg-white
+  dark:bg-gray-800
   pl-9
   pr-4
   text-sm
   text-gray-900
+  dark:text-white
   outline-none
   transition
   placeholder:text-gray-400
+  dark:placeholder:text-gray-500
   focus:border-blue-500
   focus:ring-4
   focus:ring-blue-50
+  dark:focus:ring-blue-950/40
   disabled:bg-gray-50
+  dark:disabled:bg-gray-900
   disabled:cursor-not-allowed
 `;

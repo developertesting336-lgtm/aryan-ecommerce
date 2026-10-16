@@ -267,7 +267,7 @@ export default function VendorOrders() {
   ===================================================== */
 
   return (
-    <div className="min-h-screen bg-[#f7faff]">
+    <div className="min-h-screen bg-[#f7faff] dark:bg-gray-950">
 
       <main className="p-4 sm:p-6 lg:p-8">
 
@@ -308,6 +308,7 @@ export default function VendorOrders() {
                 uppercase
                 tracking-[0.18em]
                 text-slate-400
+                dark:text-gray-400
               ">
                 Vendor Panel
               </p>
@@ -320,6 +321,7 @@ export default function VendorOrders() {
               font-bold
               tracking-tight
               text-slate-900
+              dark:text-white
             ">
               Orders
             </h1>
@@ -328,6 +330,7 @@ export default function VendorOrders() {
               mt-1
               text-sm
               text-slate-500
+              dark:text-gray-400
             ">
               Manage and track orders for your store
             </p>
@@ -353,7 +356,7 @@ export default function VendorOrders() {
             title="Total Orders"
             value={totalOrders}
             icon="🛒"
-            iconClass="bg-blue-50 text-[#4779F5]"
+            iconClass="bg-blue-50 text-[#4779F5] dark:bg-blue-950/40 dark:text-blue-400"
           />
 
           <OrderStat
@@ -362,21 +365,21 @@ export default function VendorOrders() {
               totalRevenue || 0
             ).toLocaleString("en-IN")}`}
             icon="₹"
-            iconClass="bg-emerald-50 text-emerald-600"
+            iconClass="bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"
           />
 
           <OrderStat
             title="Delivered"
             value={deliveredOrders}
             icon="✓"
-            iconClass="bg-cyan-50 text-cyan-600"
+            iconClass="bg-cyan-50 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400"
           />
 
           <OrderStat
             title="Pending"
             value={pendingOrders}
             icon="!"
-            iconClass="bg-amber-50 text-amber-600"
+            iconClass="bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400"
           />
 
         </div>
@@ -392,6 +395,8 @@ export default function VendorOrders() {
           border-slate-200
           bg-white
           shadow-sm
+          dark:border-gray-800
+          dark:bg-gray-900
         ">
 
           {/* =================================================
@@ -403,6 +408,7 @@ export default function VendorOrders() {
             border-slate-100
             p-5
             sm:p-6
+            dark:border-gray-800
           ">
 
             <div className="
@@ -437,6 +443,7 @@ export default function VendorOrders() {
                     text-base
                     font-bold
                     text-slate-900
+                    dark:text-white
                   ">
                     All Orders
                   </h2>
@@ -447,6 +454,7 @@ export default function VendorOrders() {
                   mt-1
                   text-xs
                   text-slate-400
+                  dark:text-gray-400
                 ">
                   {filteredOrders.length} orders found
                 </p>
@@ -481,6 +489,10 @@ export default function VendorOrders() {
                   focus-within:bg-white
                   focus-within:ring-4
                   focus-within:ring-blue-50
+                  dark:border-gray-800
+                  dark:bg-gray-850
+                  dark:focus-within:bg-gray-800
+                  dark:focus-within:ring-blue-950/30
                   sm:w-64
                 ">
 
@@ -502,6 +514,8 @@ export default function VendorOrders() {
                       text-slate-700
                       outline-none
                       placeholder:text-slate-400
+                      dark:text-gray-200
+                      dark:placeholder:text-gray-500
                     "
                   />
 
@@ -532,6 +546,11 @@ export default function VendorOrders() {
                     focus:border-[#4779F5]
                     focus:ring-4
                     focus:ring-blue-50
+                    dark:border-gray-800
+                    dark:bg-gray-850
+                    dark:text-gray-200
+                    dark:hover:bg-gray-800
+                    dark:focus:ring-blue-950/30
                   "
                 >
 
@@ -586,6 +605,11 @@ export default function VendorOrders() {
                     focus:border-[#4779F5]
                     focus:ring-4
                     focus:ring-blue-50
+                    dark:border-gray-800
+                    dark:bg-gray-850
+                    dark:text-gray-200
+                    dark:hover:bg-gray-800
+                    dark:focus:ring-blue-950/30
                   "
                 >
 
@@ -726,6 +750,8 @@ export default function VendorOrders() {
                       border-b
                       border-slate-100
                       bg-slate-50/70
+                      dark:border-gray-800
+                      dark:bg-gray-800/60
                     ">
 
                       <TableHead>
@@ -776,6 +802,8 @@ export default function VendorOrders() {
                             border-slate-50
                             transition
                             hover:bg-blue-50/30
+                            dark:border-gray-800/60
+                            dark:hover:bg-blue-950/20
                           "
                         >
 
@@ -792,6 +820,7 @@ export default function VendorOrders() {
                                 text-sm
                                 font-bold
                                 text-[#4779F5]
+                                dark:text-blue-400
                               ">
                                 {order.orderNumber}
                               </p>
@@ -800,6 +829,7 @@ export default function VendorOrders() {
                                 mt-0.5
                                 text-[10px]
                                 text-slate-400
+                                dark:text-gray-500
                               ">
                                 Order ID
                               </p>
@@ -835,6 +865,9 @@ export default function VendorOrders() {
                                 text-sm
                                 font-bold
                                 text-[#4779F5]
+                                dark:from-blue-950/50
+                                dark:to-cyan-950/50
+                                dark:text-blue-400
                               ">
                                 {getInitial(
                                   order.customer
@@ -851,6 +884,7 @@ export default function VendorOrders() {
                                   text-sm
                                   font-semibold
                                   text-slate-800
+                                  dark:text-white
                                 ">
                                   {order.customer}
                                 </p>
@@ -860,6 +894,7 @@ export default function VendorOrders() {
                                   truncate
                                   text-[10px]
                                   text-slate-400
+                                  dark:text-gray-500
                                 ">
                                   {order.email}
                                 </p>
@@ -883,6 +918,7 @@ export default function VendorOrders() {
                                 text-sm
                                 font-semibold
                                 text-slate-700
+                                dark:text-gray-300
                               ">
                                 {order.items}
                               </p>
@@ -891,6 +927,7 @@ export default function VendorOrders() {
                                 mt-0.5
                                 text-[10px]
                                 text-slate-400
+                                dark:text-gray-500
                               ">
                                 {order.items === 1
                                   ? "item"
@@ -912,6 +949,7 @@ export default function VendorOrders() {
                               text-sm
                               font-bold
                               text-slate-800
+                              dark:text-white
                             ">
                               ₹
                               {Number(
@@ -966,6 +1004,7 @@ export default function VendorOrders() {
                                 text-xs
                                 font-medium
                                 text-slate-600
+                                dark:text-gray-300
                               ">
                                 {formatDate(
                                   order.date
@@ -977,6 +1016,7 @@ export default function VendorOrders() {
                                   mt-0.5
                                   text-[10px]
                                   text-slate-400
+                                  dark:text-gray-500
                                 ">
                                   {formatTime(
                                     order.date
@@ -1016,6 +1056,8 @@ export default function VendorOrders() {
                                   transition
                                   hover:bg-blue-50
                                   hover:text-[#4779F5]
+                                  dark:hover:bg-gray-800
+                                  dark:hover:text-blue-400
                                 "
                               >
                                 <ViewIcon />
@@ -1030,6 +1072,8 @@ export default function VendorOrders() {
                                   transition
                                   hover:bg-slate-100
                                   hover:text-slate-700
+                                  dark:hover:bg-gray-800
+                                  dark:hover:text-gray-300
                                 "
                               >
                                 <MoreIcon />
@@ -1077,6 +1121,8 @@ export default function VendorOrders() {
                   from-blue-50
                   to-cyan-50
                   text-3xl
+                  dark:from-blue-950/40
+                  dark:to-cyan-950/40
                 ">
                   🛒
                 </div>
@@ -1086,6 +1132,7 @@ export default function VendorOrders() {
                   text-sm
                   font-bold
                   text-slate-800
+                  dark:text-white
                 ">
                   No orders found
                 </h3>
@@ -1096,6 +1143,7 @@ export default function VendorOrders() {
                   max-w-sm
                   text-xs
                   text-slate-400
+                  dark:text-gray-400
                 ">
                   Try changing your search or filters.
                 </p>
@@ -1121,16 +1169,19 @@ export default function VendorOrders() {
                 sm:flex-row
                 sm:items-center
                 sm:justify-between
+                dark:border-gray-800
               ">
 
                 <p className="
                   text-xs
                   text-slate-400
+                  dark:text-gray-400
                 ">
                   Showing{" "}
                   <span className="
                     font-semibold
                     text-slate-600
+                    dark:text-gray-300
                   ">
                     {filteredOrders.length}
                   </span>{" "}
@@ -1138,6 +1189,7 @@ export default function VendorOrders() {
                   <span className="
                     font-semibold
                     text-slate-600
+                    dark:text-gray-300
                   ">
                     {totalOrders}
                   </span>{" "}
@@ -1182,6 +1234,8 @@ function OrderStat({
       transition
       hover:-translate-y-0.5
       hover:shadow-md
+      dark:border-gray-800
+      dark:bg-gray-900
     ">
 
       <div className="
@@ -1214,6 +1268,8 @@ function OrderStat({
           uppercase
           tracking-wide
           text-slate-400
+          dark:bg-gray-800
+          dark:text-gray-400
         ">
           Overview
         </span>
@@ -1225,6 +1281,7 @@ function OrderStat({
         text-xs
         font-medium
         text-slate-500
+        dark:text-gray-400
       ">
         {title}
       </p>
@@ -1235,6 +1292,7 @@ function OrderStat({
         font-bold
         tracking-tight
         text-slate-900
+        dark:text-white
       ">
         {typeof value === "number"
           ? value.toLocaleString("en-IN")
@@ -1264,6 +1322,7 @@ function TableHead({
         uppercase
         tracking-[0.12em]
         text-slate-400
+        dark:text-gray-400
       `}
     >
       {children}
@@ -1284,22 +1343,22 @@ function OrderStatus({ status }) {
 
   const styles = {
     pending:
-      "bg-amber-50 text-amber-600",
+      "bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400",
 
     processing:
-      "bg-indigo-50 text-indigo-600",
+      "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400",
 
     shipped:
-      "bg-blue-50 text-blue-600",
+      "bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400",
 
     delivered:
-      "bg-emerald-50 text-emerald-600",
+      "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400",
 
     cancelled:
-      "bg-red-50 text-red-600",
+      "bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400",
 
     canceled:
-      "bg-red-50 text-red-600",
+      "bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400",
   };
 
   return (
@@ -1315,7 +1374,7 @@ function OrderStatus({ status }) {
         font-bold
         ${
           styles[normalized] ||
-          "bg-slate-100 text-slate-500"
+          "bg-slate-100 text-slate-500 dark:bg-gray-800 dark:text-gray-400"
         }
       `}
     >
@@ -1359,16 +1418,16 @@ function PaymentStatus({ status }) {
 
   const styles = {
     paid:
-      "bg-emerald-50 text-emerald-600",
+      "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400",
 
     pending:
-      "bg-amber-50 text-amber-600",
+      "bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400",
 
     failed:
-      "bg-red-50 text-red-600",
+      "bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400",
 
     refunded:
-      "bg-purple-50 text-purple-600",
+      "bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400",
   };
 
   return (
@@ -1382,7 +1441,7 @@ function PaymentStatus({ status }) {
         font-bold
         ${
           styles[normalized] ||
-          "bg-slate-100 text-slate-500"
+          "bg-slate-100 text-slate-500 dark:bg-gray-800 dark:text-gray-400"
         }
       `}
     >

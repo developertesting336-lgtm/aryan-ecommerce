@@ -72,25 +72,25 @@ export default function CouponStats({ coupons = [] }) {
         return (
           <div
             key={stat.title}
-            className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+            className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
                   {stat.title}
                 </p>
 
-                <h3 className="mt-2 text-2xl font-bold text-gray-900">
+                <h3 className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
                   {stat.value}
                 </h3>
 
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   {stat.description}
                 </p>
               </div>
 
-              <div className="rounded-lg bg-gray-100 p-3">
-                <Icon className="h-6 w-6 text-gray-700" />
+              <div className="rounded-lg bg-gray-100 p-3 dark:bg-gray-800">
+                <Icon className="h-6 w-6 text-gray-700 dark:text-gray-300" />
               </div>
             </div>
           </div>

@@ -35,9 +35,9 @@ const couponBasePath =
     : "/vendor/coupons";
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8 dark:bg-gray-950">
       {error && (
-        <div className="mx-auto mb-5 max-w-5xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mx-auto mb-5 max-w-5xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800/40 dark:bg-red-950/40 dark:text-red-300">
           <div className="flex items-center justify-between gap-3">
             <span>{error}</span>
 

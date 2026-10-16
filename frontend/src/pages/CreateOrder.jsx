@@ -690,7 +690,7 @@ console.log("🔥 SENDING ORDER:", orderData);
 
   if (cartLoading) {
     return (
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-950">
         <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-20">
           <Loader2
             size={28}
@@ -706,13 +706,13 @@ console.log("🔥 SENDING ORDER:", orderData);
   // =====================================================
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-950 dark:text-gray-100">
 
       {/* =================================================
           HEADER
       ================================================= */}
 
-      <section className="border-b bg-white">
+      <section className="border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
 
         <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
 
@@ -740,11 +740,11 @@ console.log("🔥 SENDING ORDER:", orderData);
             Back to cart
           </button>
 
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">
             Checkout
           </h1>
 
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             Select a saved address or
             enter a new shipping
             address.
@@ -776,11 +776,11 @@ console.log("🔥 SENDING ORDER:", orderData);
                   SHIPPING ADDRESS
               ================================================= */}
 
-              <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
+              <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
 
                 {/* HEADER */}
 
-                <div className="border-b border-gray-100 p-5 sm:p-6">
+                <div className="border-b border-gray-100 dark:border-gray-800 p-5 sm:p-6">
 
                   <div className="flex items-center gap-3">
 
@@ -803,7 +803,7 @@ console.log("🔥 SENDING ORDER:", orderData);
 
                     <div>
 
-                      <h2 className="text-lg font-semibold text-gray-900">
+                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                         Shipping Address
                       </h2>
 
@@ -831,7 +831,7 @@ console.log("🔥 SENDING ORDER:", orderData);
 
                       <div>
 
-                        <h3 className="text-sm font-semibold text-gray-900">
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
                           Saved Addresses
                         </h3>
 
@@ -894,8 +894,8 @@ console.log("🔥 SENDING ORDER:", orderData);
                                   cursor-pointer
                                   ${
                                     isSelected
-                                      ? "border-blue-500 bg-blue-50 ring-2 ring-blue-500/10"
-                                      : "border-gray-200 bg-white hover:border-blue-300 hover:bg-gray-50"
+                                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-500/10"
+                                      : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-blue-300 dark:hover:border-blue-600 hover:bg-gray-50 dark:hover:bg-gray-750"
                                   }
                                 `}
                               >
@@ -942,7 +942,7 @@ console.log("🔥 SENDING ORDER:", orderData);
 
                                     <div className="flex items-center justify-between gap-3">
 
-                                      <h4 className="font-semibold text-gray-900">
+                                      <h4 className="font-semibold text-gray-900 dark:text-white">
                                         {
                                           address.fullName
                                         }
@@ -1456,7 +1456,7 @@ console.log("🔥 SENDING ORDER:", orderData);
                     SUMMARY HEADER
                 ================================================= */}
 
-                <div className="border-b border-gray-100 p-5">
+                <div className="border-b border-gray-100 dark:border-gray-800 p-5">
 
                   <div className="flex items-center gap-3">
 
@@ -1479,7 +1479,7 @@ console.log("🔥 SENDING ORDER:", orderData);
 
                     <div>
 
-                      <h2 className="font-semibold text-gray-900">
+                      <h2 className="font-semibold text-gray-900 dark:text-white">
                         Order Summary
                       </h2>
 
@@ -1586,7 +1586,7 @@ console.log("🔥 SENDING ORDER:", orderData);
 
                               <div className="min-w-0 flex-1">
 
-                                <h3 className="truncate text-sm font-medium text-gray-900">
+                                <h3 className="truncate text-sm font-medium text-gray-900 dark:text-white">
                                   {
                                     product?.name
                                   }

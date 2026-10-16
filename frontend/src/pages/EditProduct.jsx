@@ -1505,12 +1505,12 @@ const validateForm = () => {
     reduxLoading
   ) {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-slate-50 dark:bg-gray-950">
         <div className="flex min-h-[70vh] items-center justify-center">
           <div className="flex flex-col items-center gap-3">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 dark:border-gray-800 border-t-blue-600" />
 
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500 dark:text-gray-400">
               Loading product...
             </p>
           </div>
@@ -1524,13 +1524,13 @@ const validateForm = () => {
   ======================================================= */
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-950">
 
       {/* =====================================================
           HEADER
       ====================================================== */}
 
-      <div className="border-b border-slate-200 bg-white">
+      <div className="border-b border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900">
         <div className="mx-auto max-w-[1600px] px-4 py-4 sm:px-6 lg:px-8">
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -1542,7 +1542,7 @@ const validateForm = () => {
                 onClick={() =>
                   navigate(backPath)
                 }
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-slate-600 dark:text-gray-300 transition hover:bg-slate-50 dark:hover:bg-gray-700"
               >
                 <ArrowLeft
                   size={18}
@@ -1551,7 +1551,7 @@ const validateForm = () => {
 
               <div className="min-w-0">
 
-                <div className="flex items-center gap-2 text-xs text-slate-400">
+                <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-gray-500">
                   <span>
                     Products
                   </span>
@@ -1563,11 +1563,11 @@ const validateForm = () => {
                   </span>
                 </div>
 
-                <h1 className="mt-1 truncate text-xl font-bold text-slate-900 sm:text-2xl">
+                <h1 className="mt-1 truncate text-xl font-bold text-slate-900 dark:text-white sm:text-2xl">
                   Edit Product
                 </h1>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-500 dark:text-gray-400">
                   Update product information and inventory.
                 </p>
 
@@ -1582,7 +1582,7 @@ const validateForm = () => {
                   navigate(backPath)
                 }
                 disabled={saving}
-                className="cursor-pointer flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+                className="cursor-pointer flex-1 rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-gray-300 transition hover:bg-slate-50 dark:hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
               >
                 Cancel
               </button>
@@ -1619,7 +1619,7 @@ const validateForm = () => {
         {/* ERROR */}
 
         {error && (
-          <div className="mb-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-700 dark:text-red-400">
 
             <AlertCircle
               size={18}
@@ -1636,7 +1636,7 @@ const validateForm = () => {
         {/* SUCCESS */}
 
         {success && (
-          <div className="mb-6 flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/30 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-400">
 
             <CircleCheck
               size={18}
@@ -1660,13 +1660,13 @@ const validateForm = () => {
 
             {/* PRODUCT INFORMATION */}
 
-            <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <section className="rounded-2xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
 
-              <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
+              <div className="border-b border-slate-100 dark:border-gray-800 px-5 py-4 sm:px-6">
 
                 <div className="flex items-center gap-3">
 
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400">
                     <Package
                       size={18}
                     />
@@ -1674,11 +1674,11 @@ const validateForm = () => {
 
                   <div>
 
-                    <h2 className="text-base font-semibold text-slate-900">
+                    <h2 className="text-base font-semibold text-slate-900 dark:text-white">
                       Product Information
                     </h2>
 
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-slate-400 dark:text-gray-400">
                       Basic information about your product.
                     </p>
 
@@ -1696,7 +1696,7 @@ const validateForm = () => {
 
                   <label
                     htmlFor="name"
-                    className="mb-2 block text-sm font-medium text-slate-700"
+                    className="mb-2 block text-sm font-medium text-slate-700 dark:text-gray-300"
                   >
                     Product Name
                     <span className="ml-1 text-red-500">
@@ -1715,7 +1715,7 @@ const validateForm = () => {
                       handleChange
                     }
                     placeholder="Enter product name"
-                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                    className="h-11 w-full rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 text-sm text-slate-800 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/40"
                   />
 
                 </div>
@@ -1726,7 +1726,7 @@ const validateForm = () => {
 
                   <label
                     htmlFor="description"
-                    className="mb-2 block text-sm font-medium text-slate-700"
+                    className="mb-2 block text-sm font-medium text-slate-700 dark:text-gray-300"
                   >
                     Description
                     <span className="ml-1 text-red-500">
@@ -1745,10 +1745,10 @@ const validateForm = () => {
                     }
                     rows={5}
                     placeholder="Enter product description"
-                    className="w-full resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                    className="w-full resize-y rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-slate-800 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/40"
                   />
 
-                  <p className="mt-1.5 text-xs text-slate-400">
+                  <p className="mt-1.5 text-xs text-slate-400 dark:text-gray-400">
                     Provide a clear description of the product.
                   </p>
 
@@ -1756,11 +1756,11 @@ const validateForm = () => {
 
                 {/* CATEGORY */}
 
-                <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+                <section className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm sm:p-6">
 
                   <div className="mb-5 flex items-center gap-3">
 
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400">
                       <Layers
                         size={19}
                       />
@@ -1768,7 +1768,7 @@ const validateForm = () => {
 
                     <div>
 
-                      <h2 className="text-base font-semibold text-gray-900">
+                      <h2 className="text-base font-semibold text-gray-900 dark:text-white">
                         Product Category
                       </h2>
 
@@ -1787,7 +1787,7 @@ const validateForm = () => {
                     className="relative"
                   >
 
-                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                    <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Category
                       <span className="ml-1 text-red-500">
                         *
@@ -1797,9 +1797,9 @@ const validateForm = () => {
                     {/* SELECTED PATH */}
 
                     {parentCategoryId && (
-                      <div className="mb-4 rounded-xl border border-blue-100 bg-blue-50/60 p-3">
+                      <div className="mb-4 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/30 p-3">
 
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                           <FolderTree
                             size={14}
                           />
@@ -1812,7 +1812,7 @@ const validateForm = () => {
                         <div className="mt-2 flex flex-wrap items-center gap-2">
 
                           {selectedParent && (
-                            <span className="rounded-lg border border-blue-100 bg-white px-3 py-1.5 text-sm font-medium text-gray-700">
+                            <span className="rounded-lg border border-blue-100 dark:border-blue-900 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">
                               {getCategoryName(
                                 selectedParent
                               )}
@@ -1825,7 +1825,7 @@ const validateForm = () => {
                                 /
                               </span>
 
-                              <span className="rounded-lg border border-blue-100 bg-white px-3 py-1.5 text-sm font-medium text-gray-700">
+                              <span className="rounded-lg border border-blue-100 dark:border-blue-900 bg-white dark:bg-gray-800 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">
                                 {getCategoryName(
                                   selectedChild
                                 )}
@@ -1865,7 +1865,7 @@ const validateForm = () => {
                             !prev
                         )
                       }
-                      className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 text-left text-sm text-gray-900 outline-none transition hover:border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 disabled:cursor-not-allowed disabled:bg-gray-50"
+                      className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-left text-sm text-gray-900 dark:text-white outline-none transition hover:border-gray-300 dark:hover:border-gray-600 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/40 disabled:cursor-not-allowed disabled:bg-gray-50 dark:disabled:bg-gray-900"
                     >
 
                       <div className="min-w-0">
@@ -1877,7 +1877,7 @@ const validateForm = () => {
                         ) : selectedFinalCategory ? (
                           <div>
 
-                            <p className="truncate text-sm font-semibold text-gray-900">
+                            <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
                               {getCategoryName(
                                 selectedFinalCategory
                               )}
@@ -1897,7 +1897,7 @@ const validateForm = () => {
                         ) : selectedChild ? (
                           <div>
 
-                            <p className="truncate text-sm font-semibold text-gray-900">
+                            <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
                               {getCategoryName(
                                 selectedChild
                               )}
@@ -1911,7 +1911,7 @@ const validateForm = () => {
 
                           </div>
                         ) : selectedParent ? (
-                          <p className="text-sm font-semibold text-gray-900">
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">
                             {getCategoryName(
                               selectedParent
                             )}
@@ -1938,11 +1938,11 @@ const validateForm = () => {
                     {/* DROPDOWN */}
 
                     {categoryOpen && (
-                      <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
+                      <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl">
 
                         {/* SEARCH */}
 
-                        <div className="border-b border-gray-100 p-3">
+                        <div className="border-b border-gray-100 dark:border-gray-700 p-3">
 
                           <div className="relative">
 
@@ -1968,7 +1968,7 @@ const validateForm = () => {
                                   ? "Search child categories..."
                                   : "Search final categories..."
                               }
-                              className="h-10 w-full rounded-lg border border-gray-200 pl-9 pr-3 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50"
+                              className="h-10 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-3 text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-50 dark:focus:ring-blue-950/40 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                               autoFocus
                             />
 
@@ -1983,13 +1983,13 @@ const validateForm = () => {
                         {!parentCategoryId && (
                           <div>
 
-                            <div className="border-b border-gray-100 bg-gray-50 px-4 py-3">
+                            <div className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 px-4 py-3">
 
-                              <p className="text-xs font-bold uppercase tracking-wide text-gray-500">
+                              <p className="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                                 Step 1
                               </p>
 
-                              <p className="mt-1 text-sm font-semibold text-gray-800">
+                              <p className="mt-1 text-sm font-semibold text-gray-800 dark:text-gray-200">
                                 Select parent category
                               </p>
 
@@ -2017,14 +2017,14 @@ const validateForm = () => {
                                           category
                                         )
                                       }
-                                      className="w-full px-4 py-3 text-left transition hover:bg-blue-50"
+                                      className="w-full px-4 py-3 text-left transition hover:bg-blue-50 dark:hover:bg-gray-700/60"
                                     >
 
                                       <div className="flex items-center justify-between gap-3">
 
                                         <div className="flex min-w-0 items-center gap-3">
 
-                                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
+                                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300">
                                             <Layers
                                               size={
                                                 17
@@ -2034,7 +2034,7 @@ const validateForm = () => {
 
                                           <div className="min-w-0">
 
-                                            <p className="truncate text-sm font-semibold">
+                                            <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
                                               {getCategoryName(
                                                 category
                                               )}
@@ -2060,7 +2060,7 @@ const validateForm = () => {
 
                               {filteredParentCategories.length ===
                                 0 && (
-                                <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                                   No parent categories found.
                                 </div>
                               )}
@@ -2078,17 +2078,17 @@ const validateForm = () => {
                           !childCategoryId && (
                             <div>
 
-                              <div className="border-b border-gray-100 bg-gray-50 px-4 py-3">
+                              <div className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 px-4 py-3">
 
                                 <div className="flex items-center justify-between">
 
                                   <div>
 
-                                    <p className="text-xs font-bold uppercase tracking-wide text-gray-500">
+                                    <p className="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                                       Step 2
                                     </p>
 
-                                    <p className="mt-1 text-sm font-semibold text-gray-800">
+                                    <p className="mt-1 text-sm font-semibold text-gray-800 dark:text-gray-200">
                                       Select child category
                                     </p>
 
@@ -2123,14 +2123,14 @@ const validateForm = () => {
                                         ""
                                       );
                                     }}
-                                    className="text-xs font-semibold text-blue-600"
+                                    className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700"
                                   >
                                     Change
                                   </button>
 
                                 </div>
 
-                                <div className="mt-2 inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5">
+                                <div className="mt-2 inline-flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-1.5">
 
                                   <Layers
                                     size={
@@ -2139,7 +2139,7 @@ const validateForm = () => {
                                     className="text-purple-500"
                                   />
 
-                                  <span className="text-xs font-medium text-gray-700">
+                                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
                                     {getCategoryName(
                                       selectedParent
                                     )}
@@ -2171,14 +2171,14 @@ const validateForm = () => {
                                             category
                                           )
                                         }
-                                        className="w-full px-4 py-3 text-left transition hover:bg-blue-50"
+                                        className="w-full px-4 py-3 text-left transition hover:bg-blue-50 dark:hover:bg-gray-700/60"
                                       >
 
                                         <div className="flex items-center justify-between">
 
                                           <div className="flex items-center gap-3">
 
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300">
                                               <FolderTree
                                                 size={
                                                   16
@@ -2186,7 +2186,7 @@ const validateForm = () => {
                                               />
                                             </div>
 
-                                            <span className="text-sm font-medium text-gray-700">
+                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                               {getCategoryName(
                                                 category
                                               )}
@@ -2211,7 +2211,7 @@ const validateForm = () => {
                                 {categoryLoading &&
                                   filteredChildCategories.length ===
                                     0 && (
-                                    <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                    <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                                       Loading child categories...
                                     </div>
                                   )}
@@ -2219,7 +2219,7 @@ const validateForm = () => {
                                 {!categoryLoading &&
                                   filteredChildCategories.length ===
                                     0 && (
-                                    <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                    <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                                       No child categories found.
                                     </div>
                                   )}
@@ -2237,17 +2237,17 @@ const validateForm = () => {
                           childCategoryId && (
                             <div>
 
-                              <div className="border-b border-gray-100 bg-gray-50 px-4 py-3">
+                              <div className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80 px-4 py-3">
 
                                 <div className="flex items-center justify-between">
 
                                   <div>
 
-                                    <p className="text-xs font-bold uppercase tracking-wide text-gray-500">
+                                    <p className="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                                       Step 3
                                     </p>
 
-                                    <p className="mt-1 text-sm font-semibold text-gray-800">
+                                    <p className="mt-1 text-sm font-semibold text-gray-800 dark:text-gray-200">
                                       Select final category
                                     </p>
 
@@ -2278,7 +2278,7 @@ const validateForm = () => {
                                         ""
                                       );
                                     }}
-                                    className="text-xs font-semibold text-blue-600"
+                                    className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700"
                                   >
                                     Back
                                   </button>
@@ -2287,7 +2287,7 @@ const validateForm = () => {
 
                                 <div className="mt-2 flex flex-wrap items-center gap-2">
 
-                                  <span className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600">
+                                  <span className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300">
                                     {getCategoryName(
                                       selectedParent
                                     )}
@@ -2297,7 +2297,7 @@ const validateForm = () => {
                                     /
                                   </span>
 
-                                  <span className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
+                                  <span className="rounded-lg border border-blue-100 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/40 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:text-blue-300">
                                     {getCategoryName(
                                       selectedChild
                                     )}
@@ -2339,8 +2339,8 @@ const validateForm = () => {
                                         }
                                         className={`w-full px-4 py-3 text-left transition ${
                                           selected
-                                            ? "bg-blue-50"
-                                            : "hover:bg-gray-50"
+                                            ? "bg-blue-50 dark:bg-blue-950/40"
+                                            : "hover:bg-gray-50 dark:hover:bg-gray-700/60"
                                         }`}
                                       >
 
@@ -2351,8 +2351,8 @@ const validateForm = () => {
                                             <div
                                               className={`flex h-8 w-8 items-center justify-center rounded-lg ${
                                                 selected
-                                                  ? "bg-blue-100 text-blue-600"
-                                                  : "bg-gray-100 text-gray-500"
+                                                  ? "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400"
+                                                  : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300"
                                               }`}
                                             >
                                               <FolderTree
@@ -2365,8 +2365,8 @@ const validateForm = () => {
                                             <span
                                               className={`text-sm ${
                                                 selected
-                                                  ? "font-semibold text-blue-700"
-                                                  : "font-medium text-gray-700"
+                                                  ? "font-semibold text-blue-700 dark:text-blue-300"
+                                                  : "font-medium text-gray-700 dark:text-gray-300"
                                               }`}
                                             >
                                               {getCategoryName(
@@ -2381,7 +2381,7 @@ const validateForm = () => {
                                               size={
                                                 17
                                               }
-                                              className="text-blue-600"
+                                              className="text-blue-600 dark:text-blue-400"
                                             />
                                           )}
 
@@ -2395,7 +2395,7 @@ const validateForm = () => {
                                 {categoryLoading &&
                                   filteredFinalCategories.length ===
                                     0 && (
-                                    <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                    <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                                       Loading final categories...
                                     </div>
                                   )}
@@ -2403,7 +2403,7 @@ const validateForm = () => {
                                 {!categoryLoading &&
                                   filteredFinalCategories.length ===
                                     0 && (
-                                    <div className="px-4 py-8 text-center text-sm text-gray-500">
+                                    <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                                       No final categories found.
                                     </div>
                                   )}
@@ -2430,7 +2430,7 @@ const validateForm = () => {
 
                   <label
                     htmlFor="brand"
-                    className="mb-2 block text-sm font-medium text-slate-700"
+                    className="mb-2 block text-sm font-medium text-slate-700 dark:text-gray-300"
                   >
                     Brand
                   </label>
@@ -2446,7 +2446,7 @@ const validateForm = () => {
                       handleChange
                     }
                     placeholder="Enter brand"
-                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                    className="h-11 w-full rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 text-sm text-slate-800 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/40"
                   />
 
                 </div>
@@ -2459,7 +2459,7 @@ const validateForm = () => {
 
                     <label
                       htmlFor="price"
-                      className="mb-2 block text-sm font-medium text-slate-700"
+                      className="mb-2 block text-sm font-medium text-slate-700 dark:text-gray-300"
                     >
                       Price
                       <span className="ml-1 text-red-500">
@@ -2469,7 +2469,7 @@ const validateForm = () => {
 
                     <div className="relative">
 
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-400 dark:text-gray-400">
                        ₹
                       </span>
 
@@ -2486,7 +2486,7 @@ const validateForm = () => {
                           handleChange
                         }
                         placeholder="0.00"
-                        className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-8 pr-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                        className="h-11 w-full rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 pl-8 pr-4 text-sm text-slate-800 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/40"
                       />
 
                     </div>
@@ -2497,14 +2497,14 @@ const validateForm = () => {
 
                     <label
                       htmlFor="mrp"
-                      className="mb-2 block text-sm font-medium text-slate-700"
+                      className="mb-2 block text-sm font-medium text-slate-700 dark:text-gray-300"
                     >
                       MRP
                     </label>
 
                     <div className="relative">
 
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-400 dark:text-gray-400">
                        ₹
                       </span>
 
@@ -2521,7 +2521,7 @@ const validateForm = () => {
                           handleChange
                         }
                         placeholder="0.00"
-                        className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-8 pr-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                        className="h-11 w-full rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 pl-8 pr-4 text-sm text-slate-800 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/40"
                       />
 
                     </div>
@@ -2538,7 +2538,7 @@ const validateForm = () => {
 
                     <label
                       htmlFor="discount"
-                      className="mb-2 block text-sm font-medium text-slate-700"
+                      className="mb-2 block text-sm font-medium text-slate-700 dark:text-gray-300"
                     >
                       Discount
                     </label>
@@ -2558,10 +2558,10 @@ const validateForm = () => {
                           handleChange
                         }
                         placeholder="0"
-                        className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-4 pr-10 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                        className="h-11 w-full rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 pl-4 pr-10 text-sm text-slate-800 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/40"
                       />
 
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-slate-400 dark:text-gray-400">
                         %
                       </span>
 
@@ -2573,7 +2573,7 @@ const validateForm = () => {
 
                     <label
                       htmlFor="stock"
-                      className="mb-2 block text-sm font-medium text-slate-700"
+                      className="mb-2 block text-sm font-medium text-slate-700 dark:text-gray-300"
                     >
                       Stock
                       <span className="ml-1 text-red-500">
@@ -2593,7 +2593,7 @@ const validateForm = () => {
                         handleChange
                       }
                       placeholder="0"
-                      className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                      className="h-11 w-full rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 text-sm text-slate-800 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/40"
                     />
 
                   </div>
@@ -2606,7 +2606,7 @@ const validateForm = () => {
 
                   <label
                     htmlFor="sku"
-                    className="mb-2 block text-sm font-medium text-slate-700"
+                    className="mb-2 block text-sm font-medium text-slate-700 dark:text-gray-300"
                   >
                     SKU
                   </label>
@@ -2622,18 +2622,18 @@ const validateForm = () => {
                       handleChange
                     }
                     placeholder="e.g. NIKE-270"
-                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm uppercase text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                    className="h-11 w-full rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 text-sm uppercase text-slate-800 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/40"
                   />
 
                 </div>
 {formData.hasVariants && (
-  <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-    <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
-      <h2 className="text-base font-semibold text-slate-900">
+  <section className="rounded-2xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
+    <div className="border-b border-slate-100 dark:border-gray-800 px-5 py-4 sm:px-6">
+      <h2 className="text-base font-semibold text-slate-900 dark:text-white">
         Product Variants
       </h2>
 
-      <p className="mt-1 text-xs text-slate-400">
+      <p className="mt-1 text-xs text-slate-400 dark:text-gray-400">
         Manage variants using their attributes.
       </p>
     </div>
@@ -2641,11 +2641,11 @@ const validateForm = () => {
   {formData.variants.map((variant, variantIndex) => (
   <div
     key={variantIndex}
-    className="rounded-xl border border-slate-200 bg-slate-50 p-4"
+    className="rounded-xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/80 p-4"
   >
     {/* Variant title */}
     <div className="mb-4">
-      <p className="text-sm font-semibold text-slate-900">
+      <p className="text-sm font-semibold text-slate-900 dark:text-white">
         {variant.attributes
           ?.map((attr) => attr.value)
           .filter(Boolean)
@@ -2658,7 +2658,7 @@ const validateForm = () => {
 
       {/* PRICE */}
       <div>
-        <label className="mb-2 block text-xs font-medium text-slate-600">
+        <label className="mb-2 block text-xs font-medium text-slate-600 dark:text-gray-300">
           Price
         </label>
 
@@ -2680,13 +2680,13 @@ const validateForm = () => {
               ),
             }));
           }}
-          className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm"
+          className="h-10 w-full rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 text-sm text-slate-900 dark:text-white"
         />
       </div>
 
       {/* MRP */}
       <div>
-        <label className="mb-2 block text-xs font-medium text-slate-600">
+        <label className="mb-2 block text-xs font-medium text-slate-600 dark:text-gray-300">
           MRP
         </label>
 
@@ -2708,13 +2708,13 @@ const validateForm = () => {
               ),
             }));
           }}
-          className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm"
+          className="h-10 w-full rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 text-sm text-slate-900 dark:text-white"
         />
       </div>
 
       {/* STOCK */}
       <div>
-        <label className="mb-2 block text-xs font-medium text-slate-600">
+        <label className="mb-2 block text-xs font-medium text-slate-600 dark:text-gray-300">
           Stock
         </label>
 
@@ -2736,7 +2736,7 @@ const validateForm = () => {
               ),
             }));
           }}
-          className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm"
+          className="h-10 w-full rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 text-sm text-slate-900 dark:text-white"
         />
       </div>
     </div>
@@ -2744,7 +2744,7 @@ const validateForm = () => {
     {/* ATTRIBUTES */}
     <div className="mt-5">
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-xs font-semibold text-slate-600">
+        <p className="text-xs font-semibold text-slate-600 dark:text-gray-300">
           Attributes
         </p>
 
@@ -2769,7 +2769,7 @@ const validateForm = () => {
               ),
             }));
           }}
-          className="text-xs font-semibold text-indigo-600 hover:text-indigo-700"
+          className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700"
         >
           + Add Attribute
         </button>
@@ -2812,7 +2812,7 @@ const validateForm = () => {
                     ),
                   }));
                 }}
-                className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm"
+                className="h-10 rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-gray-500"
               />
 
               {/* ATTRIBUTE VALUE */}
@@ -2845,7 +2845,7 @@ const validateForm = () => {
                     ),
                   }));
                 }}
-                className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm"
+                className="h-10 rounded-lg border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-gray-500"
               />
 
               {/* REMOVE ATTRIBUTE */}
@@ -2869,7 +2869,7 @@ const validateForm = () => {
                     ),
                   }));
                 }}
-                className="h-10 rounded-lg border border-red-200 bg-white px-3 text-red-500 hover:bg-red-50"
+                className="h-10 rounded-lg border border-red-200 dark:border-red-900/50 bg-white dark:bg-gray-800 px-3 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30"
               >
                 Remove
               </button>
@@ -2892,15 +2892,15 @@ const validateForm = () => {
                 IMAGES
             ================================================== */}
 
-            <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <section className="rounded-2xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
 
-              <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
+              <div className="border-b border-slate-100 dark:border-gray-800 px-5 py-4 sm:px-6">
 
-                <h2 className="text-base font-semibold text-slate-900">
+                <h2 className="text-base font-semibold text-slate-900 dark:text-white">
                   Product Images
                 </h2>
 
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-1 text-xs text-slate-400 dark:text-gray-400">
                   Manage product images and upload new ones.
                 </p>
 
@@ -2930,7 +2930,7 @@ const validateForm = () => {
                           key={
                             imageKey
                           }
-                          className="group relative aspect-square overflow-hidden rounded-xl border border-slate-200 bg-slate-50"
+                          className="group relative aspect-square overflow-hidden rounded-xl border border-slate-200 dark:border-gray-700 bg-white flex items-center justify-center"
                         >
 
                           {imageSrc ? (
@@ -2939,10 +2939,10 @@ const validateForm = () => {
                                 imageSrc
                               }
                               alt="Product"
-                              className="h-full w-full object-cover"
+                              className="h-full w-full object-contain p-1"
                             />
                           ) : (
-                            <div className="flex h-full items-center justify-center text-slate-300">
+                            <div className="flex h-full items-center justify-center text-slate-300 dark:text-gray-600">
                               <ImageIcon
                                 size={
                                   36
@@ -2966,7 +2966,7 @@ const validateForm = () => {
                                   imageKey
                                 )
                               }
-                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-red-500 shadow-sm transition hover:bg-red-50"
+                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-white dark:bg-gray-800 text-red-500 shadow-sm transition hover:bg-red-50 dark:hover:bg-red-950/40"
                               title="Remove image"
                             >
                               <Trash2
@@ -2985,7 +2985,7 @@ const validateForm = () => {
 
                   {/* ADD IMAGE */}
 
-                  <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 text-slate-400 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-blue-600">
+                  <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/40 text-slate-400 dark:text-gray-400 transition hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-950/20 hover:text-blue-600 dark:hover:text-blue-400">
 
                     <Upload
                       size={22}
@@ -3015,7 +3015,7 @@ const validateForm = () => {
 
                 {images.length ===
                   0 && (
-                  <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-xs text-slate-400">
+                  <div className="mt-4 rounded-xl border border-slate-100 dark:border-gray-800 bg-slate-50 dark:bg-gray-800/60 px-4 py-3 text-xs text-slate-400 dark:text-gray-400">
                     No product images have been added yet.
                   </div>
                 )}
@@ -3034,15 +3034,15 @@ const validateForm = () => {
 
             {/* STATUS */}
 
-            <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <section className="rounded-2xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
 
-              <div className="border-b border-slate-100 px-5 py-4">
+              <div className="border-b border-slate-100 dark:border-gray-800 px-5 py-4">
 
-                <h2 className="text-base font-semibold text-slate-900">
+                <h2 className="text-base font-semibold text-slate-900 dark:text-white">
                   Product Status
                 </h2>
 
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-1 text-xs text-slate-400 dark:text-gray-400">
                   Control product visibility.
                 </p>
 
@@ -3052,7 +3052,7 @@ const validateForm = () => {
 
                 <label
                   htmlFor="status"
-                  className="mb-2 block text-sm font-medium text-slate-700"
+                  className="mb-2 block text-sm font-medium text-slate-700 dark:text-gray-300"
                 >
                   Status
                 </label>
@@ -3066,7 +3066,7 @@ const validateForm = () => {
                   onChange={
                     handleChange
                   }
-                  className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-800 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                  className="h-11 w-full rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 text-sm text-slate-800 dark:text-white outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/40"
                 >
 
                   <option value="active">
@@ -3083,8 +3083,8 @@ const validateForm = () => {
                   className={`mt-4 flex items-center gap-3 rounded-xl px-3 py-3 ${
                     formData.status ===
                     "active"
-                      ? "bg-emerald-50"
-                      : "bg-slate-100"
+                      ? "bg-emerald-50 dark:bg-emerald-950/30"
+                      : "bg-slate-100 dark:bg-gray-800"
                   }`}
                 >
 
@@ -3101,8 +3101,8 @@ const validateForm = () => {
                     className={`text-xs font-medium ${
                       formData.status ===
                       "active"
-                        ? "text-emerald-700"
-                        : "text-slate-600"
+                        ? "text-emerald-700 dark:text-emerald-400"
+                        : "text-slate-600 dark:text-gray-300"
                     }`}
                   >
                     {formData.status ===
@@ -3119,15 +3119,15 @@ const validateForm = () => {
 
             {/* PREVIEW */}
 
-            <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <section className="overflow-hidden rounded-2xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
 
-              <div className="border-b border-slate-100 px-5 py-4">
+              <div className="border-b border-slate-100 dark:border-gray-800 px-5 py-4">
 
-                <h2 className="text-base font-semibold text-slate-900">
+                <h2 className="text-base font-semibold text-slate-900 dark:text-white">
                   Product Preview
                 </h2>
 
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-1 text-xs text-slate-400 dark:text-gray-400">
                   Preview how the product information looks.
                 </p>
 
@@ -3135,9 +3135,9 @@ const validateForm = () => {
 
               <div className="p-5">
 
-                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+                <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900">
 
-                  <div className="relative flex aspect-square items-center justify-center bg-slate-50">
+                  <div className="relative flex aspect-square items-center justify-center bg-white border-b border-slate-100 dark:border-gray-800">
 
                     {images.length >
                       0 &&
@@ -3158,12 +3158,12 @@ const validateForm = () => {
                           formData.name ||
                           "Product"
                         }
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-contain p-2"
                       />
 
                     ) : (
 
-                      <div className="flex flex-col items-center text-slate-300">
+                      <div className="flex flex-col items-center text-slate-300 dark:text-gray-600">
 
                         <ImageIcon
                           size={42}
@@ -3187,27 +3187,27 @@ const validateForm = () => {
 
                   <div className="p-4">
 
-                    <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-slate-400">
+                    <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-slate-400 dark:text-gray-500">
                       {getCategoryName(
                         selectedCategory
                       ) ||
                         "Category"}
                     </p>
 
-                    <h3 className="line-clamp-2 text-sm font-semibold text-slate-900">
+                    <h3 className="line-clamp-2 text-sm font-semibold text-slate-900 dark:text-white">
                       {formData.name ||
                         "Product Name"}
                     </h3>
 
                     {formData.brand && (
-                      <p className="mt-1 text-xs text-slate-400">
+                      <p className="mt-1 text-xs text-slate-400 dark:text-gray-400">
                         {formData.brand}
                       </p>
                     )}
 
                     <div className="mt-3 flex flex-wrap items-center gap-2">
 
-                      <span className="text-base font-bold text-slate-900">
+                      <span className="text-base font-bold text-slate-900 dark:text-white">
                        ₹
                         {discountedPrice.toFixed(
                           2
@@ -3216,7 +3216,7 @@ const validateForm = () => {
 
                       {discount >
                         0 && (
-                        <span className="text-xs text-slate-400 line-through">
+                        <span className="text-xs text-slate-400 dark:text-gray-500 line-through">
                          ₹
                           {price.toFixed(
                             2
@@ -3226,9 +3226,9 @@ const validateForm = () => {
 
                     </div>
 
-                    <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+                    <div className="mt-3 flex items-center justify-between border-t border-slate-100 dark:border-gray-800 pt-3">
 
-                      <span className="text-xs text-slate-400">
+                      <span className="text-xs text-slate-400 dark:text-gray-400">
                         Stock
                       </span>
 
@@ -3264,11 +3264,11 @@ const validateForm = () => {
 
             {/* INVENTORY */}
 
-            <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <section className="rounded-2xl border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
 
               <div className="p-5">
 
-                <h3 className="text-sm font-semibold text-slate-900">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                   Inventory Information
                 </h3>
 
@@ -3276,11 +3276,11 @@ const validateForm = () => {
 
                   <div className="flex items-center justify-between">
 
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-slate-400 dark:text-gray-400">
                       SKU
                     </span>
 
-                    <span className="max-w-[150px] truncate text-xs font-medium text-slate-700">
+                    <span className="max-w-[150px] truncate text-xs font-medium text-slate-700 dark:text-gray-300">
                       {formData.sku ||
                         "—"}
                     </span>
@@ -3289,11 +3289,11 @@ const validateForm = () => {
 
                   <div className="flex items-center justify-between">
 
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-slate-400 dark:text-gray-400">
                       Stock
                     </span>
 
-                    <span className="text-xs font-semibold text-slate-700">
+                    <span className="text-xs font-semibold text-slate-700 dark:text-gray-300">
                       {formData.stock ||
                         0}
                     </span>
@@ -3302,11 +3302,11 @@ const validateForm = () => {
 
                   <div className="flex items-center justify-between">
 
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-slate-400 dark:text-gray-400">
                       Discount
                     </span>
 
-                    <span className="text-xs font-semibold text-slate-700">
+                    <span className="text-xs font-semibold text-slate-700 dark:text-gray-300">
                       {formData.discount ||
                         0}
                       %
@@ -3328,7 +3328,7 @@ const validateForm = () => {
             MOBILE ACTIONS
         ==================================================== */}
 
-        <div className="mt-6 flex gap-3 border-t border-slate-200 pt-6 sm:hidden">
+        <div className="mt-6 flex gap-3 border-t border-slate-200 dark:border-gray-800 pt-6 sm:hidden">
 
           <button
             type="button"
@@ -3336,7 +3336,7 @@ const validateForm = () => {
               navigate(backPath)
             }
             disabled={saving}
-            className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+            className="flex-1 rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm font-medium text-slate-700 dark:text-gray-300 transition hover:bg-slate-50 dark:hover:bg-gray-700 disabled:opacity-50"
           >
             Cancel
           </button>

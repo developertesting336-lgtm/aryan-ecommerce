@@ -138,15 +138,15 @@ const couponBasePath =
     : "/vendor/coupons";
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8 dark:bg-gray-950">
       {/* Header */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Coupons
           </h1>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Create and manage discount coupons.
           </p>
         </div>
@@ -155,7 +155,7 @@ const couponBasePath =
           <button
             onClick={() => dispatch(getCoupons())}
             disabled={loading}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
           >
             <RefreshCw
               className={`h-4 w-4 ${
@@ -173,7 +173,7 @@ const couponBasePath =
               // navigate("/vendor/coupons/create")
               navigate(`${couponBasePath}/create`)
             }
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-indigo-600 dark:hover:bg-indigo-500"
           >
             <Plus className="h-4 w-4" />
             Create Coupon
@@ -183,14 +183,14 @@ const couponBasePath =
 
       {/* Success */}
       {success && (
-        <div className="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+        <div className="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700 dark:border-green-800/40 dark:bg-green-950/40 dark:text-green-300">
           {success}
         </div>
       )}
 
       {/* Error */}
       {error && (
-        <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+        <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:border-red-800/40 dark:bg-red-950/40 dark:text-red-300">
           {error}
         </div>
       )}
@@ -214,9 +214,9 @@ const couponBasePath =
 
       {/* Result count */}
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Showing{" "}
-          <span className="font-semibold text-gray-900">
+          <span className="font-semibold text-gray-900 dark:text-white">
             {filteredCoupons.length}
           </span>{" "}
           coupon
@@ -228,10 +228,10 @@ const couponBasePath =
 
       {/* Table */}
       {loading ? (
-        <div className="rounded-xl border border-gray-200 bg-white py-16 text-center">
+        <div className="rounded-xl border border-gray-200 bg-white py-16 text-center dark:border-gray-800 dark:bg-gray-900">
           <RefreshCw className="mx-auto h-7 w-7 animate-spin text-gray-400" />
 
-          <p className="mt-3 text-sm text-gray-500">
+          <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
             Loading coupons...
           </p>
         </div>

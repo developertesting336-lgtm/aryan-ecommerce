@@ -399,13 +399,13 @@ export default function SalesOverview({ data = [],period,setPeriod }) {
   ===================================================== */
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
 
       {/* =================================================
           HEADER
       ================================================= */}
 
-      <div className="border-b border-slate-100 p-5 sm:p-6">
+      <div className="border-b border-slate-100 p-5 sm:p-6 dark:border-gray-800">
 
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
 
@@ -424,11 +424,11 @@ export default function SalesOverview({ data = [],period,setPeriod }) {
 
               <div>
 
-                <h2 className="text-base font-bold text-slate-900 sm:text-lg">
+                <h2 className="text-base font-bold text-slate-900 dark:text-white sm:text-lg">
                   Sales Overview
                 </h2>
 
-                <p className="mt-0.5 text-xs text-slate-400">
+                <p className="mt-0.5 text-xs text-slate-400 dark:text-gray-400">
                   Track your store revenue performance
                 </p>
 
@@ -443,19 +443,19 @@ export default function SalesOverview({ data = [],period,setPeriod }) {
 
             {/* GROWTH */}
 
-            <div className="flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2">
+            <div className="flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 dark:bg-emerald-950/40">
 
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-400">
                 ↗
               </div>
 
               <div>
 
-                <p className="text-[9px] font-semibold uppercase tracking-wide text-slate-400">
+                <p className="text-[9px] font-semibold uppercase tracking-wide text-slate-400 dark:text-gray-400">
                   Growth
                 </p>
 
-                <p className="text-xs font-bold text-emerald-600">
+                <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
                   +12.5%
                 </p>
 
@@ -486,6 +486,11 @@ export default function SalesOverview({ data = [],period,setPeriod }) {
                 focus:border-[#4779F5]
                 focus:ring-4
                 focus:ring-blue-50
+                dark:border-gray-700
+                dark:bg-gray-800
+                dark:text-gray-200
+                dark:hover:bg-gray-700
+                dark:focus:ring-blue-900/40
               "
             >
 
@@ -526,11 +531,11 @@ export default function SalesOverview({ data = [],period,setPeriod }) {
 
         <div>
 
-          <p className="text-xs font-medium text-slate-400">
+          <p className="text-xs font-medium text-slate-400 dark:text-gray-400">
             {getPeriodLabel()}
           </p>
 
-          <p className="mt-1 text-sm font-semibold text-slate-700">
+          <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-gray-300">
             Sales performance
           </p>
 
@@ -751,7 +756,7 @@ export default function SalesOverview({ data = [],period,setPeriod }) {
           QUICK INSIGHTS
       ================================================= */}
 
-      <div className="grid grid-cols-1 border-t border-slate-100 sm:grid-cols-3">
+      <div className="grid grid-cols-1 border-t border-slate-100 sm:grid-cols-3 dark:border-gray-800">
 
         {/* TOTAL */}
 
@@ -759,17 +764,17 @@ export default function SalesOverview({ data = [],period,setPeriod }) {
 
           <div className="flex items-center gap-3">
 
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#4779F5]">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#4779F5] dark:bg-blue-950/40 dark:text-blue-400">
               ₹
             </div>
 
             <div>
 
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-gray-400">
                 Total Sales
               </p>
 
-              <p className="mt-0.5 text-lg font-bold text-slate-900">
+              <p className="mt-0.5 text-lg font-bold text-slate-900 dark:text-white">
                 ₹
                 {totalSales.toLocaleString(
                   "en-IN"
@@ -782,11 +787,11 @@ export default function SalesOverview({ data = [],period,setPeriod }) {
 
           <div className="mt-3 flex items-center gap-2">
 
-            <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-600">
+            <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400">
               +12.5%
             </span>
 
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-slate-400 dark:text-gray-500">
               vs last period
             </span>
 
@@ -796,21 +801,21 @@ export default function SalesOverview({ data = [],period,setPeriod }) {
 
         {/* AVERAGE */}
 
-        <div className="border-t border-slate-100 p-5 sm:border-l sm:border-t-0 sm:p-6">
+        <div className="border-t border-slate-100 p-5 sm:border-l sm:border-t-0 sm:p-6 dark:border-gray-800">
 
           <div className="flex items-center gap-3">
 
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-[#7C5CFC]">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-[#7C5CFC] dark:bg-purple-950/40 dark:text-purple-400">
               ↗
             </div>
 
             <div>
 
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-gray-400">
                 Daily Average
               </p>
 
-              <p className="mt-0.5 text-lg font-bold text-slate-900">
+              <p className="mt-0.5 text-lg font-bold text-slate-900 dark:text-white">
                 ₹
                 {averageSales.toLocaleString(
                   "en-IN"
@@ -821,7 +826,7 @@ export default function SalesOverview({ data = [],period,setPeriod }) {
 
           </div>
 
-          <p className="mt-3 text-[10px] text-slate-400">
+          <p className="mt-3 text-[10px] text-slate-400 dark:text-gray-500">
             Average daily revenue
           </p>
 
@@ -829,21 +834,21 @@ export default function SalesOverview({ data = [],period,setPeriod }) {
 
         {/* BEST DAY */}
 
-        <div className="border-t border-slate-100 p-5 sm:border-l sm:border-t-0 sm:p-6">
+        <div className="border-t border-slate-100 p-5 sm:border-l sm:border-t-0 sm:p-6 dark:border-gray-800">
 
           <div className="flex items-center gap-3">
 
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-pink-50 text-pink-500">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-pink-50 text-pink-500 dark:bg-pink-950/40 dark:text-pink-400">
               ★
             </div>
 
             <div>
 
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-gray-400">
                 Best Day
               </p>
 
-              <p className="mt-0.5 text-lg font-bold text-slate-900">
+              <p className="mt-0.5 text-lg font-bold text-slate-900 dark:text-white">
                 {highestDay}
               </p>
 
@@ -851,7 +856,7 @@ export default function SalesOverview({ data = [],period,setPeriod }) {
 
           </div>
 
-          <p className="mt-3 text-[10px] text-slate-400">
+          <p className="mt-3 text-[10px] text-slate-400 dark:text-gray-500">
             ₹
             {highestSales.toLocaleString(
               "en-IN"
@@ -889,11 +894,11 @@ function SalesTooltip({
   );
 
   return (
-    <div className="min-w-40 rounded-2xl border border-slate-100 bg-white p-4 shadow-2xl">
+    <div className="min-w-40 rounded-2xl border border-slate-100 bg-white p-4 shadow-2xl dark:border-gray-700 dark:bg-gray-800">
 
       <div className="flex items-center justify-between gap-5">
 
-        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-gray-400">
           {label}
         </p>
 
@@ -901,7 +906,7 @@ function SalesTooltip({
 
       </div>
 
-      <p className="mt-2 text-xl font-bold text-slate-900">
+      <p className="mt-2 text-xl font-bold text-slate-900 dark:text-white">
         ₹
         {value.toLocaleString("en-IN")}
       </p>
@@ -910,7 +915,7 @@ function SalesTooltip({
 
         <span className="h-1.5 w-5 rounded-full bg-linear-to-r from-[#4779F5] to-[#24B9E8]" />
 
-        <span className="text-[10px] font-medium text-slate-500">
+        <span className="text-[10px] font-medium text-slate-500 dark:text-gray-400">
           Sales revenue
         </span>
 

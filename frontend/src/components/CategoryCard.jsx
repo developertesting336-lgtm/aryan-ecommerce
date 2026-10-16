@@ -24,19 +24,24 @@ export default function CategoryCard({
         rounded-2xl
         border
         border-[#e7e7e7]
+        dark:border-gray-800
         bg-white
+        dark:bg-gray-900
         text-left
         shadow-[0_2px_10px_rgba(0,0,0,0.05)]
+        dark:shadow-[0_2px_10px_rgba(0,0,0,0.4)]
         transition-all
         duration-300
         ease-out
 
         hover:-translate-y-0.5
         hover:shadow-[0_8px_22px_rgba(0,0,0,0.09)]
+        dark:hover:shadow-[0_8px_22px_rgba(0,0,0,0.6)]
 
         focus:outline-none
         focus-visible:ring-2
         focus-visible:ring-black/50
+        dark:focus-visible:ring-white/50
         focus-visible:ring-offset-2
         cursor-pointer
         sm:h-[164px]
@@ -55,7 +60,7 @@ export default function CategoryCard({
           items-center
           justify-center
           overflow-hidden
-          bg-white
+          bg-white!
           px-4
           pt-2
 
@@ -107,6 +112,7 @@ export default function CategoryCard({
           items-center
           justify-center
           bg-white
+          dark:bg-gray-900
           px-3
           pb-3
           pt-1
@@ -122,6 +128,7 @@ export default function CategoryCard({
             leading-[14px]
             tracking-[-0.1px]
             text-[#171717]
+            dark:text-gray-100
 
             sm:text-[11.5px]
             sm:leading-[15px]

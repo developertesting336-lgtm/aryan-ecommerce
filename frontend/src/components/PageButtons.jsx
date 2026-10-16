@@ -76,7 +76,7 @@ export default function PageButtons({
             }
           }}
           aria-label="Previous page"
-          className={`cursor-pointer flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition ${selectedColor.hover} disabled:cursor-not-allowed disabled:opacity-40 sm:h-10 sm:w-10`}
+          className={`cursor-pointer flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-slate-600 dark:text-gray-300 transition ${selectedColor.hover} disabled:cursor-not-allowed disabled:opacity-40 sm:h-10 sm:w-10`}
         >
           <ChevronLeft size={17} />
         </button>
@@ -87,7 +87,7 @@ export default function PageButtons({
             return (
               <span
                 key={`${item}-${index}`}
-                className="flex h-9 w-6 items-center justify-center text-sm font-semibold text-slate-400 sm:h-10 sm:w-7"
+                className="flex h-9 w-6 items-center justify-center text-sm font-semibold text-slate-400 dark:text-gray-500 sm:h-10 sm:w-7"
               >
                 ...
               </span>
@@ -107,7 +107,7 @@ export default function PageButtons({
               className={`cursor-pointer flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-xs font-semibold transition sm:h-10 sm:min-w-10 sm:px-3 sm:text-sm ${
                 isActive
                   ? `${selectedColor.active} text-white shadow-sm`
-                  : `border border-slate-200 bg-white text-slate-600 ${selectedColor.hover}`
+                  : `border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-slate-600 dark:text-gray-300 ${selectedColor.hover}`
               }`}
             >
               {pageNumber}
@@ -125,7 +125,7 @@ export default function PageButtons({
             }
           }}
           aria-label="Next page"
-          className={`cursor-pointer flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition ${selectedColor.hover} disabled:cursor-not-allowed disabled:opacity-40 sm:h-10 sm:w-10`}
+          className={`cursor-pointer flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-slate-600 dark:text-gray-300 transition ${selectedColor.hover} disabled:cursor-not-allowed disabled:opacity-40 sm:h-10 sm:w-10`}
         >
           <ChevronRight size={17} />
         </button>

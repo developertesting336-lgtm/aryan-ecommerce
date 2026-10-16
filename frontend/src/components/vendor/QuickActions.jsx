@@ -40,6 +40,9 @@ export default function QuickAction({
         hover:-translate-y-0.5
         hover:border-transparent
         hover:shadow-md
+        dark:border-gray-800
+        dark:bg-gray-900
+        dark:hover:border-transparent
       "
     >
 
@@ -61,11 +64,11 @@ export default function QuickAction({
       </span>
 
       <div className="min-w-0">
-        <p className="truncate text-xs font-bold text-slate-700 group-hover:text-indigo-600">
+        <p className="truncate text-xs font-bold text-slate-700 group-hover:text-indigo-600 dark:text-gray-200 dark:group-hover:text-indigo-400">
           {title}
         </p>
 
-        <p className="mt-0.5 hidden text-[10px] text-slate-400 sm:block">
+        <p className="mt-0.5 hidden text-[10px] text-slate-400 dark:text-gray-500 sm:block">
           Quick action
         </p>
       </div>

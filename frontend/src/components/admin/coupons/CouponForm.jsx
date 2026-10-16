@@ -227,7 +227,7 @@ export default function CouponForm({
     `mt-2 w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition ${
       errors[field]
         ? "border-red-400 focus:border-red-500"
-        : "border-gray-300 focus:border-gray-900"
+        : "border-gray-300 focus:border-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-indigo-500"
     }`;
 
   return (
@@ -237,18 +237,18 @@ export default function CouponForm({
         <button
           type="button"
           onClick={onCancel}
-          className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+          className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Coupons
         </button>
 
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           {title}
         </h1>
 
         {subtitle && (
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {subtitle}
           </p>
         )}
@@ -258,13 +258,13 @@ export default function CouponForm({
         {/* =====================================
             BASIC INFORMATION
         ====================================== */}
-        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6 dark:border-gray-800 dark:bg-gray-900">
           <div className="mb-6">
-            <h2 className="text-lg font-bold text-gray-900">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
               Basic Information
             </h2>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Enter the basic details of the coupon.
             </p>
           </div>
@@ -291,7 +291,7 @@ export default function CouponForm({
             </div> */}
 
             <div>
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Coupon Name *
               </label>
 
@@ -304,14 +304,14 @@ export default function CouponForm({
               />
 
               {errors.name && (
-                <p className="mt-1 text-xs text-red-600">
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
                   {errors.name}
                 </p>
               )}
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Description
               </label>
 
@@ -330,20 +330,20 @@ export default function CouponForm({
         {/* =====================================
             DISCOUNT
         ====================================== */}
-        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6 dark:border-gray-800 dark:bg-gray-900">
           <div className="mb-6">
-            <h2 className="text-lg font-bold text-gray-900">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
               Discount
             </h2>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Configure how much discount customers receive.
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <div>
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Discount Type *
               </label>
 
@@ -364,7 +364,7 @@ export default function CouponForm({
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Discount Value *
               </label>
 
@@ -390,7 +390,7 @@ export default function CouponForm({
               </div>
 
               {errors.discountValue && (
-                <p className="mt-1 text-xs text-red-600">
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
                   {errors.discountValue}
                 </p>
               )}
@@ -398,7 +398,7 @@ export default function CouponForm({
 
             {formData.discountType === "percentage" && (
               <div>
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Maximum Discount Amount
                 </label>
 
@@ -420,14 +420,14 @@ export default function CouponForm({
                   />
                 </div>
 
-                <p className="mt-1 text-xs text-gray-400">
+                <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
                   Maximum amount a customer can save.
                 </p>
               </div>
             )}
 
             <div>
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Minimum Order Amount
               </label>
 
@@ -448,14 +448,14 @@ export default function CouponForm({
               </div>
 
               {errors.minOrderAmount && (
-                <p className="mt-1 text-xs text-red-600">
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
                   {errors.minOrderAmount}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Currency
               </label>
 
@@ -484,20 +484,20 @@ export default function CouponForm({
         {/* =====================================
             VALIDITY
         ====================================== */}
-        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6 dark:border-gray-800 dark:bg-gray-900">
           <div className="mb-6">
-            <h2 className="text-lg font-bold text-gray-900">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
               Validity
             </h2>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Set when the coupon becomes valid and expires.
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <div>
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Start Date & Time *
               </label>
 
@@ -516,14 +516,14 @@ export default function CouponForm({
               </div>
 
               {errors.startsAt && (
-                <p className="mt-1 text-xs text-red-600">
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
                   {errors.startsAt}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Expiry Date & Time *
               </label>
 
@@ -542,7 +542,7 @@ export default function CouponForm({
               </div>
 
               {errors.expiresAt && (
-                <p className="mt-1 text-xs text-red-600">
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
                   {errors.expiresAt}
                 </p>
               )}
@@ -553,20 +553,20 @@ export default function CouponForm({
         {/* =====================================
             USAGE
         ====================================== */}
-        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6 dark:border-gray-800 dark:bg-gray-900">
           <div className="mb-6">
-            <h2 className="text-lg font-bold text-gray-900">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
               Usage Limits
             </h2>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Control how many times this coupon can be used.
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <div>
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Total Usage Limit
               </label>
 
@@ -582,19 +582,19 @@ export default function CouponForm({
                 )}
               />
 
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
                 Leave empty for unlimited usage.
               </p>
 
               {errors.totalUsageLimit && (
-                <p className="mt-1 text-xs text-red-600">
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
                   {errors.totalUsageLimit}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Usage Limit Per User
               </label>
 
@@ -610,12 +610,12 @@ export default function CouponForm({
                 )}
               />
 
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
                 Leave empty for unlimited usage per user.
               </p>
 
               {errors.usageLimitPerUser && (
-                <p className="mt-1 text-xs text-red-600">
+                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
                   {errors.usageLimitPerUser}
                 </p>
               )}
@@ -626,20 +626,20 @@ export default function CouponForm({
         {/* =====================================
             ELIGIBILITY
         ====================================== */}
-        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6 dark:border-gray-800 dark:bg-gray-900">
           <div className="mb-6">
-            <h2 className="text-lg font-bold text-gray-900">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
               Eligibility & Applicability
             </h2>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Decide who can use the coupon and where it applies.
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <div>
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Who Can Use This Coupon?
               </label>
 
@@ -668,7 +668,7 @@ export default function CouponForm({
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Where Can It Apply?
               </label>
 
@@ -699,14 +699,14 @@ export default function CouponForm({
         {/* =====================================
             STATUS
         ====================================== */}
-        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6 dark:border-gray-800 dark:bg-gray-900">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-bold text-gray-900">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                 Coupon Status
               </h2>
 
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Enable or disable this coupon.
               </p>
             </div>
@@ -721,8 +721,8 @@ export default function CouponForm({
               }
               className={`relative h-7 w-12 rounded-full transition ${
                 formData.isActive
-                  ? "bg-gray-900"
-                  : "bg-gray-300"
+                  ? "bg-gray-900 dark:bg-indigo-600"
+                  : "bg-gray-300 dark:bg-gray-700"
               }`}
             >
               <span
@@ -735,9 +735,9 @@ export default function CouponForm({
             </button>
           </div>
 
-          <p className="mt-3 text-sm">
+          <p className="mt-3 text-sm text-gray-700 dark:text-gray-300">
             Status:{" "}
-            <span className="font-semibold">
+            <span className="font-semibold text-gray-900 dark:text-white">
               {formData.isActive
                 ? "Active"
                 : "Inactive"}
@@ -753,7 +753,7 @@ export default function CouponForm({
             type="button"
             onClick={onCancel}
             disabled={loading}
-            className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
           >
             Cancel
           </button>
@@ -761,7 +761,7 @@ export default function CouponForm({
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-indigo-600 dark:hover:bg-indigo-500"
           >
             <Save className="h-4 w-4" />
 

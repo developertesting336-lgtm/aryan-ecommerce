@@ -273,7 +273,7 @@ console.log("productList",productList)
   ===================================================== */
 
   return (
-    <div className="min-h-screen bg-[#f7faff]">
+    <div className="min-h-screen bg-[#f7faff] dark:bg-gray-950">
 
       <main className="p-4 sm:p-6 lg:p-8">
 
@@ -289,17 +289,17 @@ console.log("productList",productList)
 
               <span className="h-2.5 w-2.5 rounded-full bg-linear-to-r from-[#4779F5] to-[#24B9E8]" />
 
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 dark:text-gray-400">
                 Vendor Panel
               </p>
 
             </div>
 
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
               Products
             </h1>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-gray-400">
               Manage your store products and inventory
             </p>
 
@@ -330,6 +330,7 @@ console.log("productList",productList)
               transition
               hover:-translate-y-0.5
               hover:shadow-xl
+              dark:shadow-none
             "
           >
             <span className="text-base">
@@ -351,28 +352,28 @@ console.log("productList",productList)
             title="Total Products"
             value={totalProducts}
             icon="📦"
-            iconClass="bg-blue-50 text-[#4779F5]"
+            iconClass="bg-blue-50 text-[#4779F5] dark:bg-blue-950/40 dark:text-blue-400"
           />
 
           <ProductStat
             title="Active Products"
             value={activeProducts}
             icon="✓"
-            iconClass="bg-emerald-50 text-emerald-600"
+            iconClass="bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"
           />
 
           <ProductStat
             title="Low Stock"
             value={lowStockProducts}
             icon="!"
-            iconClass="bg-amber-50 text-amber-600"
+            iconClass="bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400"
           />
 
           <ProductStat
             title="Out of Stock"
             value={outOfStockProducts}
             icon="×"
-            iconClass="bg-pink-50 text-pink-500"
+            iconClass="bg-pink-50 text-pink-500 dark:bg-pink-950/40 dark:text-pink-400"
           />
 
         </div>
@@ -388,6 +389,8 @@ console.log("productList",productList)
           border-slate-200
           bg-white
           shadow-sm
+          dark:border-gray-800
+          dark:bg-gray-900
         ">
 
           {/* =================================================
@@ -399,6 +402,7 @@ console.log("productList",productList)
             border-slate-100
             p-5
             sm:p-6
+            dark:border-gray-800
           ">
 
             <div className="
@@ -429,6 +433,7 @@ console.log("productList",productList)
                     text-base
                     font-bold
                     text-slate-900
+                    dark:text-white
                   ">
                     All Products
                   </h2>
@@ -439,6 +444,7 @@ console.log("productList",productList)
                   mt-1
                   text-xs
                   text-slate-400
+                  dark:text-gray-400
                 ">
                   {filteredProducts.length} products found
                 </p>
@@ -473,6 +479,10 @@ console.log("productList",productList)
                   focus-within:bg-white
                   focus-within:ring-4
                   focus-within:ring-blue-50
+                  dark:border-gray-800
+                  dark:bg-gray-850
+                  dark:focus-within:bg-gray-800
+                  dark:focus-within:ring-blue-950/30
                   sm:w-64
                 ">
 
@@ -494,6 +504,8 @@ console.log("productList",productList)
                       text-slate-700
                       outline-none
                       placeholder:text-slate-400
+                      dark:text-gray-200
+                      dark:placeholder:text-gray-500
                     "
                   />
 
@@ -524,6 +536,11 @@ console.log("productList",productList)
                     focus:border-[#4779F5]
                     focus:ring-4
                     focus:ring-blue-50
+                    dark:border-gray-800
+                    dark:bg-gray-850
+                    dark:text-gray-200
+                    dark:hover:bg-gray-800
+                    dark:focus:ring-blue-950/30
                   "
                 >
 
@@ -569,6 +586,11 @@ console.log("productList",productList)
                     focus:border-[#4779F5]
                     focus:ring-4
                     focus:ring-blue-50
+                    dark:border-gray-800
+                    dark:bg-gray-850
+                    dark:text-gray-200
+                    dark:hover:bg-gray-800
+                    dark:focus:ring-blue-950/30
                   "
                 >
 
@@ -691,6 +713,8 @@ console.log("productList",productList)
                       border-b
                       border-slate-100
                       bg-slate-50/70
+                      dark:border-gray-800
+                      dark:bg-gray-800/60
                     ">
 
                       <TableHead>
@@ -738,6 +762,8 @@ console.log("productList",productList)
                             border-slate-50
                             transition
                             hover:bg-blue-50/30
+                            dark:border-gray-800/60
+                            dark:hover:bg-blue-950/20
                           "
                         >
 
@@ -765,6 +791,7 @@ console.log("productList",productList)
                                   text-sm
                                   font-semibold
                                   text-slate-800
+                                  dark:text-white
                                 ">
                                   {product.name}
                                 </p>
@@ -774,6 +801,7 @@ console.log("productList",productList)
                                   truncate
                                   text-[10px]
                                   text-slate-400
+                                  dark:text-gray-500
                                 ">
                                   ID: {product.id}
                                 </p>
@@ -797,6 +825,8 @@ console.log("productList",productList)
                               text-[10px]
                               font-semibold
                               text-[#4779F5]
+                              dark:bg-blue-950/50
+                              dark:text-blue-400
                             ">
                               {product.category}
                             </span>
@@ -811,6 +841,7 @@ console.log("productList",productList)
                               text-sm
                               font-bold
                               text-slate-800
+                              dark:text-white
                             ">
                               ₹
                               {product.price.toLocaleString(
@@ -842,6 +873,7 @@ console.log("productList",productList)
                                 text-sm
                                 font-semibold
                                 text-slate-700
+                                dark:text-gray-300
                               ">
                                 {product.sold.toLocaleString(
                                   "en-IN"
@@ -852,6 +884,7 @@ console.log("productList",productList)
                                 mt-0.5
                                 text-[10px]
                                 text-slate-400
+                                dark:text-gray-500
                               ">
                                 units sold
                               </p>
@@ -902,6 +935,8 @@ console.log("productList",productList)
                                   transition
                                   hover:bg-blue-50
                                   hover:text-[#4779F5]
+                                  dark:hover:bg-gray-800
+                                  dark:hover:text-blue-400
                                 "
                               >
                                 <EditIcon />
@@ -923,6 +958,8 @@ console.log("productList",productList)
                                   transition
                                   hover:bg-red-50
                                   hover:text-red-500
+                                  dark:hover:bg-gray-800
+                                  dark:hover:text-red-400
                                 "
                               >
                                 <TrashIcon />
@@ -939,6 +976,8 @@ console.log("productList",productList)
                                   transition
                                   hover:bg-slate-100
                                   hover:text-slate-700
+                                  dark:hover:bg-gray-800
+                                  dark:hover:text-gray-300
                                 "
                               >
                                 <MoreIcon />
@@ -980,6 +1019,8 @@ console.log("productList",productList)
                   from-blue-50
                   to-cyan-50
                   text-3xl
+                  dark:from-blue-950/40
+                  dark:to-cyan-950/40
                 ">
                   📦
                 </div>
@@ -989,6 +1030,7 @@ console.log("productList",productList)
                   text-sm
                   font-bold
                   text-slate-800
+                  dark:text-white
                 ">
                   No products found
                 </h3>
@@ -999,6 +1041,7 @@ console.log("productList",productList)
                   max-w-sm
                   text-xs
                   text-slate-400
+                  dark:text-gray-400
                 ">
                   Try changing your search or filters,
                   or add your first product.
@@ -1025,6 +1068,7 @@ console.log("productList",productList)
                     shadow-blue-100
                     transition
                     hover:-translate-y-0.5
+                    dark:shadow-none
                   "
                 >
                   + Add Product
@@ -1049,16 +1093,19 @@ console.log("productList",productList)
                 sm:flex-row
                 sm:items-center
                 sm:justify-between
+                dark:border-gray-800
               ">
 
                 <p className="
                   text-xs
                   text-slate-400
+                  dark:text-gray-400
                 ">
                   Showing{" "}
                   <span className="
                     font-semibold
                     text-slate-600
+                    dark:text-gray-300
                   ">
                     {filteredProducts.length}
                   </span>{" "}
@@ -1066,6 +1113,7 @@ console.log("productList",productList)
                   <span className="
                     font-semibold
                     text-slate-600
+                    dark:text-gray-300
                   ">
                     {totalProducts}
                   </span>{" "}
@@ -1110,6 +1158,8 @@ function ProductStat({
       transition
       hover:-translate-y-0.5
       hover:shadow-md
+      dark:border-gray-800
+      dark:bg-gray-900
     ">
 
       <div className="
@@ -1142,6 +1192,8 @@ function ProductStat({
           uppercase
           tracking-wide
           text-slate-400
+          dark:bg-gray-800
+          dark:text-gray-400
         ">
           Overview
         </span>
@@ -1153,6 +1205,7 @@ function ProductStat({
         text-xs
         font-medium
         text-slate-500
+        dark:text-gray-400
       ">
         {title}
       </p>
@@ -1163,6 +1216,7 @@ function ProductStat({
         font-bold
         tracking-tight
         text-slate-900
+        dark:text-white
       ">
         {Number(value || 0).toLocaleString(
           "en-IN"
@@ -1192,6 +1246,7 @@ function TableHead({
         uppercase
         tracking-[0.12em]
         text-slate-400
+        dark:text-gray-400
       `}
     >
       {children}
@@ -1215,10 +1270,10 @@ function ProductImage({ product }) {
       overflow-hidden
       rounded-xl
       border
-      border-slate-100
-      bg-linear-to-br
-      from-slate-50
-      to-blue-50
+      border-slate-200
+      bg-white
+      p-1
+      dark:border-gray-700
     ">
 
       {product.image ? (
@@ -1228,7 +1283,7 @@ function ProductImage({ product }) {
           className="
             h-full
             w-full
-            object-cover
+            object-contain
           "
           onError={(e) => {
             e.currentTarget.style.display =
@@ -1265,6 +1320,8 @@ function StockStatus({ stock }) {
           text-[10px]
           font-bold
           text-red-600
+          dark:bg-red-950/40
+          dark:text-red-400
         ">
           Out of stock
         </span>
@@ -1286,6 +1343,8 @@ function StockStatus({ stock }) {
           text-[10px]
           font-bold
           text-amber-600
+          dark:bg-amber-950/40
+          dark:text-amber-400
         ">
           Low stock
         </span>
@@ -1294,6 +1353,7 @@ function StockStatus({ stock }) {
           mt-1
           text-[10px]
           text-slate-400
+          dark:text-gray-500
         ">
           {quantity} left
         </p>
@@ -1314,6 +1374,8 @@ function StockStatus({ stock }) {
         text-[10px]
         font-bold
         text-emerald-600
+        dark:bg-emerald-950/40
+        dark:text-emerald-400
       ">
         In stock
       </span>
@@ -1322,6 +1384,7 @@ function StockStatus({ stock }) {
         mt-1
         text-[10px]
         text-slate-400
+        dark:text-gray-500
       ">
         {quantity} available
       </p>
@@ -1355,6 +1418,8 @@ function ProductStatus({ status }) {
         text-[10px]
         font-bold
         text-emerald-600
+        dark:bg-emerald-950/40
+        dark:text-emerald-400
       ">
         <span className="
           h-1.5
@@ -1383,6 +1448,8 @@ function ProductStatus({ status }) {
         text-[10px]
         font-bold
         text-red-600
+        dark:bg-red-950/40
+        dark:text-red-400
       ">
         <span className="
           h-1.5
@@ -1405,6 +1472,8 @@ function ProductStatus({ status }) {
       text-[10px]
       font-bold
       text-slate-500
+      dark:bg-gray-800
+      dark:text-gray-400
     ">
       {status || "Unknown"}
     </span>

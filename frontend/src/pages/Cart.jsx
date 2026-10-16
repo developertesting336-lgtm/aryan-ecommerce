@@ -162,24 +162,24 @@ export default function Cart() {
   const isCartEmpty = !cart?.items?.length;
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 dark:bg-gray-950 dark:text-gray-100 min-h-screen">
       {/* <Navbar /> */}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-6 sm:mb-8">
           Shopping Cart
         </h1>
 
         {/* ================= EMPTY CART ================= */}
         {isCartEmpty ? (
-          <div className="bg-white rounded-2xl shadow-sm p-10 sm:p-16 text-center">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-transparent dark:border-gray-800 p-10 sm:p-16 text-center">
             <div className="text-6xl mb-5">🛒 </div>
 
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-3">
               Your cart is empty
             </h2>
 
-            <p className="text-gray-500 mb-6">
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
               Looks like you haven't added anything to your cart yet.
             </p>
 
@@ -211,8 +211,12 @@ export default function Cart() {
                   key={index}
                   className="
                     bg-white
+                    dark:bg-gray-900
                     rounded-2xl
                     shadow-sm
+                    border
+                    border-transparent
+                    dark:border-gray-800
                     p-4 sm:p-5
                     flex
                     flex-col
@@ -225,7 +229,7 @@ export default function Cart() {
                   <Link
                     to={getProductSlugPath(item)}
                     state={{ productId: getProductId(item) }}
-                    className="shrink-0"
+                    className="shrink-0 flex items-center justify-center rounded-xl bg-white p-1.5 border border-gray-100 dark:border-gray-800"
                   >
                     <img
                       src={getProductImage(item)}
@@ -237,8 +241,8 @@ export default function Cart() {
                         h-52
                         sm:h-28
                         md:h-32
-                        object-cover
-                        rounded-xl
+                        object-contain
+                        rounded-lg
                         cursor-pointer
                         hover:opacity-90
                         transition
@@ -258,7 +262,9 @@ export default function Cart() {
                           text-base
                           sm:text-lg
                           text-gray-800
+                          dark:text-gray-100
                           hover:text-blue-600
+                          dark:hover:text-blue-400
                           transition
                           cursor-pointer
                         "
@@ -267,7 +273,7 @@ export default function Cart() {
                       </h2>
                     </Link>
 
-                    <p className="text-gray-500 mt-2 text-sm sm:text-base">
+                    <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm sm:text-base">
                       Price: ₹{getProductPrice(item)}
                     </p>
 
@@ -278,7 +284,10 @@ export default function Cart() {
                           w-8 h-8
                           rounded-full
                           bg-gray-200
+                          dark:bg-gray-800
                           hover:bg-gray-300
+                          dark:hover:bg-gray-700
+                          dark:text-white
                           cursor-pointer
                         "
                         onClick={() =>
@@ -288,7 +297,7 @@ export default function Cart() {
                         -
                       </button>
 
-                      <span className="font-semibold">
+                      <span className="font-semibold text-gray-900 dark:text-white">
                         {item.quantity}
                       </span>
 
@@ -297,7 +306,10 @@ export default function Cart() {
                           w-8 h-8
                           rounded-full
                           bg-gray-200
+                          dark:bg-gray-800
                           hover:bg-gray-300
+                          dark:hover:bg-gray-700
+                          dark:text-white
                           cursor-pointer
                         "
                         onClick={() => handleAddCart(item)}
@@ -314,6 +326,7 @@ export default function Cart() {
                       text-lg
                       sm:text-xl
                       text-gray-800
+                      dark:text-white
                       sm:self-center
                     "
                   >
@@ -345,15 +358,19 @@ export default function Cart() {
             <div
               className="
                 bg-white
+                dark:bg-gray-900
                 rounded-2xl
                 shadow-sm
+                border
+                border-transparent
+                dark:border-gray-800
                 p-5 sm:p-6
                 h-fit
                 lg:sticky
                 lg:top-5
               "
             >
-              <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-5">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-white mb-5">
                 Order Summary
               </h2>
 
@@ -363,6 +380,7 @@ export default function Cart() {
                   justify-between
                   mb-3
                   text-gray-600
+                  dark:text-gray-300
                   text-sm
                   sm:text-base
                 "
@@ -380,7 +398,11 @@ export default function Cart() {
                   sm:text-xl
                   font-bold
                   border-t
+                  border-gray-100
+                  dark:border-gray-800
                   pt-5
+                  text-gray-900
+                  dark:text-white
                 "
               >
                 <span>Total</span>

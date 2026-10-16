@@ -9,8 +9,10 @@ import {
   LogIn,
   LogOut,
   Menu,
+  Moon,
   Search,
   ShoppingBag,
+  Sun,
   UserRound,
   X,
 } from "lucide-react";
@@ -29,6 +31,7 @@ import {
 
 import { logout } from "../redux/slices/authSlice";
 import { getProductSlug } from "../utils/productSlug";
+import { useTheme } from "../context/ThemeContext";
 
 /* =========================================================
    NAVIGATION
@@ -130,7 +133,7 @@ function IconLink({
     <Link
       to={to}
       aria-label={label}
-      className="relative flex h-11 w-11 items-center justify-center text-gray-800 transition-colors hover:text-app-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-app-primary"
+      className="relative flex h-11 w-11 items-center justify-center text-gray-800 dark:text-gray-200 transition-colors hover:text-app-primary dark:hover:text-blue-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-app-primary"
     >
       {children}
 
@@ -150,6 +153,7 @@ function IconLink({
 export default function Navbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { darkMode, toggleTheme } = useTheme();
 
   const menuRef = useRef(null);
 
@@ -540,15 +544,15 @@ export default function Navbar() {
   return (
     <header
       ref={menuRef}
-      className="sticky top-0 z-50 w-full bg-white text-gray-950 shadow-sm"
+      className="sticky top-0 z-50 w-full bg-white text-gray-950 dark:bg-gray-900 dark:text-gray-100 dark:border-b dark:border-gray-800 shadow-sm"
     >
       {/* =================================================
           TOP BAR
       ================================================= */}
 
       <div className="bg-app-primary text-white">
-        <div className="mx-auto flex min-h-[42px] max-w-[1440px] items-center justify-center px-4 text-center sm:justify-between sm:px-6 lg:px-8">
-          <p className="text-xs font-medium sm:text-sm">
+        <div className="mx-auto flex min-h-[42px] max-w-[1440px] items-center justify-between gap-3 px-4 text-center sm:px-6 lg:px-8">
+          <p className="truncate text-xs font-medium sm:text-sm">
             Curated tech for everyday life{" "}
             <span className="mx-2 text-white/50">
               ·
@@ -562,17 +566,17 @@ export default function Navbar() {
             </Link>
           </p>
 
-          <div className="hidden items-center divide-x divide-white/20 text-sm md:flex">
+          <div className="flex shrink-0 items-center divide-x divide-white/20 text-xs sm:text-sm">
             <Link
               to="/orders"
-              className="px-5 transition hover:text-blue-200"
+              className="hidden px-4 transition hover:text-blue-200 md:inline-block"
             >
               Order Tracking
             </Link>
 
             <Link
               to="/help"
-              className="px-5 transition hover:text-blue-200"
+              className="hidden px-4 transition hover:text-blue-200 md:inline-block"
             >
               Help Center
             </Link>
@@ -580,7 +584,7 @@ export default function Navbar() {
             { ["admin", "vendor"].includes(user?.role) && (
               <button
                 type="button"
-                className="flex items-center gap-1 px-5 hover:text-blue-200 cursor-pointer"
+                className="hidden cursor-pointer items-center gap-1 px-4 hover:text-blue-200 md:flex"
                 onClick={() =>
                   navigate(
                     `${couponBasePath}/`
@@ -592,11 +596,29 @@ export default function Navbar() {
             )}
 
             <button
+              id="theme-toggle-btn"
               type="button"
-              className="flex items-center gap-1 pl-5 hover:text-blue-200"
+              onClick={toggleTheme}
+              aria-label={
+                darkMode
+                  ? "Switch to light mode"
+                  : "Switch to dark mode"
+              }
+              title={
+                darkMode
+                  ? "Switch to light mode"
+                  : "Switch to dark mode"
+              }
+              className="flex cursor-pointer items-center gap-1.5 pl-3 transition hover:text-blue-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded sm:pl-5"
             >
-              ₹ INR
-              {/* <ChevronDown size={14} /> */}
+              {darkMode ? (
+                <Sun size={15} className="text-amber-300" />
+              ) : (
+                <Moon size={15} />
+              )}
+              <span className="text-xs font-medium">
+                {darkMode ? "Light" : "Dark"}
+              </span>
             </button>
           </div>
         </div>
@@ -621,7 +643,7 @@ export default function Navbar() {
             mobileMenuOpen
           }
           onClick={toggleMobileMenu}
-          className="flex h-10 w-10 shrink-0 items-center justify-center text-gray-800 hover:text-app-primary lg:hidden"
+          className="flex h-10 w-10 shrink-0 items-center justify-center text-gray-800 dark:text-gray-200 hover:text-app-primary dark:hover:text-blue-400 lg:hidden"
         >
           {mobileMenuOpen ? (
             <X size={22} />
@@ -644,7 +666,7 @@ export default function Navbar() {
             N
           </span>
 
-          <span className="text-[21px] font-black tracking-[-0.05em] text-gray-950 sm:text-2xl">
+          <span className="text-[21px] font-black tracking-[-0.05em] text-gray-950 dark:text-white sm:text-2xl">
             Nova
             <span className="text-app-primary">
               Cart
@@ -697,7 +719,7 @@ export default function Navbar() {
                     activeDropdown ===
                     item.label
                       ? "text-app-primary"
-                      : "text-gray-900 hover:text-app-primary"
+                      : "text-gray-900 dark:text-gray-200 hover:text-app-primary dark:hover:text-blue-400"
                   }`}
                 >
                   {item.label}
@@ -723,7 +745,7 @@ export default function Navbar() {
                     `flex items-center gap-1 whitespace-nowrap py-3 text-[15px] font-medium xl:text-base ${
                       isActive
                         ? "text-app-primary"
-                        : "text-gray-900 hover:text-app-primary"
+                        : "text-gray-900 dark:text-gray-200 hover:text-app-primary dark:hover:text-blue-400"
                     }`
                   }
                 >
@@ -738,7 +760,7 @@ export default function Navbar() {
 
             {activeDropdown && (
               <div
-                className="fixed left-4 right-4 top-[126px] z-50 max-h-[calc(100vh-140px)] w-auto overflow-y-auto overflow-x-hidden rounded-sm border border-gray-100 bg-white shadow-[0_18px_55px_rgba(15,23,42,0.16)]"
+                className="fixed left-4 right-4 top-[126px] z-50 max-h-[calc(100vh-140px)] w-auto overflow-y-auto overflow-x-hidden rounded-sm border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_18px_55px_rgba(15,23,42,0.16)] dark:shadow-[0_18px_55px_rgba(0,0,0,0.5)]"
                 onMouseEnter={
                   clearDropdownTimer
                 }
@@ -750,19 +772,19 @@ export default function Navbar() {
 
                 {activeDropdown ===
                 "Products" ? (
-                  <div className="grid grid-cols-5 bg-gray-50">
+                  <div className="grid grid-cols-5 bg-gray-50 dark:bg-gray-950">
 
-                    <div className="flex flex-col justify-center bg-white px-7 py-8">
+                    <div className="flex flex-col justify-center bg-white dark:bg-gray-900 px-7 py-8">
                       <span className="text-xs font-bold uppercase tracking-[0.16em] text-app-primary">
                         New collection
                       </span>
 
-                      <h3 className="mt-3 text-2xl font-semibold text-gray-950">
+                      <h3 className="mt-3 text-2xl font-semibold text-gray-950 dark:text-white">
                         Find your next
                         favorite
                       </h3>
 
-                      <p className="mt-3 text-sm leading-6 text-gray-600">
+                      <p className="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-400">
                         Explore useful
                         tech and everyday
                         essentials picked
@@ -783,7 +805,7 @@ export default function Navbar() {
                       </Link>
                     </div>
 
-                    <div className="col-span-4 grid grid-cols-4 gap-4 bg-gray-50 p-6">
+                    <div className="col-span-4 grid grid-cols-4 gap-4 bg-gray-50 dark:bg-gray-950 p-6">
                       {featuredProducts.map(
                         (product) => (
                           <Link
@@ -797,9 +819,9 @@ export default function Navbar() {
                             onClick={
                               closeMenu
                             }
-                            className="group rounded-md border border-gray-200 bg-white p-3 transition-shadow hover:shadow-md"
+                            className="group rounded-md border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 transition-shadow hover:shadow-md"
                           >
-                            <div className="flex h-36 items-center justify-center bg-white">
+                            <div className="flex h-36 items-center justify-center bg-white rounded-md">
                               <img
                                 src={getHeaderImage(
                                   product
@@ -813,7 +835,7 @@ export default function Navbar() {
                               />
                             </div>
 
-                            <p className="mt-3 line-clamp-2 min-h-10 text-sm font-medium leading-5 text-gray-900 group-hover:text-app-primary">
+                            <p className="mt-3 line-clamp-2 min-h-10 text-sm font-medium leading-5 text-gray-900 dark:text-gray-100 group-hover:text-app-primary">
                               {
                                 product.name
                               }
@@ -840,9 +862,9 @@ export default function Navbar() {
 
                     {/* CATEGORIES */}
 
-                    <div className="px-7 py-7">
+                    <div className="px-7 py-7 bg-white dark:bg-gray-900">
                       <div className="mb-5 flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-gray-950">
+                        <h3 className="text-lg font-semibold text-gray-950 dark:text-white">
                           Shop by
                           category
                         </h3>
@@ -896,7 +918,7 @@ export default function Navbar() {
                                         )
                                       )
                                     }
-                                    className="cursor-pointer text-left text-sm font-semibold text-gray-900 hover:text-app-primary"
+                                    className="cursor-pointer text-left text-sm font-semibold text-gray-900 dark:text-gray-200 hover:text-app-primary"
                                   >
                                     {getCategoryName(
                                       category
@@ -938,7 +960,7 @@ export default function Navbar() {
                                                   )
                                                 )
                                               }
-                                              className="cursor-pointer text-left text-sm text-gray-600 hover:text-app-primary"
+                                              className="cursor-pointer text-left text-sm text-gray-600 dark:text-gray-400 hover:text-app-primary"
                                             >
                                               {getCategoryName(
                                                 child
@@ -957,9 +979,9 @@ export default function Navbar() {
 
                     {/* BEST SELLING */}
 
-                    <div className="bg-gray-50 px-6 py-7">
+                    <div className="bg-gray-50 dark:bg-gray-950 px-6 py-7">
                       <div className="mb-5 flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-gray-950">
+                        <h3 className="text-lg font-semibold text-gray-950 dark:text-white">
                           Best selling
                         </h3>
 
@@ -988,7 +1010,7 @@ export default function Navbar() {
                               onClick={
                                 closeMenu
                               }
-                              className="group flex min-h-[112px] items-center gap-4 rounded-md border border-gray-100 bg-white p-3 hover:border-blue-100"
+                              className="group flex min-h-[112px] items-center gap-4 rounded-md border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 hover:border-blue-100 dark:hover:border-blue-900"
                             >
                               <img
                                 src={getHeaderImage(
@@ -1003,7 +1025,7 @@ export default function Navbar() {
                               />
 
                               <span className="min-w-0">
-                                <span className="line-clamp-2 block text-sm leading-5 text-gray-900 group-hover:text-app-primary">
+                                <span className="line-clamp-2 block text-sm leading-5 text-gray-900 dark:text-gray-100 group-hover:text-app-primary">
                                   {
                                     product.name
                                   }
@@ -1064,7 +1086,13 @@ export default function Navbar() {
         rounded-full
         border
         border-gray-200
+        dark:border-gray-700
         bg-gray-50
+        dark:bg-gray-800
+        text-gray-900
+        dark:text-white
+        placeholder-gray-400
+        dark:placeholder-gray-500
         pl-9
         pr-3
         text-sm
@@ -1091,7 +1119,7 @@ export default function Navbar() {
                   displayName ||
                   "profile"
                 }`}
-                className="flex h-11 w-11 items-center justify-center text-gray-800 hover:text-app-primary"
+                className="flex h-11 w-11 items-center justify-center text-gray-800 dark:text-gray-200 hover:text-app-primary dark:hover:text-blue-400"
               >
                 <UserRound
                   size={23}
@@ -1099,17 +1127,17 @@ export default function Navbar() {
                 />
               </Link>
 
-              <div className="invisible absolute right-0 top-full z-10 w-44 rounded-lg border border-gray-100 bg-white p-2 opacity-0 shadow-xl transition-all group-hover:visible group-hover:opacity-100">
+              <div className="invisible absolute right-0 top-full z-10 w-44 rounded-lg border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2 opacity-0 shadow-xl transition-all group-hover:visible group-hover:opacity-100">
                 <Link
                   to="/profile"
-                  className="block rounded px-3 py-2 text-sm hover:bg-gray-50"
+                  className="block rounded px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   Profile
                 </Link>
 
                 <Link
                   to="/orders"
-                  className="block rounded px-3 py-2 text-sm hover:bg-gray-50"
+                  className="block rounded px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   Orders
                 </Link>
@@ -1119,7 +1147,7 @@ export default function Navbar() {
                   onClick={
                     handleLogout
                   }
-                  className="cursor-pointer flex w-full items-center gap-2 rounded px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                  className="cursor-pointer flex w-full items-center gap-2 rounded px-3 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40"
                 >
                   <LogOut
                     size={14}
@@ -1132,7 +1160,7 @@ export default function Navbar() {
             <Link
               to="/login"
               aria-label="Sign in"
-              className="hidden h-11 w-11 items-center justify-center text-gray-800 hover:text-app-primary sm:flex"
+              className="hidden h-11 w-11 items-center justify-center text-gray-800 dark:text-gray-200 hover:text-app-primary dark:hover:text-blue-400 sm:flex"
             >
               <UserRound
                 size={23}
@@ -1175,11 +1203,11 @@ export default function Navbar() {
             to="/cart"
             className="hidden min-w-[64px] flex-col text-xs leading-tight sm:flex"
           >
-            <span className="font-medium">
+            <span className="font-medium text-gray-900 dark:text-gray-100">
               My Cart
             </span>
 
-            <span className="mt-1 text-gray-500">
+            <span className="mt-1 text-gray-500 dark:text-gray-400">
               {cartItems.length} item
               {cartItems.length === 1
                 ? ""
@@ -1219,7 +1247,11 @@ export default function Navbar() {
               overflow-hidden
               border-t
               border-gray-100
+              dark:border-gray-800
               bg-white
+              dark:bg-gray-950
+              text-gray-900
+              dark:text-gray-100
               shadow-2xl
               lg:hidden
             "
@@ -1229,7 +1261,7 @@ export default function Navbar() {
                 DRAWER HEADER / SEARCH
             ========================================== */}
 
-            <div className="shrink-0 border-b border-gray-100 bg-white px-4 pb-4 pt-4 sm:px-6">
+            <div className="shrink-0 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 pb-4 pt-4 sm:px-6">
 
               <form
                 onSubmit={handleSearch}
@@ -1251,7 +1283,7 @@ export default function Navbar() {
                     }
                     placeholder="Search products"
                     aria-label="Search products"
-                    className="h-11 w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 text-sm outline-none focus:border-app-primary focus:ring-2 focus:ring-app-primary/10"
+                    className="h-11 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 pl-10 pr-4 text-sm outline-none focus:border-app-primary focus:ring-2 focus:ring-app-primary/10"
                   />
                 </label>
               </form>
@@ -1313,9 +1345,12 @@ export default function Navbar() {
                           text-base
                           font-medium
                           text-gray-800
+                          dark:text-gray-200
                           transition
                           hover:bg-gray-50
+                          dark:hover:bg-gray-900
                           active:bg-gray-100
+                          dark:active:bg-gray-800
                         "
                       >
                         <span className="flex items-center gap-2">
@@ -1380,8 +1415,10 @@ export default function Navbar() {
                                       text-left
                                       text-sm
                                       text-gray-700
+                                      dark:text-gray-300
                                       transition
                                       hover:bg-blue-50
+                                      dark:hover:bg-blue-950/40
                                       hover:text-app-primary
                                       active:bg-blue-50
                                     "
@@ -1465,8 +1502,10 @@ export default function Navbar() {
                                       text-left
                                       text-sm
                                       text-gray-700
+                                      dark:text-gray-300
                                       transition
                                       hover:bg-blue-50
+                                      dark:hover:bg-blue-950/40
                                       hover:text-app-primary
                                       active:bg-blue-50
                                     "
@@ -1494,8 +1533,8 @@ export default function Navbar() {
                       }) =>
                         `flex items-center justify-between rounded-lg px-3 py-3 text-base font-medium ${
                           isActive
-                            ? "bg-blue-50 text-app-primary"
-                            : "text-gray-800 hover:bg-gray-50"
+                            ? "bg-blue-50 dark:bg-blue-950/40 text-app-primary"
+                            : "text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900"
                         }`
                       }
                     >
@@ -1508,7 +1547,7 @@ export default function Navbar() {
                     MOBILE AUTH
                 ====================================== */}
 
-                <div className="my-2 border-t border-gray-100" />
+                <div className="my-2 border-t border-gray-100 dark:border-gray-800" />
 
                 {isLoggedIn ? (
                   <>
@@ -1517,7 +1556,7 @@ export default function Navbar() {
                       onClick={
                         closeMenu
                       }
-                      className="flex items-center gap-2 rounded-lg px-3 py-3 font-medium text-gray-800 hover:bg-gray-50"
+                      className="flex items-center gap-2 rounded-lg px-3 py-3 font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900"
                     >
                       <UserRound
                         size={17}
@@ -1537,7 +1576,7 @@ export default function Navbar() {
                         onClick={
                           closeMenu
                         }
-                        className="flex items-center gap-2 rounded-lg px-3 py-3 font-medium text-gray-800 hover:bg-gray-50"
+                        className="flex items-center gap-2 rounded-lg px-3 py-3 font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900"
                       >
                         <LayoutDashboard
                           size={17}
@@ -1551,7 +1590,7 @@ export default function Navbar() {
                       onClick={
                         handleLogout
                       }
-                      className="cursor-pointer flex items-center gap-2 rounded-lg px-3 py-3 text-left font-medium text-red-600 hover:bg-red-50"
+                      className="cursor-pointer flex items-center gap-2 rounded-lg px-3 py-3 text-left font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40"
                     >
                       <LogOut
                         size={17}
@@ -1565,7 +1604,7 @@ export default function Navbar() {
                     onClick={
                       closeMenu
                     }
-                    className="flex items-center gap-2 rounded-lg px-3 py-3 font-medium text-gray-800 hover:bg-gray-50"
+                    className="flex items-center gap-2 rounded-lg px-3 py-3 font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900"
                   >
                     <LogIn
                       size={17}
@@ -1591,11 +1630,11 @@ function MobileBestSelling({
   onClose,
 }) {
   return (
-    <section className="mt-5 min-w-0 border-t border-gray-100 pt-4">
+    <section className="mt-5 min-w-0 border-t border-gray-100 dark:border-gray-800 pt-4">
       {/* HEADER */}
 
       <div className="mb-3 flex items-center justify-between pr-3">
-        <h3 className="text-base font-semibold text-gray-950">
+        <h3 className="text-base font-semibold text-gray-950 dark:text-white">
           Best selling
         </h3>
 
@@ -1650,7 +1689,9 @@ function MobileBestSelling({
         rounded-lg
         border
         border-gray-100
+        dark:border-gray-800
         bg-white
+        dark:bg-gray-900
         p-2.5
         transition
         active:scale-[0.98]
@@ -1658,7 +1699,7 @@ function MobileBestSelling({
         hover:shadow-md
       "
     >
-      <div className="flex h-28 w-full items-center justify-center overflow-hidden rounded-md bg-gray-50 sm:h-32">
+      <div className="flex h-28 w-full items-center justify-center overflow-hidden rounded-md bg-white sm:h-32">
         <img
           src={getHeaderImage(product.images?.[0])}
           alt={product.name || "Product"}
@@ -1667,7 +1708,7 @@ function MobileBestSelling({
         />
       </div>
 
-      <p className="mt-3 line-clamp-2 min-h-[40px] text-xs font-medium leading-5 text-gray-900 group-hover:text-app-primary sm:text-sm">
+      <p className="mt-3 line-clamp-2 min-h-[40px] text-xs font-medium leading-5 text-gray-900 dark:text-gray-100 group-hover:text-app-primary sm:text-sm">
         {product.name}
       </p>
 
@@ -1679,7 +1720,7 @@ function MobileBestSelling({
 
   {/* EMPTY STATE */}
   {!products.length && (
-    <div className="w-full py-6 text-center text-sm text-gray-500">
+    <div className="w-full py-6 text-center text-sm text-gray-500 dark:text-gray-400">
       No products available.
     </div>
   )}

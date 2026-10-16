@@ -124,7 +124,7 @@ console.log("recentdashvemnd",dashboardOrders)
 console.log("dasbird invent",dashboardInventory)
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#f4f7fc]">
+    <div className="relative min-h-screen overflow-hidden bg-[#f4f7fc] dark:bg-gray-950">
 
       {/* Background decoration */}
 
@@ -144,15 +144,15 @@ console.log("dasbird invent",dashboardInventory)
 
           <div>
 
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-500">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-500 dark:text-indigo-400">
               Vendor Panel
             </p>
 
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
               Dashboard Overview
             </h1>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-gray-400">
               Monitor your store performance,
               sales and inventory.
             </p>
@@ -183,6 +183,11 @@ console.log("dasbird invent",dashboardInventory)
               hover:text-indigo-600
               disabled:cursor-not-allowed
               disabled:opacity-60
+              dark:bg-gray-900
+              dark:text-gray-300
+              dark:ring-gray-800
+              dark:hover:bg-gray-800
+              dark:hover:text-indigo-400
             "
           >
 
@@ -319,7 +324,7 @@ console.log("dasbird invent",dashboardInventory)
 
           <div className="mb-3">
 
-            <h2 className="text-sm font-bold text-slate-800">
+            <h2 className="text-sm font-bold text-slate-800 dark:text-white">
               Quick Actions
             </h2>
 
@@ -455,7 +460,7 @@ console.log("dasbird invent",dashboardInventory)
 
         <div className="mt-8 pb-4 text-center">
 
-          <p className="text-[10px] text-slate-400">
+          <p className="text-[10px] text-slate-400 dark:text-gray-500">
             VendorHub Seller Dashboard
             • Store Management
           </p>

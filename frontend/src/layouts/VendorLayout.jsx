@@ -8,7 +8,7 @@ export default function VendorLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#f4f7fc]">
+    <div className="min-h-screen bg-[#f4f7fc] dark:bg-gray-950 dark:text-gray-100 transition-colors">
 
       <VendorSidebar
         isOpen={sidebarOpen}

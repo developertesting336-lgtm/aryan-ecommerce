@@ -221,7 +221,7 @@ const CreateCategory = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 px-4 py-8 sm:px-6 lg:px-8 dark:bg-gray-950">
       <div className="mx-auto max-w-4xl">
 
         {/* ================================================
@@ -232,16 +232,16 @@ const CreateCategory = () => {
           <button
             type="button"
             onClick={() => navigate("/admin/dashboard")}
-            className="mb-4 text-sm font-medium text-gray-600 hover:text-gray-900"
+            className="mb-4 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
           >
             ← Back to Dashboard
           </button>
 
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Create Category
           </h1>
 
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Create a new product category and optionally
             place it under an existing category.
           </p>
@@ -252,7 +252,7 @@ const CreateCategory = () => {
         ================================================= */}
 
         {message && (
-          <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+          <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700 dark:border-green-800/50 dark:bg-green-950/30 dark:text-green-400">
             {message}
           </div>
         )}
@@ -262,7 +262,7 @@ const CreateCategory = () => {
         ================================================= */}
 
         {error && (
-          <div className="mb-6 flex items-center justify-between rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mb-6 flex items-center justify-between rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800/50 dark:bg-red-950/30 dark:text-red-400">
             <span>{error}</span>
 
             <button
@@ -281,19 +281,19 @@ const CreateCategory = () => {
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-xl border border-gray-200 bg-white shadow-sm"
+          className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
         >
 
           {/* ================================================
               BASIC INFORMATION
           ================================================= */}
 
-          <div className="border-b border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900">
+          <div className="border-b border-gray-200 p-6 dark:border-gray-800">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Basic Information
             </h2>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Basic information about your category.
             </p>
 
@@ -304,7 +304,7 @@ const CreateCategory = () => {
               <div>
                 <label
                   htmlFor="name"
-                  className="mb-2 block text-sm font-medium text-gray-700"
+                  className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   Category Name
                   <span className="ml-1 text-red-500">*</span>
@@ -318,7 +318,7 @@ const CreateCategory = () => {
                   onChange={handleChange}
                   placeholder="e.g. Electronics"
                   required
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-900/40"
                 />
               </div>
 
@@ -327,7 +327,7 @@ const CreateCategory = () => {
               <div>
                 <label
                   htmlFor="slug"
-                  className="mb-2 block text-sm font-medium text-gray-700"
+                  className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   Slug
                 </label>
@@ -346,10 +346,10 @@ const CreateCategory = () => {
                     }));
                   }}
                   placeholder="electronics"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-900/40"
                 />
 
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Automatically generated from the category name.
                 </p>
               </div>
@@ -359,7 +359,7 @@ const CreateCategory = () => {
               <div className="md:col-span-2">
                 <label
                   htmlFor="description"
-                  className="mb-2 block text-sm font-medium text-gray-700"
+                  className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   Description
                 </label>
@@ -371,7 +371,7 @@ const CreateCategory = () => {
                   onChange={handleChange}
                   rows={4}
                   placeholder="Enter category description..."
-                  className="w-full resize-none rounded-lg border border-gray-300 px-4 py-2.5 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full resize-none rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-900/40"
                 />
               </div>
             </div>
@@ -381,12 +381,12 @@ const CreateCategory = () => {
               CATEGORY HIERARCHY
           ================================================= */}
 
-          <div className="border-b border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900">
+          <div className="border-b border-gray-200 p-6 dark:border-gray-800">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Category Hierarchy
             </h2>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Choose a parent category if this is a subcategory.
             </p>
 
@@ -397,7 +397,7 @@ const CreateCategory = () => {
               <div>
                 <label
                   htmlFor="parent"
-                  className="mb-2 block text-sm font-medium text-gray-700"
+                  className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   Parent Category
                 </label>
@@ -407,7 +407,7 @@ const CreateCategory = () => {
                   name="parent"
                   value={formData.parent}
                   onChange={handleParentChange}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:ring-blue-900/40"
                 >
                   <option value="">
                     No Parent (Root Category)
@@ -430,7 +430,7 @@ const CreateCategory = () => {
               <div>
                 <label
                   htmlFor="level"
-                  className="mb-2 block text-sm font-medium text-gray-700"
+                  className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   Category Level
                 </label>
@@ -440,10 +440,10 @@ const CreateCategory = () => {
                   type="number"
                   value={calculatedLevel}
                   disabled
-                  className="w-full cursor-not-allowed rounded-lg border border-gray-200 bg-gray-100 px-4 py-2.5 text-gray-600"
+                  className="w-full cursor-not-allowed rounded-lg border border-gray-200 bg-gray-100 px-4 py-2.5 text-gray-600 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-400"
                 />
 
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Automatically calculated from the parent category.
                 </p>
               </div>
@@ -453,7 +453,7 @@ const CreateCategory = () => {
               <div>
                 <label
                   htmlFor="sortOrder"
-                  className="mb-2 block text-sm font-medium text-gray-700"
+                  className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   Sort Order
                 </label>
@@ -465,10 +465,10 @@ const CreateCategory = () => {
                   min="0"
                   value={formData.sortOrder}
                   onChange={handleChange}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:ring-blue-900/40"
                 />
 
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Lower numbers appear first.
                 </p>
               </div>
@@ -476,20 +476,20 @@ const CreateCategory = () => {
               {/* STATUS */}
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Status
                 </label>
 
-                <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-300 px-4 py-3">
+                <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-300 px-4 py-3 dark:border-gray-700 dark:bg-gray-800/40">
                   <input
                     type="checkbox"
                     name="isActive"
                     checked={formData.isActive}
                     onChange={handleChange}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600"
                   />
 
-                  <span className="text-sm text-gray-700">
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
                     Active Category
                   </span>
                 </label>
@@ -498,8 +498,8 @@ const CreateCategory = () => {
 
             {/* LEVEL INFO */}
 
-            <div className="mt-6 rounded-lg bg-blue-50 p-4">
-              <p className="text-sm text-blue-800">
+            <div className="mt-6 rounded-lg bg-blue-50 p-4 dark:bg-blue-950/30">
+              <p className="text-sm text-blue-800 dark:text-blue-300">
                 {selectedParent ? (
                   <>
                     This category will be a child of{" "}
@@ -524,12 +524,12 @@ const CreateCategory = () => {
               IMAGE
           ================================================= */}
 
-          <div className="border-b border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900">
+          <div className="border-b border-gray-200 p-6 dark:border-gray-800">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               Category Image
             </h2>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Add the image URL and Cloudinary public ID.
             </p>
 
@@ -538,7 +538,7 @@ const CreateCategory = () => {
               <div>
                 <label
                   htmlFor="imageUrl"
-                  className="mb-2 block text-sm font-medium text-gray-700"
+                  className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   Image URL
                 </label>
@@ -550,14 +550,14 @@ const CreateCategory = () => {
                   value={formData.image.url}
                   onChange={handleImageChange}
                   placeholder="https://..."
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-900/40"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="publicId"
-                  className="mb-2 block text-sm font-medium text-gray-700"
+                  className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   Public ID
                 </label>
@@ -569,7 +569,7 @@ const CreateCategory = () => {
                   value={formData.image.publicId}
                   onChange={handleImageChange}
                   placeholder="category/electronics"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 dark:focus:ring-blue-900/40"
                 />
               </div>
             </div>
@@ -578,18 +578,20 @@ const CreateCategory = () => {
 
             {formData.image.url && (
               <div className="mt-6">
-                <p className="mb-2 text-sm font-medium text-gray-700">
+                <p className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                   Preview
                 </p>
 
-                <img
-                  src={formData.image.url}
-                  alt="Category preview"
-                  className="h-32 w-32 rounded-lg border border-gray-200 object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
+                <div className="flex h-32 w-32 items-center justify-center rounded-lg border border-gray-200 bg-white p-2 dark:border-gray-700">
+                  <img
+                    src={formData.image.url}
+                    alt="Category preview"
+                    className="h-full w-full object-contain"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -598,13 +600,13 @@ const CreateCategory = () => {
               ACTIONS
           ================================================= */}
 
-          <div className="flex flex-col-reverse gap-3 bg-gray-50 p-6 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-3 bg-gray-50 p-6 sm:flex-row sm:justify-end dark:bg-gray-800/60">
 
             <button
               type="button"
               onClick={handleReset}
               disabled={createLoading}
-              className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               Reset
             </button>

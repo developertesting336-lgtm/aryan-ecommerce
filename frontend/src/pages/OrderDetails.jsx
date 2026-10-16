@@ -687,32 +687,32 @@ export default function OrderDetails() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gray-50">
-        <section className="bg-white border-b">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <section className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7">
-            <div className="h-5 w-32 bg-gray-200 rounded" />
+            <div className="h-5 w-32 bg-gray-200 dark:bg-gray-800 rounded" />
 
-            <div className="h-8 w-56 bg-gray-200 rounded mt-4" />
+            <div className="h-8 w-56 bg-gray-200 dark:bg-gray-800 rounded mt-4" />
           </div>
         </section>
 
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-5">
-              <div className="bg-white rounded-2xl border border-gray-100 p-6 animate-pulse">
-                <div className="h-5 w-40 bg-gray-200 rounded" />
+              <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 animate-pulse">
+                <div className="h-5 w-40 bg-gray-200 dark:bg-gray-800 rounded" />
 
                 <div className="space-y-4 mt-6">
                   {[1, 2, 3].map((item) => (
                     <div key={item} className="flex gap-4">
-                      <div className="w-20 h-20 bg-gray-100 rounded-xl" />
+                      <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-xl" />
 
                       <div className="flex-1">
-                        <div className="h-4 w-40 bg-gray-200 rounded" />
+                        <div className="h-4 w-40 bg-gray-200 dark:bg-gray-800 rounded" />
 
-                        <div className="h-3 w-24 bg-gray-100 rounded mt-3" />
+                        <div className="h-3 w-24 bg-gray-100 dark:bg-gray-800 rounded mt-3" />
 
-                        <div className="h-4 w-20 bg-gray-200 rounded mt-3" />
+                        <div className="h-4 w-20 bg-gray-200 dark:bg-gray-800 rounded mt-3" />
                       </div>
                     </div>
                   ))}
@@ -720,15 +720,15 @@ export default function OrderDetails() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 animate-pulse">
-              <div className="h-5 w-32 bg-gray-200 rounded" />
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 animate-pulse">
+              <div className="h-5 w-32 bg-gray-200 dark:bg-gray-800 rounded" />
 
               <div className="space-y-4 mt-6">
-                <div className="h-4 w-full bg-gray-100 rounded" />
+                <div className="h-4 w-full bg-gray-100 dark:bg-gray-800 rounded" />
 
-                <div className="h-4 w-full bg-gray-100 rounded" />
+                <div className="h-4 w-full bg-gray-100 dark:bg-gray-800 rounded" />
 
-                <div className="h-8 w-full bg-gray-200 rounded" />
+                <div className="h-8 w-full bg-gray-200 dark:bg-gray-800 rounded" />
               </div>
             </div>
           </div>
@@ -743,8 +743,8 @@ export default function OrderDetails() {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-gray-50">
-        <section className="bg-white border-b">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <section className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7">
             <button
               type="button"
@@ -755,7 +755,9 @@ export default function OrderDetails() {
                 gap-2
                 text-sm
                 text-gray-500
+                dark:text-gray-400
                 hover:text-blue-600
+                dark:hover:text-blue-400
                 transition
                 cursor-pointer
               "
@@ -775,7 +777,9 @@ export default function OrderDetails() {
                 mx-auto
                 rounded-2xl
                 bg-red-50
+                dark:bg-red-950/30
                 text-red-500
+                dark:text-red-400
                 flex
                 items-center
                 justify-center
@@ -784,11 +788,11 @@ export default function OrderDetails() {
               <XCircle size={30} />
             </div>
 
-            <h2 className="mt-5 text-xl font-semibold text-gray-900">
+            <h2 className="mt-5 text-xl font-semibold text-gray-900 dark:text-white">
               Unable to load order
             </h2>
 
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
               {typeof error === "string"
                 ? error
                 : error?.message || "Something went wrong."}
@@ -829,12 +833,12 @@ export default function OrderDetails() {
 
   return (
     <>
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-950 dark:text-gray-100">
         {/* ==================================================
             HEADER
         ================================================== */}
 
-        <section className="bg-white border-b">
+        <section className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7">
             <button
               type="button"
@@ -859,7 +863,7 @@ export default function OrderDetails() {
               <div>
                 <p className="text-sm text-gray-500">Order Details</p>
 
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-1">
                   #
                   {orderItem?.[0]?.order?.orderNumber ||
                     orderDetails?.order?.orderNumber ||
@@ -909,9 +913,11 @@ export default function OrderDetails() {
               <div
                 className="
                   bg-white
+                  dark:bg-gray-900
                   rounded-2xl
                   border
                   border-gray-100
+                  dark:border-gray-800
                   shadow-sm
                   p-5
                   sm:p-6
@@ -934,7 +940,7 @@ export default function OrderDetails() {
                   </div>
 
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                       Order Information
                     </h2>
 
@@ -1063,14 +1069,16 @@ export default function OrderDetails() {
                             sm:w-24
                             sm:h-24
                             rounded-xl
-                            bg-gray-50
+                            bg-white
                             border
                             border-gray-100
+                            dark:border-gray-800
                             overflow-hidden
                             shrink-0
                             flex
                             items-center
                             justify-center
+                            p-1
                           "
                         >
                           {item.product?.images?.[0] ? (
@@ -1080,11 +1088,11 @@ export default function OrderDetails() {
                               className="
                                 w-full
                                 h-full
-                                object-cover
+                                object-contain
                               "
                             />
                           ) : (
-                            <Package size={25} className="text-gray-300" />
+                            <Package size={25} className="text-gray-300 dark:text-gray-600" />
                           )}
                         </div>
 
@@ -1093,24 +1101,24 @@ export default function OrderDetails() {
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
                             <div>
-                              <h3 className="font-semibold text-gray-900">
+                              <h3 className="font-semibold text-gray-900 dark:text-white">
                                 {item.productName ||
                                   item.product?.name ||
                                   "Product"}
                               </h3>
 
-                              <p className="text-sm text-gray-500 mt-1">
+                              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                 Quantity:{" "}
-                                <span className="font-medium text-gray-700">
+                                <span className="font-medium text-gray-700 dark:text-gray-300">
                                   {item.quantity}
                                 </span>
                               </p>
                             </div>
 
                             <div className="sm:text-right">
-                              <p className="text-sm text-gray-500">Price</p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">Price</p>
 
-                              <p className="text-base font-semibold text-gray-900 mt-1">
+                              <p className="text-base font-semibold text-gray-900 dark:text-white mt-1">
                                 ₹{item.price || item.product?.price || 0}
                               </p>
                             </div>
@@ -1550,6 +1558,10 @@ export default function OrderDetails() {
               max-w-lg
               max-h-[95vh]
               bg-white
+              dark:bg-gray-900
+              border
+              border-transparent
+              dark:border-gray-800
               rounded-3xl
               shadow-2xl
               overflow-hidden
@@ -1574,7 +1586,7 @@ export default function OrderDetails() {
               "
             >
               <div>
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                   Review Product
                 </h2>
 
@@ -1764,14 +1776,18 @@ export default function OrderDetails() {
                       rounded-2xl
                       border
                       border-gray-200
+                      dark:border-gray-700
                       bg-gray-50
+                      dark:bg-gray-800
                       px-4
                       py-3
                       text-sm
                       text-gray-900
+                      dark:text-white
                       outline-none
                       transition
                       focus:bg-white
+                      dark:focus:bg-gray-800
                       focus:border-blue-500
                       focus:ring-4
                       focus:ring-blue-100
@@ -2031,6 +2047,10 @@ export default function OrderDetails() {
         w-full
         max-w-md
         bg-white
+        dark:bg-gray-900
+        border
+        border-transparent
+        dark:border-gray-800
         rounded-3xl
         shadow-2xl
         overflow-hidden

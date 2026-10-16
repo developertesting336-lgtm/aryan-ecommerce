@@ -839,7 +839,7 @@ export default function ShopByNeed() {
   // ====================================================
 
   return (
-    <section className="w-full bg-white">
+    <section className="w-full bg-white dark:bg-gray-950">
       <div
         className="
           mx-auto
@@ -889,6 +889,7 @@ export default function ShopByNeed() {
               font-black
               tracking-[-0.035em]
               text-gray-950
+              dark:text-white
               sm:text-3xl
               lg:text-4xl
             "
@@ -903,6 +904,7 @@ export default function ShopByNeed() {
               text-sm
               leading-6
               text-gray-500
+              dark:text-gray-400
               sm:text-base
             "
           >

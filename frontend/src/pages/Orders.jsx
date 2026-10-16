@@ -91,7 +91,7 @@ console.log("orderlist",orders)
       return {
         label: "Cancelled",
         icon: XCircle,
-        className: "bg-red-50 text-red-600 border-red-100",
+        className: "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border-red-100 dark:border-red-900/40",
       };
     }
 
@@ -99,7 +99,7 @@ console.log("orderlist",orders)
       return {
         label: "Delivered",
         icon: CheckCircle2,
-        className: "bg-green-50 text-green-600 border-green-100",
+        className: "bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400 border-green-100 dark:border-green-900/40",
       };
     }
 
@@ -107,7 +107,7 @@ console.log("orderlist",orders)
       return {
         label: "Shipped",
         icon: Truck,
-        className: "bg-purple-50 text-purple-600 border-purple-100",
+        className: "bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 border-purple-100 dark:border-purple-900/40",
       };
     }
 
@@ -115,7 +115,7 @@ console.log("orderlist",orders)
       return {
         label: "Processing",
         icon: Clock3,
-        className: "bg-yellow-50 text-yellow-600 border-yellow-100",
+        className: "bg-yellow-50 dark:bg-yellow-950/40 text-yellow-600 dark:text-yellow-400 border-yellow-100 dark:border-yellow-900/40",
       };
     }
 
@@ -123,7 +123,7 @@ console.log("orderlist",orders)
       return {
         label: "Paid",
         icon: CheckCircle2,
-        className: "bg-green-50 text-green-600 border-green-100",
+        className: "bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400 border-green-100 dark:border-green-900/40",
       };
     }
 
@@ -131,7 +131,7 @@ console.log("orderlist",orders)
       return {
         label: "Payment Failed",
         icon: XCircle,
-        className: "bg-red-50 text-red-600 border-red-100",
+        className: "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border-red-100 dark:border-red-900/40",
       };
     }
 
@@ -139,14 +139,14 @@ console.log("orderlist",orders)
       return {
         label: "Payment Pending",
         icon: Clock3,
-        className: "bg-amber-50 text-amber-600 border-amber-100",
+        className: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-900/40",
       };
     }
 
     return {
       label: fulfillmentStatus || "Placed",
       icon: Clock3,
-      className: "bg-gray-100 text-gray-600 border-gray-200",
+      className: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700",
     };
   };
 
@@ -189,14 +189,14 @@ console.log("orderlist",orders)
 
   if (loading && orderList.length === 0) {
     return (
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-950">
 
-        <section className="bg-white border-b">
+        <section className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7">
 
-            <div className="h-8 w-40 bg-gray-200 rounded-lg animate-pulse" />
+            <div className="h-8 w-40 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse" />
 
-            <div className="h-4 w-64 bg-gray-100 rounded mt-3 animate-pulse" />
+            <div className="h-4 w-64 bg-gray-100 dark:bg-gray-800 rounded mt-3 animate-pulse" />
 
           </div>
         </section>
@@ -211,8 +211,10 @@ console.log("orderlist",orders)
                 key={item}
                 className="
                   bg-white
+                  dark:bg-gray-900
                   border
                   border-gray-100
+                  dark:border-gray-800
                   rounded-2xl
                   p-5
                   animate-pulse
@@ -222,19 +224,19 @@ console.log("orderlist",orders)
                 <div className="flex justify-between">
 
                   <div>
-                    <div className="h-5 w-36 bg-gray-200 rounded" />
-                    <div className="h-4 w-24 bg-gray-100 rounded mt-3" />
+                    <div className="h-5 w-36 bg-gray-200 dark:bg-gray-800 rounded" />
+                    <div className="h-4 w-24 bg-gray-100 dark:bg-gray-800 rounded mt-3" />
                   </div>
 
-                  <div className="h-8 w-24 bg-gray-100 rounded-full" />
+                  <div className="h-8 w-24 bg-gray-100 dark:bg-gray-800 rounded-full" />
 
                 </div>
 
-                <div className="border-t border-gray-100 mt-5 pt-5">
+                <div className="border-t border-gray-100 dark:border-gray-800 mt-5 pt-5">
 
-                  <div className="h-4 w-48 bg-gray-100 rounded" />
+                  <div className="h-4 w-48 bg-gray-100 dark:bg-gray-800 rounded" />
 
-                  <div className="h-4 w-32 bg-gray-100 rounded mt-3" />
+                  <div className="h-4 w-32 bg-gray-100 dark:bg-gray-800 rounded mt-3" />
 
                 </div>
 
@@ -256,16 +258,16 @@ console.log("orderlist",orders)
 
   if (error && orderList.length === 0) {
     return (
-      <main className="min-h-screen bg-gray-50">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-950 dark:text-gray-100">
 
-        <section className="bg-white border-b">
+        <section className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7">
 
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
               My Orders
             </h1>
 
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
               View and track your recent orders.
             </p>
 
@@ -335,13 +337,13 @@ console.log("orderlist",orders)
 
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-950 dark:text-gray-100">
 
       {/* ==========================================
           PAGE HEADER
       ========================================== */}
 
-      <section className="bg-white border-b">
+      <section className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7">
 
@@ -349,11 +351,11 @@ console.log("orderlist",orders)
 
             <div>
 
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                 My Orders
               </h1>
 
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                 View and track your recent orders.
               </p>
 
@@ -373,11 +375,15 @@ console.log("orderlist",orders)
                 rounded-xl
                 border
                 border-gray-200
+                dark:border-gray-700
                 bg-white
+                dark:bg-gray-800
                 hover:border-blue-300
                 hover:text-blue-600
                 text-sm
                 font-medium
+                text-gray-700
+                dark:text-gray-200
                 flex
                 items-center
                 gap-2
@@ -461,7 +467,7 @@ console.log("orderlist",orders)
                 ${
                   filter === item.value
                     ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600"
+                    : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-blue-300 hover:text-blue-600"
                 }
               `}
             >
@@ -480,11 +486,11 @@ console.log("orderlist",orders)
         {orderList.length > 0 && (
           <div className="mb-4">
 
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
 
               Showing{" "}
 
-              <span className="font-semibold text-gray-900">
+              <span className="font-semibold text-gray-900 dark:text-white">
                 {filteredOrders.length}
               </span>{" "}
 
@@ -507,8 +513,10 @@ console.log("orderlist",orders)
           <div
             className="
               bg-white
+              dark:bg-gray-900
               border
               border-gray-100
+              dark:border-gray-800
               rounded-2xl
               py-20
               px-6
@@ -523,7 +531,9 @@ console.log("orderlist",orders)
                 mx-auto
                 rounded-2xl
                 bg-blue-50
+                dark:bg-blue-950/40
                 text-blue-600
+                dark:text-blue-400
                 flex
                 items-center
                 justify-center
@@ -533,7 +543,7 @@ console.log("orderlist",orders)
             </div>
 
 
-            <h2 className="mt-5 text-xl font-semibold text-gray-900">
+            <h2 className="mt-5 text-xl font-semibold text-gray-900 dark:text-white">
 
               {filter === "ALL"
                 ? "No orders yet"
@@ -542,7 +552,7 @@ console.log("orderlist",orders)
             </h2>
 
 
-            <p className="mt-2 text-sm text-gray-500 max-w-md mx-auto">
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 max-w-md mx-auto">
 
               {filter === "ALL"
                 ? "You haven't placed any orders yet. Your orders will appear here after checkout."
@@ -573,12 +583,15 @@ console.log("orderlist",orders)
                   key={item._id}
                   className="
                     bg-white
+                    dark:bg-gray-900
                     border
                     border-gray-100
+                    dark:border-gray-800
                     rounded-2xl
                     shadow-sm
                     overflow-hidden
                     hover:border-gray-200
+                    dark:hover:border-gray-700
                     transition
                   "
                 >
@@ -616,7 +629,7 @@ console.log("orderlist",orders)
                             Order
                           </p>
 
-                          <h2 className="text-sm sm:text-base font-semibold text-gray-900 mt-1">
+                          <h2 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mt-1">
                             #{item.orderNumber || item._id}
                           </h2>
 
@@ -667,6 +680,7 @@ console.log("orderlist",orders)
                         pt-5
                         border-t
                         border-gray-100
+                        dark:border-gray-800
                       "
                     >
 
@@ -680,7 +694,9 @@ console.log("orderlist",orders)
                             h-9
                             rounded-lg
                             bg-gray-50
+                            dark:bg-gray-800
                             text-gray-500
+                            dark:text-gray-400
                             flex
                             items-center
                             justify-center
@@ -691,11 +707,11 @@ console.log("orderlist",orders)
 
                         <div>
 
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
                             Order Date
                           </p>
 
-                          <p className="text-sm font-medium text-gray-900 mt-0.5">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white mt-0.5">
                             {formatDate(
                               item.createdAt
                             )}
@@ -716,7 +732,9 @@ console.log("orderlist",orders)
                             h-9
                             rounded-lg
                             bg-gray-50
+                            dark:bg-gray-800
                             text-gray-500
+                            dark:text-gray-400
                             flex
                             items-center
                             justify-center
@@ -727,11 +745,11 @@ console.log("orderlist",orders)
 
                         <div>
 
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
                             Total Amount
                           </p>
 
-                          <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white mt-0.5">
                             ₹{item.total || 0}
                           </p>
 
@@ -750,7 +768,9 @@ console.log("orderlist",orders)
                             h-9
                             rounded-lg
                             bg-gray-50
+                            dark:bg-gray-800
                             text-gray-500
+                            dark:text-gray-400
                             flex
                             items-center
                             justify-center
@@ -761,11 +781,11 @@ console.log("orderlist",orders)
 
                         <div>
 
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
                             Shipping
                           </p>
 
-                          <p className="text-sm font-medium text-gray-900 mt-0.5">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white mt-0.5">
 
                             {item.shippingCharge === 0
                               ? "Free"
@@ -792,8 +812,10 @@ console.log("orderlist",orders)
                       sm:px-6
                       py-4
                       bg-gray-50/70
+                      dark:bg-gray-800/60
                       border-t
                       border-gray-100
+                      dark:border-gray-800
                       flex
                       flex-col
                       sm:flex-row
@@ -803,11 +825,11 @@ console.log("orderlist",orders)
                     "
                   >
 
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
 
                       Subtotal{" "}
 
-                      <span className="font-medium text-gray-900">
+                      <span className="font-medium text-gray-900 dark:text-white">
                         ₹{item.subtotal || 0}
                       </span>
 
@@ -828,13 +850,18 @@ console.log("orderlist",orders)
                         px-4
                         rounded-xl
                         bg-white
+                        dark:bg-gray-800
                         border
                         border-gray-200
+                        dark:border-gray-700
                         hover:border-blue-300
+                        dark:hover:border-blue-500
                         hover:text-blue-600
+                        dark:hover:text-blue-400
                         text-sm
                         font-medium
                         text-gray-700
+                        dark:text-gray-200
                         transition
                         cursor-pointer
                       "

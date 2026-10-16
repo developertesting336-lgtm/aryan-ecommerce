@@ -802,6 +802,7 @@ export default function CategorySection() {
             leading-none
             tracking-[-0.45px]
             text-[#171717]
+            dark:text-white
             sm:text-[21px]
           "
         >
@@ -839,7 +840,9 @@ export default function CategorySection() {
                     rounded-2xl
                     border
                     border-gray-200
+                    dark:border-gray-800
                     bg-gray-100
+                    dark:bg-gray-800
                     sm:h-[164px]
                     sm:w-[158px]
                   "

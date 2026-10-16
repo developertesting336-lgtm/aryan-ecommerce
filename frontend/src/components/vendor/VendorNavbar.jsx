@@ -15,6 +15,7 @@ import {
   ShoppingCart,
   BarChart3,
 } from "lucide-react";
+import ThemeToggle from "../ThemeToggle";
 
 export default function VendorNavbar({ setIsOpen }) {
   const location = useLocation();
@@ -249,6 +250,8 @@ export default function VendorNavbar({ setIsOpen }) {
         border-slate-100
         bg-white/95
         backdrop-blur-xl
+        dark:border-gray-800
+        dark:bg-gray-900/95
       "
     >
       {/* =====================================================
@@ -300,6 +303,10 @@ export default function VendorNavbar({ setIsOpen }) {
               hover:border-blue-100
               hover:bg-blue-50
               hover:text-blue-600
+              dark:border-gray-800
+              dark:bg-gray-800
+              dark:text-gray-300
+              dark:hover:bg-gray-700
               lg:hidden
             "
           >
@@ -317,6 +324,7 @@ export default function VendorNavbar({ setIsOpen }) {
                 uppercase
                 tracking-[0.16em]
                 text-slate-400
+                dark:text-gray-400
                 sm:block
               "
             >
@@ -331,6 +339,7 @@ export default function VendorNavbar({ setIsOpen }) {
                   font-bold
                   tracking-tight
                   text-slate-900
+                  dark:text-white
                   sm:text-xl
                 "
               >
@@ -353,7 +362,7 @@ export default function VendorNavbar({ setIsOpen }) {
               />
             </div>
 
-            <p className="hidden text-[10px] text-slate-400 sm:block">
+            <p className="hidden text-[10px] text-slate-400 dark:text-gray-400 sm:block">
               {pageInfo.subtitle}
             </p>
           </div>
@@ -423,6 +432,12 @@ export default function VendorNavbar({ setIsOpen }) {
                 focus:bg-white
                 focus:ring-4
                 focus:ring-blue-50
+                dark:border-gray-700
+                dark:bg-gray-800
+                dark:text-gray-200
+                dark:placeholder-gray-500
+                dark:focus:bg-gray-800
+                dark:focus:ring-blue-900/40
               "
             />
 
@@ -452,6 +467,9 @@ export default function VendorNavbar({ setIsOpen }) {
                   font-medium
                   text-slate-400
                   shadow-sm
+                  dark:border-gray-700
+                  dark:bg-gray-700
+                  dark:text-gray-300
                 "
               >
                 Ctrl
@@ -469,6 +487,9 @@ export default function VendorNavbar({ setIsOpen }) {
                   font-medium
                   text-slate-400
                   shadow-sm
+                  dark:border-gray-700
+                  dark:bg-gray-700
+                  dark:text-gray-300
                 "
               >
                 K
@@ -512,12 +533,18 @@ export default function VendorNavbar({ setIsOpen }) {
               hover:border-blue-100
               hover:bg-blue-50
               hover:text-[#4779F5]
+              dark:border-gray-800
+              dark:bg-gray-800
+              dark:text-gray-300
               md:hidden
             "
             title="Search"
           >
             <Search size={18} />
           </button>
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
           {/* Notifications */}
 
@@ -538,6 +565,10 @@ export default function VendorNavbar({ setIsOpen }) {
               hover:border-blue-100
               hover:bg-blue-50
               hover:text-[#4779F5]
+              dark:border-gray-800
+              dark:bg-gray-800
+              dark:text-gray-300
+              dark:hover:bg-gray-700
             "
             title="Notifications"
           >
@@ -556,6 +587,7 @@ export default function VendorNavbar({ setIsOpen }) {
                 bg-red-500
                 ring-2
                 ring-white
+                dark:ring-gray-900
               "
             />
           </button>
@@ -569,6 +601,7 @@ export default function VendorNavbar({ setIsOpen }) {
               h-8
               w-px
               bg-slate-100
+              dark:bg-gray-800
               sm:block
             "
           />
@@ -593,6 +626,8 @@ export default function VendorNavbar({ setIsOpen }) {
                 transition
                 hover:border-slate-100
                 hover:bg-slate-50
+                dark:hover:border-gray-800
+                dark:hover:bg-gray-800
               "
             >
               {/* Avatar */}
@@ -635,12 +670,13 @@ export default function VendorNavbar({ setIsOpen }) {
                     text-xs
                     font-semibold
                     text-slate-800
+                    dark:text-white
                   "
                 >
                   {userName}
                 </p>
 
-                <p className="mt-0.5 text-[10px] text-slate-400">
+                <p className="mt-0.5 text-[10px] text-slate-400 dark:text-gray-400">
                   Vendor
                 </p>
               </div>
@@ -681,6 +717,9 @@ export default function VendorNavbar({ setIsOpen }) {
                   border-slate-100
                   bg-white
                   shadow-[0_15px_45px_rgba(15,23,42,0.12)]
+                  dark:border-gray-800
+                  dark:bg-gray-900
+                  dark:shadow-[0_15px_45px_rgba(0,0,0,0.5)]
                 "
               >
                 {/* Profile Header */}
@@ -697,6 +736,10 @@ export default function VendorNavbar({ setIsOpen }) {
                     to-cyan-50
                     px-4
                     py-4
+                    dark:border-gray-800
+                    dark:from-gray-800
+                    dark:via-gray-900
+                    dark:to-gray-800
                   "
                 >
                   {/* Decorative circle */}
@@ -710,6 +753,7 @@ export default function VendorNavbar({ setIsOpen }) {
                       w-20
                       rounded-full
                       bg-blue-100/60
+                      dark:bg-blue-900/30
                     "
                   />
 
@@ -747,6 +791,7 @@ export default function VendorNavbar({ setIsOpen }) {
                           text-sm
                           font-bold
                           text-slate-800
+                          dark:text-white
                         "
                       >
                         {userName}
@@ -758,6 +803,7 @@ export default function VendorNavbar({ setIsOpen }) {
                           truncate
                           text-[11px]
                           text-slate-400
+                          dark:text-gray-400
                         "
                       >
                         {userEmail}
@@ -775,6 +821,8 @@ export default function VendorNavbar({ setIsOpen }) {
                           text-[9px]
                           font-bold
                           text-[#4779F5]
+                          dark:bg-blue-950/60
+                          dark:text-blue-300
                         "
                       >
                         Vendor Account
@@ -808,6 +856,8 @@ export default function VendorNavbar({ setIsOpen }) {
                       transition
                       hover:bg-blue-50
                       hover:text-[#4779F5]
+                      dark:text-gray-300
+                      dark:hover:bg-gray-800
                     "
                   >
                     <span
@@ -1071,6 +1121,7 @@ export default function VendorNavbar({ setIsOpen }) {
                       text-red-500
                       transition
                       hover:bg-red-50
+                      dark:hover:bg-red-950/30
                     "
                   >
                     <span
@@ -1082,6 +1133,7 @@ export default function VendorNavbar({ setIsOpen }) {
                         justify-center
                         rounded-lg
                         bg-red-50
+                        dark:bg-red-950/40
                       "
                     >
                       <LogOut size={16} />
@@ -1108,6 +1160,8 @@ export default function VendorNavbar({ setIsOpen }) {
             bg-white
             px-4
             py-3
+            dark:border-gray-800
+            dark:bg-gray-900
             md:hidden
           "
         >
@@ -1154,6 +1208,12 @@ export default function VendorNavbar({ setIsOpen }) {
                   focus:bg-white
                   focus:ring-4
                   focus:ring-blue-50
+                  dark:border-gray-700
+                  dark:bg-gray-800
+                  dark:text-gray-200
+                  dark:placeholder-gray-500
+                  dark:focus:bg-gray-800
+                  dark:focus:ring-blue-900/40
                 "
               />
             </div>

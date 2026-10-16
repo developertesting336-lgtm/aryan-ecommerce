@@ -169,22 +169,22 @@ export default function PrivacyPolicy() {
   };
 
   return (
-    <main className="min-h-screen bg-white text-gray-900">
+    <main className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       {/* =====================================================
           HERO
       ====================================================== */}
 
-      <section className="relative overflow-hidden border-b border-gray-100 bg-gray-50">
+      <section className="relative overflow-hidden border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
         {/* Decorative background */}
 
         <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-app-primary/10 blur-3xl" />
 
-        <div className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-blue-100/60 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-blue-100/60 dark:bg-blue-900/20 blur-3xl" />
 
         <div className="relative mx-auto max-w-[1440px] px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
           {/* Breadcrumb */}
 
-          <div className="mb-7 flex items-center gap-2 text-sm text-gray-500">
+          <div className="mb-7 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <Link
               to="/"
               className="transition hover:text-app-primary"
@@ -197,19 +197,19 @@ export default function PrivacyPolicy() {
               className="text-gray-400"
             />
 
-            <span className="font-medium text-gray-800">
+            <span className="font-medium text-gray-800 dark:text-gray-200">
               Privacy Policy
             </span>
           </div>
 
           <div className="max-w-3xl">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white px-3.5 py-1.5 text-xs font-semibold text-app-primary shadow-sm">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-100 dark:border-blue-900/60 bg-white dark:bg-gray-800 px-3.5 py-1.5 text-xs font-semibold text-app-primary shadow-sm">
               <ShieldCheck size={15} />
 
               Your privacy matters
             </div>
 
-            <h1 className="text-4xl font-black tracking-[-0.04em] text-gray-950 sm:text-5xl lg:text-6xl">
+            <h1 className="text-4xl font-black tracking-[-0.04em] text-gray-950 dark:text-white sm:text-5xl lg:text-6xl">
               Privacy
               <span className="text-app-primary">
                 {" "}
@@ -217,7 +217,7 @@ export default function PrivacyPolicy() {
               </span>
             </h1>
 
-            <p className="mt-5 max-w-2xl text-base leading-7 text-gray-600 sm:text-lg sm:leading-8">
+            <p className="mt-5 max-w-2xl text-base leading-7 text-gray-600 dark:text-gray-300 sm:text-lg sm:leading-8">
               We believe shopping online should
               feel simple, secure, and transparent.
               This Privacy Policy explains how
@@ -225,18 +225,18 @@ export default function PrivacyPolicy() {
               and manages your information.
             </p>
 
-            <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-gray-500">
+            <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-gray-500 dark:text-gray-400">
               <span>
-                <strong className="text-gray-800">
+                <strong className="text-gray-800 dark:text-gray-200">
                   Effective date:
                 </strong>{" "}
                 October 6, 2026
               </span>
 
-              <span className="hidden h-1 w-1 rounded-full bg-gray-300 sm:block" />
+              <span className="hidden h-1 w-1 rounded-full bg-gray-300 dark:bg-gray-600 sm:block" />
 
               <span>
-                <strong className="text-gray-800">
+                <strong className="text-gray-800 dark:text-gray-200">
                   Last updated:
                 </strong>{" "}
                 October 6, 2026
@@ -250,8 +250,8 @@ export default function PrivacyPolicy() {
           QUICK TRUST CARDS
       ====================================================== */}
 
-      <section className="border-b border-gray-100 bg-white">
-        <div className="mx-auto grid max-w-[1440px] grid-cols-1 divide-y divide-gray-100 px-4 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-6 lg:px-8">
+      <section className="border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="mx-auto grid max-w-[1440px] grid-cols-1 divide-y divide-gray-100 dark:divide-gray-800 px-4 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-6 lg:px-8">
           <TrustCard
             icon={LockKeyhole}
             title="Secure by design"
@@ -289,14 +289,14 @@ export default function PrivacyPolicy() {
                 (current) => !current
               )
             }
-            className="flex w-full items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-4 text-left shadow-sm"
+            className="flex w-full items-center justify-between rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-4 text-left shadow-sm"
           >
             <span>
               <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-app-primary">
                 On this page
               </span>
 
-              <span className="mt-1 block text-sm font-semibold text-gray-900">
+              <span className="mt-1 block text-sm font-semibold text-gray-900 dark:text-white">
                 {
                   sections.find(
                     (section) =>
@@ -318,7 +318,7 @@ export default function PrivacyPolicy() {
           </button>
 
           {mobileTocOpen && (
-            <div className="mt-2 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+            <div className="mt-2 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
               {sections.map((section) => {
                 const Icon = section.icon;
                 const active =
@@ -334,10 +334,10 @@ export default function PrivacyPolicy() {
                         section.id
                       )
                     }
-                    className={`flex w-full items-center gap-3 border-b border-gray-100 px-4 py-3.5 text-left last:border-b-0 ${
+                    className={`flex w-full items-center gap-3 border-b border-gray-100 dark:border-gray-800 px-4 py-3.5 text-left last:border-b-0 ${
                       active
-                        ? "bg-blue-50 text-app-primary"
-                        : "text-gray-700 hover:bg-gray-50"
+                        ? "bg-blue-50 dark:bg-blue-950/40 text-app-primary"
+                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                     }`}
                   >
                     <Icon
@@ -879,19 +879,19 @@ export default function PrivacyPolicy() {
                 support team.
               </p>
 
-              <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200 bg-gray-50">
-                <div className="border-b border-gray-200 bg-white px-5 py-4 sm:px-6">
+              <div className="mt-6 overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+                <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800/80 px-5 py-4 sm:px-6">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-app-primary">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/40 text-app-primary">
                       <Mail size={19} />
                     </div>
 
                     <div>
-                      <p className="text-sm font-bold text-gray-950">
+                      <p className="text-sm font-bold text-gray-950 dark:text-white">
                         Privacy Support
                       </p>
 
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         We are happy to help.
                       </p>
                     </div>
@@ -919,7 +919,7 @@ export default function PrivacyPolicy() {
 
                     <Link
                       to="/"
-                      className="mt-1 block text-sm font-semibold text-gray-900 hover:text-app-primary"
+                      className="mt-1 block text-sm font-semibold text-gray-900 dark:text-white hover:text-app-primary"
                     >
                       NovaCart
                     </Link>
@@ -1053,16 +1053,16 @@ function TrustCard({
 }) {
   return (
     <div className="flex items-start gap-4 px-0 py-5 sm:px-6 sm:py-6 first:sm:pl-0 last:sm:pr-0">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-app-primary">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/40 text-app-primary">
         <Icon size={19} />
       </div>
 
       <div>
-        <h3 className="text-sm font-bold text-gray-950">
+        <h3 className="text-sm font-bold text-gray-950 dark:text-white">
           {title}
         </h3>
 
-        <p className="mt-1 text-xs leading-5 text-gray-500">
+        <p className="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
           {text}
         </p>
       </div>
@@ -1080,16 +1080,16 @@ function FeatureCard({
   text,
 }) {
   return (
-    <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4">
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-app-primary shadow-sm">
+    <div className="rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/70 dark:bg-gray-850 p-4">
+      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white dark:bg-gray-800 text-app-primary shadow-sm">
         <Icon size={17} />
       </div>
 
-      <h4 className="mt-3 text-sm font-bold text-gray-900">
+      <h4 className="mt-3 text-sm font-bold text-gray-900 dark:text-white">
         {title}
       </h4>
 
-      <p className="mt-1.5 text-xs leading-5 text-gray-500">
+      <p className="mt-1.5 text-xs leading-5 text-gray-500 dark:text-gray-400">
         {text}
       </p>
     </div>

@@ -36,10 +36,13 @@ export default function Features() {
           sm:divide-y-0
           sm:divide-x
           divide-gray-200
+          dark:divide-gray-800
           rounded-2xl
           border
           border-gray-200
+          dark:border-gray-800
           bg-white
+          dark:bg-gray-900
           shadow-sm
         "
       >
@@ -72,7 +75,9 @@ export default function Features() {
                   justify-center
                   rounded-xl
                   bg-blue-50
+                  dark:bg-blue-950/50
                   text-blue-600
+                  dark:text-blue-400
                 "
               >
                 <Icon size={21} />
@@ -80,11 +85,11 @@ export default function Features() {
 
               <div className="min-w-0">
 
-                <h3 className="font-semibold text-gray-900">
+                <h3 className="font-semibold text-gray-900 dark:text-white">
                   {item.title}
                 </h3>
 
-                <p className="mt-0.5 text-xs sm:text-sm text-gray-500">
+                <p className="mt-0.5 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                   {item.description}
                 </p>
 

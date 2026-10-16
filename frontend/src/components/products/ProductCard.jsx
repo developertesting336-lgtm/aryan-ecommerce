@@ -418,13 +418,18 @@ const [currentImage, setCurrentImage] = useState(0);
         rounded-[22px]
         border
         border-slate-200
+        dark:border-gray-800
         bg-white
+        dark:bg-gray-900
         p-2
         shadow-[0_3px_14px_rgba(15,23,42,0.06)]
+        dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)]
         transition-all
         duration-300
         hover:border-slate-300
+        dark:hover:border-gray-700
         hover:shadow-[0_12px_30px_rgba(15,23,42,0.11)]
+        dark:hover:shadow-[0_12px_30px_rgba(0,0,0,0.6)]
       "
     >
 
@@ -441,7 +446,7 @@ const [currentImage, setCurrentImage] = useState(0);
           cursor-pointer
           overflow-hidden
           rounded-[18px]
-          bg-slate-100
+          bg-white
         "
       >
 
@@ -452,10 +457,7 @@ const [currentImage, setCurrentImage] = useState(0);
             pointer-events-none
             absolute
             inset-0
-            bg-gradient-to-br
-            from-slate-100
-            via-white
-            to-slate-100
+            bg-white
           "
         />
 
@@ -476,12 +478,15 @@ const [currentImage, setCurrentImage] = useState(0);
       rounded-full
       border
       border-slate-200
+      dark:border-gray-700
       bg-white/95
+      dark:bg-gray-800/95
       px-3
       py-1.5
       text-[10px]
       font-medium
       text-slate-700
+      dark:text-gray-200
       shadow-sm
       backdrop-blur-sm
     "
@@ -531,7 +536,9 @@ const [currentImage, setCurrentImage] = useState(0);
             rounded-full
             border
             border-slate-200
+            dark:border-gray-700
             bg-white/95
+            dark:bg-gray-800/95
             shadow-sm
             backdrop-blur-sm
             transition-all
@@ -591,6 +598,7 @@ const [currentImage, setCurrentImage] = useState(0);
     flex
     items-center
     justify-center
+    bg-white!
   "
 >
   <AnimatePresence
@@ -688,6 +696,7 @@ const [currentImage, setCurrentImage] = useState(0);
         gap-1.5
         rounded-full
         bg-white/90
+        dark:bg-gray-800/90
         px-2.5
         py-1.5
         shadow-sm
@@ -780,9 +789,11 @@ const [currentImage, setCurrentImage] = useState(0);
     leading-[21px]
     tracking-[-0.01em]
     text-slate-900
+    dark:text-gray-100
     transition-colors
     duration-200
     hover:text-blue-600
+    dark:hover:text-blue-400
   "
 >
   {name || "Product"}
@@ -809,6 +820,7 @@ const [currentImage, setCurrentImage] = useState(0);
               font-semibold
               tracking-tight
               text-slate-900
+              dark:text-gray-100
             "
           >
             ₹
@@ -829,6 +841,7 @@ const [currentImage, setCurrentImage] = useState(0);
                   text-[11px]
                   font-medium
                   text-slate-400
+                  dark:text-gray-500
                   line-through
                 "
               >
@@ -949,7 +962,7 @@ const [currentImage, setCurrentImage] = useState(0);
             cursor-pointer
             ${
               !hasStock
-                ? "cursor-not-allowed bg-slate-100 text-slate-400"
+                ? "cursor-not-allowed bg-slate-100 dark:bg-gray-800 text-slate-400 dark:text-gray-500"
                 : isAdded
                 ? "bg-emerald-500 text-white shadow-sm hover:bg-emerald-600"
                 : "bg-blue-600 text-white shadow-sm hover:bg-sky-500"

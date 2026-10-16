@@ -249,7 +249,7 @@ export default function LoginPage() {
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-300">
 
 
       {/* =================================
@@ -304,7 +304,7 @@ export default function LoginPage() {
         initial="hidden"
         animate="visible"
 
-        className="relative z-10 w-full max-w-5xl bg-white rounded-3xl shadow-[0_20px_70px_rgba(15,23,42,0.12)] border border-gray-100 overflow-hidden"
+        className="relative z-10 w-full max-w-5xl bg-white dark:bg-gray-900 rounded-3xl shadow-[0_20px_70px_rgba(15,23,42,0.12)] dark:shadow-[0_20px_70px_rgba(0,0,0,0.6)] border border-gray-100 dark:border-gray-800 overflow-hidden"
       >
 
         <div className="grid lg:grid-cols-[1.1fr_0.9fr]">
@@ -332,7 +332,7 @@ export default function LoginPage() {
 
               </div>
 
-              <span className="text-xl font-bold text-gray-900">
+              <span className="text-xl font-bold text-gray-900 dark:text-white">
                 NovaCart
               </span>
 
@@ -348,17 +348,17 @@ export default function LoginPage() {
               className="mb-8"
             >
 
-              <p className="text-sm font-semibold text-blue-600 mb-2">
+              <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">
                 WELCOME BACK
               </p>
 
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
 
                 Welcome back
 
               </h2>
 
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
 
                 Sign in to continue your shopping
                 experience.
@@ -386,7 +386,7 @@ export default function LoginPage() {
                 variants={itemVariants}
               >
 
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
 
                   Email Address
 
@@ -408,7 +408,7 @@ export default function LoginPage() {
                     onChange={handleChange}
                     placeholder="you@example.com"
 
-                    className="w-full h-12 pl-11 pr-4 rounded-xl border border-gray-200 bg-gray-50/60 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition-all duration-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                    className="w-full h-12 pl-11 pr-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-800 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none transition-all duration-200 focus:bg-white dark:focus:bg-gray-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                   />
 
                 </div>
@@ -424,7 +424,7 @@ export default function LoginPage() {
                 variants={itemVariants}
               >
 
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
 
                   Password
 
@@ -450,7 +450,7 @@ export default function LoginPage() {
                     onChange={handleChange}
                     placeholder="••••••••"
 
-                    className="w-full h-12 pl-11 pr-12 rounded-xl border border-gray-200 bg-gray-50/60 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition-all duration-200 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                    className="w-full h-12 pl-11 pr-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-800 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none transition-all duration-200 focus:bg-white dark:focus:bg-gray-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                   />
 
 
@@ -463,7 +463,7 @@ export default function LoginPage() {
                       )
                     }
 
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
                     aria-label={
                       showPassword
                         ? "Hide password"
@@ -515,14 +515,14 @@ export default function LoginPage() {
                     duration: 0.25,
                   }}
 
-                  className="rounded-xl border border-red-200 bg-red-50 px-4 py-3.5 text-red-700"
+                  className="rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 px-4 py-3.5 text-red-700 dark:text-red-300"
                 >
 
                   <div className="flex items-start gap-3">
 
-                    <div className="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="w-5 h-5 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center shrink-0 mt-0.5">
 
-                      <span className="text-xs font-bold">
+                      <span className="text-xs font-bold text-red-600 dark:text-red-300">
                         !
                       </span>
 
@@ -610,7 +610,7 @@ export default function LoginPage() {
                       : {}
                   }
 
-                  className={`group relative overflow-hidden w-full h-12 rounded-xl text-white font-semibold text-sm shadow-lg transition-all duration-200 ${
+                  className={`cursor-pointer group relative overflow-hidden w-full h-12 rounded-xl text-white font-semibold text-sm shadow-lg transition-all duration-200 ${
                     loading
                       ? "bg-blue-400 cursor-not-allowed shadow-blue-200"
                       : "bg-blue-600 hover:bg-blue-700 shadow-blue-600/20 hover:shadow-blue-600/30"
@@ -670,7 +670,7 @@ export default function LoginPage() {
               className="text-center mt-7"
             >
 
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
 
                 Don't have an account?{" "}
 
@@ -681,7 +681,7 @@ export default function LoginPage() {
                     navigate("/register")
                   }
 
-                  className="font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                  className="cursor-pointer font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline transition-colors"
                 >
 
                   Register
@@ -700,15 +700,15 @@ export default function LoginPage() {
             <motion.div
               variants={itemVariants}
 
-              className="flex items-center justify-center gap-2 mt-6 pt-5 border-t border-gray-100"
+              className="flex items-center justify-center gap-2 mt-6 pt-5 border-t border-gray-100 dark:border-gray-800"
             >
 
               <ShieldCheck
                 size={15}
-                className="text-gray-400"
+                className="text-gray-400 dark:text-gray-500"
               />
 
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-gray-400 dark:text-gray-500">
                 Secure and protected sign in
               </span>
 
@@ -891,7 +891,7 @@ export default function LoginPage() {
                     navigate("/register")
                   }
 
-                  className="mt-4 w-full h-10 rounded-lg bg-white text-blue-700 text-sm font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center gap-2"
+                  className="cursor-pointer mt-4 w-full h-10 rounded-lg bg-white text-blue-700 text-sm font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center gap-2"
                 >
 
                   Create Account

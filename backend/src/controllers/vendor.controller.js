@@ -496,89 +496,140 @@ const cancelledOrders = getcancelledOrders[0]?.count || 0;
   }
 };
 
-export const vendorProducts = async (req,res) => {
+
+export const vendorProducts = async (req, res) => {
   try {
-    const totalProducts = await Product.countDocuments({vendor:req.user._id});
-    const activeProducts = await Product.countDocuments({vendor:req.user._id,status:"active"});
-    const lowStockProducts = await Product.countDocuments({vendor:req.user._id,stock:{ $lt: 10 } });
-    const outofStocksProducts = await Product.countDocuments({vendor:req.user._id,stock:0});
-    const result = await Promise.all([totalProducts,activeProducts,lowStockProducts,outofStocksProducts]);
-const stats ={totalProducts,activeProducts,lowStockProducts,outofStocksProducts}
-const page = Math.max(parseInt(req.query.page) || 1, 1);
-const limit = Math.max(parseInt(req.query.limit) || 10, 1);
-const skip = (page - 1) * limit;
+    const vendorId = req.user._id;
+
+    // Fetch vendor statistics
+    const [
+      totalProducts,
+      activeProducts,
+      lowStockProducts,
+      outofStocksProducts,
+    ] = await Promise.all([
+      Product.countDocuments({ vendor: vendorId }),
+      Product.countDocuments({ vendor: vendorId, status: "active" }),
+      Product.countDocuments({ vendor: vendorId, stock: { $lt: 10 } }),
+      Product.countDocuments({ vendor: vendorId, stock: 0 }),
+    ]);
+
+    const stats = {
+      totalProducts,
+      activeProducts,
+      lowStockProducts,
+      outofStocksProducts,
+    };
+
+    // Pagination
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
+    const skip = (page - 1) * limit;
+
+    // Fetch products
     const products = await Product.aggregate([
-       { $skip: skip },
-  { $limit: limit },
-  {$match:{vendor:req.user._id}},
+      // 1. Filter vendor products first
       {
-        $lookup:{
-          from:"categories",
-          localField:"category",
-          foreignField:"_id",
-          as:"categorydetails"
-        }
+        $match: { vendor: vendorId },
+      },
+
+      // 2. Sort products
+      {
+        $sort: { createdAt: -1 },
+      },
+
+      // 3. Pagination
+      {
+        $skip: skip,
       },
       {
-         $unwind: "$categorydetails",
+        $limit: limit,
       },
-      
-{ $lookup:{
-          from:"orderitems",
-          localField:"_id",
-          foreignField:"product",
-          as:"orderItemdetails",
-      }},
-           {
-         $unwind: {
+
+      // 4. Get category details
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "categorydetails",
+        },
+      },
+
+      // Preserve products without a matching category
+      {
+        $unwind: {
+          path: "$categorydetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      // 5. Get order item details
+      {
+        $lookup: {
+          from: "orderitems",
+          localField: "_id",
+          foreignField: "product",
+          as: "orderItemdetails",
+        },
+      },
+
+      // Preserve products without order items
+      {
+        $unwind: {
           path: "$orderItemdetails",
-      preserveNullAndEmptyArrays: true
-         },
+          preserveNullAndEmptyArrays: true,
+        },
       },
+
+      // 6. Group back to one document per product
       {
-         $group: {
-            _id: "$_id",
-            name: {
-              $first: "$name",
-            },
-            price:{
-              $first : "$price"
-            },
-            stock:{
-              $first : "$stock"
-            },
-            status:{
-              $first : "$status"
-            },
-            category: {
-              $first: "$categorydetails.name",
-            },
-            sellingUnits: {
-              $sum: "$orderItemdetails.quantity",
+        $group: {
+          _id: "$_id",
+          name: { $first: "$name" },
+          price: { $first: "$price" },
+          stock: { $first: "$stock" },
+          status: { $first: "$status" },
+          category: {
+            $first: {
+              $ifNull: ["$categorydetails.name", "Uncategorized"],
             },
           },
-      }
+          sellingUnits: {
+            $sum: {
+              $ifNull: ["$orderItemdetails.quantity", 0],
+            },
+          },
+          createdAt: { $first: "$createdAt" },
+        },
+      },
+
+      // 7. Maintain sorting after grouping
+      {
+        $sort: { createdAt: -1 },
+      },
     ]);
-       return res.status(200).json(
+
+    return res.status(200).json(
       new ApiResponse(
         200,
         {
           stats,
-          products
+          products,
         },
-        "vendorProducts data fetched successfully"
+        "Vendor products data fetched successfully"
       )
     );
-    
   } catch (error) {
-    console.log("error", error);
+    console.error("Error fetching vendor products:", error);
 
     return res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });
   }
-}
+};
+
 
 export const vendorUsers = async (req,res) => {
   try {

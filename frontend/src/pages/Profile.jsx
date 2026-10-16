@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-// import { useTheme } from "../context/ThemeContext";
+import { useTheme } from "../context/ThemeContext";
 
 import {
   User,
@@ -39,7 +39,7 @@ export default function Profile() {
   const {  wishlist } = useSelector(
     (state) => state.wishlist
   );
-  // const { darkMode, toggleTheme } = useTheme();
+  const { darkMode, toggleTheme } = useTheme();
 
   const [activeTab, setActiveTab] = useState("profile");
 console.log("wishlist pro",wishlist)
@@ -532,13 +532,13 @@ const handleSaveUser = async (e) => {
 
                 {/* THEME */}
 
-                {/* <button
+                <button
                   type="button"
                   onClick={toggleTheme}
                   aria-label={`Switch to ${
                     darkMode ? "light" : "dark"
                   } mode`}
-                  className="group flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-gray-600 transition-all hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
+                  className="group flex w-full cursor-pointer items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-gray-600 transition-all hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
 
                   <span className="flex items-center gap-3">
@@ -546,14 +546,14 @@ const handleSaveUser = async (e) => {
                     <span
                       className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
                         darkMode
-                          ? "bg-blue-500/10 text-blue-400"
+                          ? "bg-amber-500/10 text-amber-400"
                           : "bg-orange-50 text-orange-500"
                       }`}
                     >
                       {darkMode ? (
-                        <Moon size={17} />
-                      ) : (
                         <Sun size={17} />
+                      ) : (
+                        <Moon size={17} />
                       )}
                     </span>
 
@@ -569,7 +569,7 @@ const handleSaveUser = async (e) => {
                     className={`relative h-6 w-11 shrink-0 rounded-full transition-colors duration-300 ${
                       darkMode
                         ? "bg-blue-600"
-                        : "bg-gray-300"
+                        : "bg-gray-300 dark:bg-gray-700"
                     }`}
                   >
 
@@ -582,14 +582,14 @@ const handleSaveUser = async (e) => {
                     >
 
                       {darkMode ? (
-                        <Moon
-                          size={11}
-                          className="text-blue-600"
-                        />
-                      ) : (
                         <Sun
                           size={11}
-                          className="text-orange-500"
+                          className="text-amber-500"
+                        />
+                      ) : (
+                        <Moon
+                          size={11}
+                          className="text-slate-700"
                         />
                       )}
 
@@ -597,7 +597,7 @@ const handleSaveUser = async (e) => {
 
                   </span>
 
-                </button> */}
+                </button>
 
                 {/* LOGOUT */}
 

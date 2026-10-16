@@ -299,7 +299,9 @@ function CategorySkeleton() {
         rounded-3xl
         border
         border-gray-200
+        dark:border-gray-800
         bg-white
+        dark:bg-gray-900
         shadow-sm
       "
     >
@@ -312,6 +314,9 @@ function CategorySkeleton() {
           from-gray-200
           via-gray-100
           to-gray-200
+          dark:from-gray-800
+          dark:via-gray-700
+          dark:to-gray-800
           animate-pulse
         "
       />
@@ -339,6 +344,7 @@ function CategorySkeleton() {
                   h-[105px]
                   rounded-2xl
                   bg-gray-100
+                  dark:bg-gray-800
                   animate-pulse
                 "
               />
@@ -366,7 +372,9 @@ function EmptyState({
         rounded-3xl
         border
         border-gray-200
+        dark:border-gray-800
         bg-white
+        dark:bg-gray-900
         px-5
         py-16
         text-center
@@ -380,7 +388,9 @@ function EmptyState({
           w-16
           rounded-2xl
           bg-blue-50
+          dark:bg-blue-950/40
           text-blue-600
+          dark:text-blue-400
           flex
           items-center
           justify-center
@@ -712,7 +722,7 @@ export default function CategoriesPage() {
       rootCategories.length === 0)
   ) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
         <main className="pb-20 lg:pb-0">
 
@@ -732,7 +742,9 @@ export default function CategoriesPage() {
                 rounded-3xl
                 border
                 border-red-100
+                dark:border-red-900/60
                 bg-white
+                dark:bg-gray-900
                 px-5
                 py-14
                 text-center
@@ -746,6 +758,7 @@ export default function CategoriesPage() {
                   w-14
                   rounded-2xl
                   bg-red-50
+                  dark:bg-red-950/50
                   text-red-500
                   flex
                   items-center
@@ -761,6 +774,7 @@ export default function CategoriesPage() {
                   text-xl
                   font-bold
                   text-gray-900
+                  dark:text-white
                 "
               >
                 Unable to load categories
@@ -771,6 +785,7 @@ export default function CategoriesPage() {
                   mt-2
                   text-sm
                   text-gray-500
+                  dark:text-gray-400
                 "
               >
                 {error}
@@ -817,7 +832,7 @@ export default function CategoriesPage() {
   ========================================================= */
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
       <main className="pb-20 lg:pb-0">
 
@@ -1015,13 +1030,17 @@ export default function CategoriesPage() {
                       rounded-2xl
                       border
                       border-white/20
+                      dark:border-gray-700
                       bg-white
+                      dark:bg-gray-900
                       pl-11
                       pr-5
                       text-sm
                       sm:text-base
                       text-gray-900
+                      dark:text-white
                       placeholder:text-gray-400
+                      dark:placeholder:text-gray-500
                       outline-none
                       shadow-xl
                       focus:ring-4
@@ -1081,6 +1100,7 @@ export default function CategoriesPage() {
                   uppercase
                   tracking-widest
                   text-blue-600
+                  dark:text-blue-400
                 "
               >
                 Browse collection
@@ -1093,6 +1113,7 @@ export default function CategoriesPage() {
                   sm:text-2xl
                   font-black
                   text-gray-900
+                  dark:text-white
                 "
               >
                 Find what you need
@@ -1103,6 +1124,7 @@ export default function CategoriesPage() {
                   mt-1
                   text-sm
                   text-gray-500
+                  dark:text-gray-400
                 "
               >
                 Choose a category to explore
@@ -1125,11 +1147,14 @@ export default function CategoriesPage() {
                     rounded-xl
                     border
                     border-gray-200
+                    dark:border-gray-800
                     bg-white
+                    dark:bg-gray-900
                     px-4
                     py-2.5
                     text-sm
                     text-gray-500
+                    dark:text-gray-400
                   "
                 >
 
@@ -1137,6 +1162,7 @@ export default function CategoriesPage() {
                     className="
                       font-bold
                       text-gray-900
+                      dark:text-white
                     "
                   >
                     {rootCategories.length}
@@ -1144,7 +1170,7 @@ export default function CategoriesPage() {
 
                   Categories
 
-                  <span className="text-gray-300">
+                  <span className="text-gray-300 dark:text-gray-600">
                     •
                   </span>
 
@@ -1152,6 +1178,7 @@ export default function CategoriesPage() {
                     className="
                       font-bold
                       text-gray-900
+                      dark:text-white
                     "
                   >
                     {totalChildren}
@@ -1193,7 +1220,9 @@ export default function CategoriesPage() {
                   rounded-3xl
                   border
                   border-gray-200
+                  dark:border-gray-800
                   bg-white
+                  dark:bg-gray-900
                   px-5
                   py-16
                   text-center
@@ -1207,7 +1236,9 @@ export default function CategoriesPage() {
                     w-16
                     rounded-2xl
                     bg-blue-50
+                    dark:bg-blue-950/40
                     text-blue-600
+                    dark:text-blue-400
                     flex
                     items-center
                     justify-center
@@ -1222,6 +1253,7 @@ export default function CategoriesPage() {
                     text-lg
                     font-bold
                     text-gray-900
+                    dark:text-white
                   "
                 >
                   No categories available
@@ -1232,6 +1264,7 @@ export default function CategoriesPage() {
                     mt-2
                     text-sm
                     text-gray-500
+                    dark:text-gray-400
                   "
                 >
                   Categories will appear here
@@ -1306,7 +1339,9 @@ export default function CategoriesPage() {
                         rounded-3xl
                         border
                         border-gray-200
+                        dark:border-gray-800
                         bg-white
+                        dark:bg-gray-900
                         shadow-sm
                       "
                     >
@@ -1498,13 +1533,16 @@ export default function CategoriesPage() {
                               gap-2
                               rounded-xl
                               bg-white
+                              dark:bg-gray-900
                               px-4
                               py-2.5
                               text-sm
                               font-bold
                               text-blue-700
+                              dark:text-blue-300
                               shadow-lg
                               hover:bg-blue-50
+                              dark:hover:bg-gray-800
                               transition
                               cursor-pointer
                             "
@@ -1543,6 +1581,7 @@ export default function CategoriesPage() {
                                 sm:text-lg
                                 font-bold
                                 text-gray-900
+                                dark:text-white
                               "
                             >
                               Explore{" "}
@@ -1611,6 +1650,7 @@ export default function CategoriesPage() {
                                       h-[105px]
                                       rounded-2xl
                                       bg-gray-100
+                                      dark:bg-gray-800
                                       animate-pulse
                                     "
                                   />
@@ -1630,9 +1670,11 @@ export default function CategoriesPage() {
                               className="
                                 rounded-2xl
                                 bg-gray-50
+                                dark:bg-gray-800/40
                                 border
                                 border-dashed
                                 border-gray-200
+                                dark:border-gray-800
                                 py-10
                                 text-center
                               "
@@ -1643,6 +1685,7 @@ export default function CategoriesPage() {
                                 className="
                                   mx-auto
                                   text-gray-300
+                                  dark:text-gray-600
                                 "
                               />
 
@@ -1651,6 +1694,7 @@ export default function CategoriesPage() {
                                   mt-3
                                   text-sm
                                   text-gray-500
+                                  dark:text-gray-400
                                 "
                               >
                                 No subcategories
@@ -1709,11 +1753,15 @@ export default function CategoriesPage() {
                                       rounded-2xl
                                       border
                                       border-gray-100
+                                      dark:border-gray-800
                                       bg-gray-50
+                                      dark:bg-gray-800/60
                                       p-4
                                       text-left
                                       hover:border-blue-200
+                                      dark:hover:border-blue-700
                                       hover:bg-blue-50/50
+                                      dark:hover:bg-gray-800
                                       hover:shadow-md
                                       hover:-translate-y-0.5
                                       transition-all
@@ -1731,9 +1779,12 @@ export default function CategoriesPage() {
                                         shrink-0
                                         rounded-xl
                                         bg-white
+                                        dark:bg-gray-900
                                         border
                                         border-gray-100
+                                        dark:border-gray-700
                                         text-blue-600
+                                        dark:text-blue-400
                                         flex
                                         items-center
                                         justify-center
@@ -1768,7 +1819,9 @@ export default function CategoriesPage() {
                                           text-sm
                                           font-bold
                                           text-gray-900
+                                          dark:text-white
                                           group-hover:text-blue-600
+                                          dark:group-hover:text-blue-400
                                           transition
                                         "
                                       >
@@ -1805,9 +1858,12 @@ export default function CategoriesPage() {
                                         shrink-0
                                         rounded-lg
                                         bg-white
+                                        dark:bg-gray-900
                                         border
                                         border-gray-100
+                                        dark:border-gray-700
                                         text-gray-400
+                                        dark:text-gray-400
                                         flex
                                         items-center
                                         justify-center

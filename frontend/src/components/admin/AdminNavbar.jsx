@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function AdminNavbar({ setIsOpen }) {
   const location = useLocation();
@@ -11,29 +12,8 @@ export default function AdminNavbar({ setIsOpen }) {
   const [search, setSearch] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
 
-  // =========================================================
-  // THEME
-  // =========================================================
-
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem("admin-theme") === "dark";
-  });
-
-  useEffect(() => {
-    const root = document.documentElement;
-
-    if (darkMode) {
-      root.classList.add("dark");
-      localStorage.setItem("admin-theme", "dark");
-    } else {
-      root.classList.remove("dark");
-      localStorage.setItem("admin-theme", "light");
-    }
-  }, [darkMode]);
-
-  const toggleTheme = () => {
-    setDarkMode((prev) => !prev);
-  };
+  // Single shared theme system
+  const { darkMode, toggleTheme } = useTheme();
 
   // =========================================================
   // PAGE TITLE

@@ -127,36 +127,36 @@ function HelpCategoryCard({ category }) {
   const Icon = category.icon;
 
   return (
-    <div className="group rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-app-primary/20 hover:shadow-lg">
+    <div className="group rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-app-primary/20 hover:shadow-lg">
       <div className="flex items-start justify-between gap-4">
         <div
-          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${category.color}`}
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${category.color} dark:bg-opacity-20`}
         >
           <Icon size={23} strokeWidth={2} />
         </div>
 
         <ArrowRight
           size={18}
-          className="mt-1 text-gray-300 transition-all duration-300 group-hover:translate-x-1 group-hover:text-app-primary"
+          className="mt-1 text-gray-300 dark:text-gray-600 transition-all duration-300 group-hover:translate-x-1 group-hover:text-app-primary"
         />
       </div>
 
-      <h3 className="mt-5 text-lg font-bold text-gray-900">
+      <h3 className="mt-5 text-lg font-bold text-gray-900 dark:text-white">
         {category.title}
       </h3>
 
-      <p className="mt-2 min-h-[48px] text-sm leading-6 text-gray-500">
+      <p className="mt-2 min-h-[48px] text-sm leading-6 text-gray-500 dark:text-gray-400">
         {category.description}
       </p>
 
-      <div className="mt-5 space-y-2.5 border-t border-gray-100 pt-4">
+      <div className="mt-5 space-y-2.5 border-t border-gray-100 dark:border-gray-800 pt-4">
         {category.links.map((link) => (
           <button
             key={link}
             type="button"
-            className="flex w-full items-start gap-2 text-left text-sm text-gray-600 transition-colors hover:text-app-primary"
+            className="flex w-full items-start gap-2 text-left text-sm text-gray-600 dark:text-gray-300 transition-colors hover:text-app-primary"
           >
-            <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gray-300 group-hover:bg-app-primary" />
+            <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-gray-300 dark:bg-gray-600 group-hover:bg-app-primary" />
             <span>{link}</span>
           </button>
         ))}
@@ -167,14 +167,14 @@ function HelpCategoryCard({ category }) {
 
 function FAQItem({ faq, isOpen, onClick }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
+    <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
       <button
         type="button"
         onClick={onClick}
-        className="flex w-full items-center justify-between gap-5 px-5 py-5 text-left transition-colors hover:bg-gray-50 sm:px-6"
+        className="flex w-full items-center justify-between gap-5 px-5 py-5 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/60 sm:px-6"
         aria-expanded={isOpen}
       >
-        <span className="text-sm font-semibold leading-6 text-gray-900 sm:text-base">
+        <span className="text-sm font-semibold leading-6 text-gray-900 dark:text-white sm:text-base">
           {faq.question}
         </span>
 
@@ -182,7 +182,7 @@ function FAQItem({ faq, isOpen, onClick }) {
           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all duration-300 ${
             isOpen
               ? "rotate-180 bg-app-primary text-white"
-              : "bg-gray-100 text-gray-500"
+              : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
           }`}
         >
           <ChevronDown size={17} />
@@ -195,7 +195,7 @@ function FAQItem({ faq, isOpen, onClick }) {
         }`}
       >
         <div className="overflow-hidden">
-          <div className="border-t border-gray-100 px-5 pb-5 pt-4 text-sm leading-7 text-gray-600 sm:px-6">
+          <div className="border-t border-gray-100 dark:border-gray-800 px-5 pb-5 pt-4 text-sm leading-7 text-gray-600 dark:text-gray-300 sm:px-6">
             {faq.answer}
           </div>
         </div>
@@ -206,15 +206,15 @@ function FAQItem({ faq, isOpen, onClick }) {
 
 function SupportCard({ icon: Icon, title, description, children }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm">
       <div className="flex items-start gap-4">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-app-primary">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/40 text-app-primary">
           <Icon size={21} />
         </div>
 
         <div className="min-w-0">
-          <h3 className="font-bold text-gray-900">{title}</h3>
-          <p className="mt-1 text-sm leading-6 text-gray-500">
+          <h3 className="font-bold text-gray-900 dark:text-white">{title}</h3>
+          <p className="mt-1 text-sm leading-6 text-gray-500 dark:text-gray-400">
             {description}
           </p>
 
@@ -242,18 +242,18 @@ export default function Help() {
   }, [search]);
 
   return (
-    <main className="min-h-screen bg-gray-50 text-gray-900">
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
       {/* =========================================================
           HERO
       ========================================================== */}
-      <section className="relative overflow-hidden border-b border-gray-200 bg-white">
+      <section className="relative overflow-hidden border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
         {/* Decorative background */}
-        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-blue-50 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-32 -left-24 h-72 w-72 rounded-full bg-blue-50 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-blue-50 dark:bg-blue-900/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-32 -left-24 h-72 w-72 rounded-full bg-blue-50 dark:bg-blue-900/20 blur-3xl" />
 
         <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
           {/* Breadcrumb */}
-          <div className="mb-7 flex items-center gap-2 text-sm text-gray-500">
+          <div className="mb-7 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <Link
               to="/"
               className="transition-colors hover:text-app-primary"
@@ -263,31 +263,31 @@ export default function Help() {
 
             <span>/</span>
 
-            <span className="font-medium text-gray-900">Help Center</span>
+            <span className="font-medium text-gray-900 dark:text-white">Help Center</span>
           </div>
 
           <div className="mx-auto max-w-3xl text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-app-primary shadow-sm">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-app-primary shadow-sm">
               <HelpCircle size={28} />
             </div>
 
-            <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3.5 py-1.5 text-xs font-semibold text-app-primary">
+            <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-blue-100 dark:border-blue-900/60 bg-blue-50 dark:bg-blue-950/40 px-3.5 py-1.5 text-xs font-semibold text-app-primary">
               <Sparkles size={14} />
               NovaCart Help Center
             </div>
 
-            <h1 className="mt-5 text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl lg:text-5xl">
+            <h1 className="mt-5 text-3xl font-extrabold tracking-tight text-gray-950 dark:text-white sm:text-4xl lg:text-5xl">
               How can we help you?
             </h1>
 
-            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-gray-500 sm:text-base">
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-gray-500 dark:text-gray-400 sm:text-base">
               Find answers, get help with your orders, or contact our support
               team. We’re here to make your NovaCart experience simple.
             </p>
 
             {/* Search */}
             <div className="mx-auto mt-8 max-w-2xl">
-              <div className="group flex items-center rounded-2xl border border-gray-200 bg-white p-2 shadow-lg shadow-gray-200/50 transition-all focus-within:border-app-primary focus-within:ring-4 focus-within:ring-blue-100">
+              <div className="group flex items-center rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 shadow-lg shadow-gray-200/50 dark:shadow-none transition-all focus-within:border-app-primary focus-within:ring-4 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/30">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center text-gray-400">
                   <Search size={21} />
                 </div>
@@ -297,7 +297,7 @@ export default function Help() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search for help, orders, returns, payments..."
-                  className="h-11 min-w-0 flex-1 bg-transparent px-2 text-sm text-gray-900 outline-none placeholder:text-gray-400 sm:text-base"
+                  className="h-11 min-w-0 flex-1 bg-transparent px-2 text-sm text-gray-900 dark:text-white outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500 sm:text-base"
                 />
 
                 <button
@@ -308,7 +308,7 @@ export default function Help() {
                 </button>
               </div>
 
-              <p className="mt-3 text-xs text-gray-400">
+              <p className="mt-3 text-xs text-gray-400 dark:text-gray-500">
                 Try searching for “refund”, “order”, “payment” or “delivery”
               </p>
             </div>
@@ -352,7 +352,7 @@ export default function Help() {
             title="Support hours"
             description="Our customer support team is available during:"
           >
-            <p className="mt-3 text-sm font-semibold text-gray-800">
+            <p className="mt-3 text-sm font-semibold text-gray-800 dark:text-gray-200">
               Monday – Sunday · 9:00 AM – 7:00 PM
             </p>
           </SupportCard>
@@ -369,11 +369,11 @@ export default function Help() {
             Browse help topics
           </div>
 
-          <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-gray-950 sm:text-3xl">
+          <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-gray-950 dark:text-white sm:text-3xl">
             What do you need help with?
           </h2>
 
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-500">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-500 dark:text-gray-400">
             Choose a category to find the information you need.
           </p>
         </div>
@@ -427,18 +427,18 @@ export default function Help() {
       {/* =========================================================
           FAQ
       ========================================================== */}
-      <section className="border-y border-gray-200 bg-white">
+      <section className="border-y border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
         <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
           <div className="mx-auto max-w-2xl text-center">
-            <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-app-primary">
+            <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/40 text-app-primary">
               <HelpCircle size={22} />
             </div>
 
-            <h2 className="mt-5 text-2xl font-extrabold tracking-tight text-gray-950 sm:text-3xl">
+            <h2 className="mt-5 text-2xl font-extrabold tracking-tight text-gray-950 dark:text-white sm:text-3xl">
               Frequently asked questions
             </h2>
 
-            <p className="mt-3 text-sm leading-6 text-gray-500">
+            <p className="mt-3 text-sm leading-6 text-gray-500 dark:text-gray-400">
               Quick answers to some of the questions our customers ask most
               often.
             </p>
@@ -457,14 +457,14 @@ export default function Help() {
                 />
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-12 text-center">
+              <div className="rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 px-6 py-12 text-center">
                 <Search className="mx-auto text-gray-400" size={28} />
 
-                <h3 className="mt-4 font-bold text-gray-900">
+                <h3 className="mt-4 font-bold text-gray-900 dark:text-white">
                   No matching help articles
                 </h3>
 
-                <p className="mt-2 text-sm text-gray-500">
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                   Try a different search term or contact our support team.
                 </p>
 
@@ -486,46 +486,46 @@ export default function Help() {
       ========================================================== */}
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid gap-5 md:grid-cols-3">
-          <div className="rounded-2xl border border-gray-200 bg-white p-6">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
               <ShieldCheck size={22} />
             </div>
 
-            <h3 className="mt-5 font-bold text-gray-900">
+            <h3 className="mt-5 font-bold text-gray-900 dark:text-white">
               Your security matters
             </h3>
 
-            <p className="mt-2 text-sm leading-6 text-gray-500">
+            <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
               Never share your password, OTP, CVV or complete card details
               with anyone claiming to be from support.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-gray-200 bg-white p-6">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-app-primary">
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/40 text-app-primary">
               <CheckCircle2 size={22} />
             </div>
 
-            <h3 className="mt-5 font-bold text-gray-900">
+            <h3 className="mt-5 font-bold text-gray-900 dark:text-white">
               Genuine support
             </h3>
 
-            <p className="mt-2 text-sm leading-6 text-gray-500">
+            <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
               Use the official NovaCart website and support channels whenever
               you need assistance.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-gray-200 bg-white p-6">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400">
               <Phone size={22} />
             </div>
 
-            <h3 className="mt-5 font-bold text-gray-900">
+            <h3 className="mt-5 font-bold text-gray-900 dark:text-white">
               Need personal assistance?
             </h3>
 
-            <p className="mt-2 text-sm leading-6 text-gray-500">
+            <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
               Our support team can help with account, order, delivery and
               payment-related questions.
             </p>
@@ -537,16 +537,16 @@ export default function Help() {
           CONTACT CTA
       ========================================================== */}
       <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-gray-200 bg-white p-7 text-center shadow-sm sm:p-10 lg:p-12">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-app-primary">
+        <div className="rounded-3xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-7 text-center shadow-sm sm:p-10 lg:p-12">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-app-primary">
             <MessageCircle size={27} />
           </div>
 
-          <h2 className="mt-5 text-2xl font-extrabold text-gray-950 sm:text-3xl">
+          <h2 className="mt-5 text-2xl font-extrabold text-gray-950 dark:text-white sm:text-3xl">
             Still need help?
           </h2>
 
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-gray-500 sm:text-base">
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-gray-500 dark:text-gray-400 sm:text-base">
             If you couldn’t find what you were looking for, our customer
             support team is ready to help you.
           </p>
@@ -562,7 +562,7 @@ export default function Help() {
 
             <Link
               to="/privacy-policy"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3.5 text-sm font-semibold text-gray-700 transition-all hover:border-app-primary/30 hover:text-app-primary"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-3.5 text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all hover:border-app-primary/30 hover:text-app-primary"
             >
               Privacy & Security
             </Link>

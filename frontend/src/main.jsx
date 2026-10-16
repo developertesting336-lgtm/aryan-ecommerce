@@ -8,34 +8,30 @@ import AppRoutes from './routes/AppRoutes';
 import { Toaster } from "react-hot-toast";
 import { ToastContainer } from "react-toastify";
 
-// import { ThemeProvider } from "./context/ThemeContext";
+import { ThemeProvider } from "./context/ThemeContext";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-
     <Provider store={store}>
+      <ThemeProvider>
+        <AppRoutes />
 
-      <AppRoutes />
-
-      <ToastContainer
-        position="bottom-right"
-        autoClose={2500}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick={false}
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        toastClassName="!rounded-xl !shadow-lg !border !border-slate-200 !bg-white !text-slate-800 !px-3 !py-2 !min-h-0"
-        bodyClassName="!text-xs sm:!text-sm !font-medium !text-slate-700"
-        progressClassName="!bg-blue-600"
-        closeButton={true}
-      />
-
-      {/* </ThemeProvider> */}
+        <ToastContainer
+          position="bottom-right"
+          autoClose={2500}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          toastClassName="!rounded-xl !shadow-lg !border border-slate-200 dark:border-gray-800 !bg-white dark:!bg-gray-800 !text-slate-800 dark:!text-gray-100 !px-3 !py-2 !min-h-0"
+          bodyClassName="!text-xs sm:!text-sm !font-medium !text-slate-700 dark:!text-gray-200"
+          progressClassName="!bg-blue-600"
+          closeButton={true}
+        />
+      </ThemeProvider>
     </Provider>
-
   </StrictMode>,
 )

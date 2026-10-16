@@ -22,15 +22,15 @@ export default function Wishlist() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600 text-lg">Loading wishlist...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+        <p className="text-gray-600 dark:text-gray-300 text-lg">Loading wishlist...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
         <p className="text-red-500">
           {error?.message || error || "Failed to load wishlist"}
         </p>
@@ -40,22 +40,22 @@ export default function Wishlist() {
 
   if (isEmpty) {
     return (
-      <div className="bg-gray-50 min-h-screen">
+      <div className="bg-gray-50 dark:bg-gray-950 dark:text-gray-100 min-h-screen">
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white rounded-2xl shadow-sm p-10 sm:p-16 text-center">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-transparent dark:border-gray-800 p-10 sm:p-16 text-center">
             <div className="text-6xl mb-5">❤️</div>
 
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-3">
               Your wishlist is empty
             </h2>
 
-            <p className="text-gray-500 mb-6">
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
               Looks like you haven't added anything to your wishlist yet.
             </p>
 
             <button
               onClick={() => navigate("/")}
-              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition font-medium"
+              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition font-medium cursor-pointer"
             >
               Continue Shopping
             </button>
@@ -66,9 +66,9 @@ export default function Wishlist() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 dark:bg-gray-950 dark:text-gray-100 min-h-screen">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-6">
           My Wishlist ❤️
         </h1>
 

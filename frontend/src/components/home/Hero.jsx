@@ -531,7 +531,7 @@ if (loading && !slides.length) {
                 className="
                   w-full
                   rounded-lg
-                  bg-white
+                  bg-white!
                   px-5
                   py-2.5
                   text-xs
