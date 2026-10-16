@@ -4,32 +4,24 @@ import { ApiError, ApiResponse } from "../utils/apiResponse.js";
 
 export const addProducts = async (req, res) => {
   try {
-    console.log("addproducts/cart API hit");
-    const { productId, price, quantity } = req.body;
-    console.log("body", req.body);
-    const product = await Product.findById(productId);
-    
-        if (!product) {
-          throw new ApiError(404, "product not found");
-        }
+    const { productId, quantity } = req.body;
+
     const requestedQuantity = Number(quantity) || 1;
     if (requestedQuantity < 1) {
       throw new ApiError(400, "Quantity must be at least 1");
     }
-    const user = await User.findOne({ _id: req.user._id });
 
-    if (!user) {
-      throw new ApiError(409, "User not found");
-    }
-    // const product = await Product.findOne({})
-    let cart = await Cart.findOne({ user: req.user._id });
+    // product + cart fetched in parallel (1 round trip instead of 2)
+    const [product, existingCart] = await Promise.all([
+      Product.findById(productId).select("vendor price").lean(),
+      Cart.findOne({ user: req.user._id }),
+    ]);
 
-    if (!cart) {
-      cart = new Cart({
-        user: user._id,
-        items: [],
-      });
-    }
+    if (!product) throw new ApiError(404, "product not found");
+
+    // req.user is already loaded by the auth middleware, so no User.findOne
+    const cart = existingCart || new Cart({ user: req.user._id, items: [] });
+
     const existingItem = cart.items.find(
       (item) => item.product.toString() === productId,
     );
@@ -40,8 +32,8 @@ export const addProducts = async (req, res) => {
       cart.items.push({
         product: productId,
         quantity: requestedQuantity,
-        price,
-        vendor:product.vendor
+        price: product.price, // from DB, not from the client
+        vendor: product.vendor,
       });
     }
 
@@ -51,12 +43,12 @@ export const addProducts = async (req, res) => {
     );
 
     await cart.save();
-    await cart.populate("items.product");
+    await cart.populate({ path: "items.product", select: "name price images" });
+
     return res
       .status(200)
-      .json(new ApiResponse(201, { cart }, "product added successfully"));
+      .json(new ApiResponse(200, { cart }, "product added successfully"));
   } catch (error) {
-    console.log("error", error);
     return res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,

@@ -24,6 +24,11 @@
 //   "http://127.0.0.1:5173",
 //   "https://aryan-ecommerce-mu.vercel.app",
 // ];
+// app.use((req, res, next) => {
+//   req.startTime = Date.now();
+//   res.on("finish", () => console.log("full request:", Date.now() - req.startTime, "ms"));
+//   next();
+// });
 // app.post(
 //   "/api/webhooks/stripe",
 //   express.raw({ type: "application/json" }),
