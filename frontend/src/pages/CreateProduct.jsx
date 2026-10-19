@@ -16,6 +16,7 @@ import {
   ChevronDown,
   FolderTree,
   Loader2,
+  Sparkles,
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -26,7 +27,7 @@ import {
   clearCreateProductStatus,
   getProducts,
 } from "../redux/slices/productSlice";
-
+import { generateDescription } from "../redux/slices/aiSlice"; // NEW
 import  api from "../api/axios"
 import {
   getRootCategories,
@@ -126,7 +127,8 @@ export default function CreateProduct() {
 
   const [selectedCategoryPath, setSelectedCategoryPath] =
     useState([]);
-
+const [generatingDesc, setGeneratingDesc] = useState(false);
+const [aiError, setAiError] = useState("");
   /*
     These are the categories shown at the CURRENT level.
 
@@ -802,7 +804,82 @@ export default function CreateProduct() {
       )
     );
   };
+/* =======================================================
+   AI: GENERATE DESCRIPTION
+======================================================= */
 
+const handleGenerateDescription = async () => {
+  setAiError("");
+
+  if (!form.name.trim()) {
+    setAiError("Enter the product name first.");
+    return;
+  }
+
+  // Variant attributes as text, e.g. "Color: Red, Blue. Size: M, L"
+  let variantText = "";
+
+  if (hasVariants) {
+    const attributeMap = {};
+
+    variants.forEach((variant) => {
+      (variant.attributes || []).forEach((attr) => {
+        const name = attr?.name?.trim();
+        const value = attr?.value?.trim();
+        if (!name || !value) return;
+        if (!attributeMap[name]) attributeMap[name] = new Set();
+        attributeMap[name].add(value);
+      });
+    });
+
+    variantText = Object.entries(attributeMap)
+      .map(([name, values]) => `${name}: ${[...values].join(", ")}`)
+      .join(". ");
+  }
+
+  // Whatever the seller already typed is used as rough notes
+  const features = [form.description.trim(), variantText]
+    .filter(Boolean)
+    .join(". ")
+    .slice(0, 500);
+
+  // Price: normal product price, or the lowest variant price
+  const variantPrices = variants
+    .map((v) => Number(v.price))
+    .filter((n) => Number.isFinite(n) && n > 0);
+
+  const price = hasVariants
+    ? variantPrices.length
+      ? Math.min(...variantPrices)
+      : ""
+    : form.price;
+
+  try {
+    setGeneratingDesc(true);
+
+    const description = await dispatch(
+      generateDescription({
+        name: form.name.trim(),
+        category: finalCategory?.name || currentCategory?.name || "",
+        price,
+        features,
+        tone: "professional",
+      })
+    ).unwrap();
+
+    setForm((prev) => ({ ...prev, description }));
+
+    if (createError || createSuccess) {
+      dispatch(clearCreateProductStatus());
+    }
+  } catch (err) {
+    setAiError(
+      typeof err === "string" ? err : "Could not generate description."
+    );
+  } finally {
+    setGeneratingDesc(false);
+  }
+};
   // =====================================================
   // ACCESSORIES
   // =====================================================
@@ -1786,32 +1863,61 @@ export default function CreateProduct() {
                   />
                 </div>
 
-                <div className="mt-5">
-                  <label className={labelClass}>
-                    Product Description
-                    <Required />
-                  </label>
+               <div className="mt-5">
 
-                  <textarea
-                    name="description"
-                    value={form.description}
-                    onChange={handleChange}
-                    rows={6}
-                    placeholder="Describe your product, features, materials, specifications..."
-                    className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-gray-900 dark:text-white outline-none resize-none transition placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/40 disabled:bg-gray-50 dark:disabled:bg-gray-900 disabled:cursor-not-allowed"
-                    disabled={createLoading}
-                  />
+  <div className="mb-2 flex items-center justify-between gap-3">
 
-                  <div className="flex justify-between mt-2">
-                    <span className="text-xs text-gray-400">
-                      Minimum 10 characters
-                    </span>
+    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+      Product Description
+      <Required />
+    </label>
 
-                    <span className="text-xs text-gray-400">
-                      {form.description.length}
-                    </span>
-                  </div>
-                </div>
+    <button
+      type="button"
+      onClick={handleGenerateDescription}
+      disabled={generatingDesc || createLoading}
+      className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 px-3 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 transition hover:bg-blue-100 dark:hover:bg-blue-950/50 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      {generatingDesc ? (
+        <>
+          <Loader2 size={14} className="animate-spin" />
+          Generating...
+        </>
+      ) : (
+        <>
+          <Sparkles size={14} />
+          Generate with AI
+        </>
+      )}
+    </button>
+
+  </div>
+
+  <textarea
+    name="description"
+    value={form.description}
+    onChange={handleChange}
+    rows={6}
+    placeholder="Type a few notes (e.g. 653L, frost free, inverter) and click Generate with AI, or write your own description..."
+    className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-gray-900 dark:text-white outline-none resize-none transition placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/40 disabled:bg-gray-50 dark:disabled:bg-gray-900 disabled:cursor-not-allowed"
+    disabled={createLoading || generatingDesc}
+  />
+
+  {aiError && (
+    <p className="mt-2 text-xs text-red-500">{aiError}</p>
+  )}
+
+  <div className="flex justify-between mt-2">
+    <span className="text-xs text-gray-400">
+      Minimum 10 characters. Review AI text before saving.
+    </span>
+
+    <span className="text-xs text-gray-400">
+      {form.description.length}
+    </span>
+  </div>
+
+</div>
 
               </section>
 

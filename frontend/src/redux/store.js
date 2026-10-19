@@ -11,8 +11,8 @@ import addressReducer from "./slices/addressSlice";
 import adminReducer from "./slices/adminSlice";
 import vendorReducer from "./slices/vendorSlice";
 import couponReducer from "./slices/couponSlice";
-import reviewReducer from "./slices/reviewsSlice"
-
+import reviewReducer from "./slices/reviewsSlice";
+import aiReducer from "./slices/aiSlice";
 // =====================================================
 // HOMEPAGE CONTENT SLICES
 // =====================================================
@@ -33,18 +33,18 @@ export const store = configureStore({
     cart: cartReducer,
     wishlist: wishlistReducer, // ✅ FIX
     category: categoryReducer,
-    order:orderReducer,
+    order: orderReducer,
     payment: paymentReducer,
     address: addressReducer,
     admin: adminReducer,
     vendor: vendorReducer,
     coupon: couponReducer,
     review: reviewReducer,
-
+    ai: aiReducer,
     homepage: homepageReducer,
     hero: heroReducer,
     promoCard: promoCardReducer,
     promoGrid: promoGridReducer,
     shopByNeed: shopByNeedReducer,
-  }
-}); 
+  },
+});

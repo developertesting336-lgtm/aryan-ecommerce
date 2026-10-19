@@ -1,5 +1,5 @@
 import { Cart } from "../models/cart.model.js";
-import { Product, User } from "../models/index.js";
+import { Product, User,Activity } from "../models/index.js";
 import { ApiError, ApiResponse } from "../utils/apiResponse.js";
 
 export const addProducts = async (req, res) => {
@@ -44,7 +44,11 @@ export const addProducts = async (req, res) => {
 
     await cart.save();
     await cart.populate({ path: "items.product", select: "name price images" });
-
+await Activity.findOneAndUpdate(
+  { user: req.user._id , product: productId },
+  { status: 'in_cart', addedAt: new Date(), removedAt: null },
+  { upsert: true }
+);
     return res
       .status(200)
       .json(new ApiResponse(200, { cart }, "product added successfully"));
@@ -110,6 +114,10 @@ export const decreaseQuantity = async (req, res) => {
       item.quantity -= 1;
     } else {
       cart.items.pull(item._id);
+      await Activity.findOneAndUpdate(
+  { user: req.user._id, product: productId },
+  { status: 'removed', removedAt: new Date() }
+);
     }
     cart.totalPrice = cart.items.reduce(
       (total, item) => total + item.price * item.quantity,
@@ -121,6 +129,84 @@ export const decreaseQuantity = async (req, res) => {
     return res
       .status(200)
       .json(new ApiResponse(201, { cart }, "Cart updated successfully"));
+  } catch (error) {
+    console.log("error", error);
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+
+// await Activity.findOneAndUpdate(
+//   { user: userId, product: productId },
+//   { status: 'removed', removedAt: new Date() }
+// );
+
+
+
+
+export const removeProduct = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    // console.log("decrease");
+    const cart = await Cart.findOne({
+      user: req.user._id,
+    });
+
+    if (!cart) {
+      return res.status(404).json({
+        message: "Cart not found",
+      });
+    }
+
+    const item = cart.items.find(
+      (item) => item.product.toString() === productId.toString(),
+    );
+
+    if (!item) {
+      return res.status(404).json({
+        message: "Product not found in cart",
+      });
+    }
+
+    if (item.quantity > 0) {
+      cart.items.pull(item._id);
+    } 
+    cart.totalPrice = cart.items.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0,
+    );
+    await cart.save();
+    await cart.populate("items.product");
+await Activity.findOneAndUpdate(
+  { user: req.user._id, product: productId },
+  { status: 'removed', removedAt: new Date() }
+);
+    return res
+      .status(200)
+      .json(new ApiResponse(201, { cart }, "Cart updated successfully"));
+  } catch (error) {
+    console.log("error", error);
+    return res.status(500).json({
+      message: "Something went wrong",
+    });
+  }
+};
+
+
+export const getCartActivities = async (req, res) => {
+  try {
+    // const { productId } = req.params;
+  
+ const items = await Activity.find({ user: req.user._id, status: 'removed' })
+    .sort({ removedAt: -1 })
+    .limit(10)
+    .populate('product');
+
+    return res
+      .status(200)
+      .json(new ApiResponse(201, { items }, "Recommended products fetch successfully"));
   } catch (error) {
     console.log("error", error);
     return res.status(500).json({

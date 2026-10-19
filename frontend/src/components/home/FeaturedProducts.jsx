@@ -600,15 +600,15 @@ export default function FeaturedProducts() {
   // DEBUG
   // =========================================================
 
-  console.log("[FeaturedProducts]", {
-    page: currentPage,
-    totalPages,
-    limit,
-    products: featuredProducts.length,
-    loading,
-    isFetchingMore,
-    hasMore,
-  });
+  // console.log("[FeaturedProducts]", {
+  //   page: currentPage,
+  //   totalPages,
+  //   limit,
+  //   products: featuredProducts.length,
+  //   loading,
+  //   isFetchingMore,
+  //   hasMore,
+  // });
 
   // =========================================================
   // UI

@@ -16,13 +16,14 @@ import {
   ChevronDown,
   Search,
   CheckCircle,
+  Sparkles,
 } from "lucide-react";
 
 import {
   getProductById,
   editProduct,
 } from "../redux/slices/productSlice";
-
+import { generateDescription } from "../redux/slices/aiSlice"; // NEW
 import {
   getRootCategories,
   getCategoryChildren,
@@ -132,7 +133,8 @@ export default function EditProduct() {
   const categoryLoading = useSelector(
     selectCategoryLoading
   );
-
+const [generatingDesc, setGeneratingDesc] = useState(false);
+const [aiError, setAiError] = useState("");
   const [parentCategoryId, setParentCategoryId] =
     useState("");
 
@@ -916,7 +918,65 @@ export default function EditProduct() {
       finalCategories,
       normalizedSearch,
     ]);
+/* =======================================================
+   AI: GENERATE DESCRIPTION
+======================================================= */
 
+const handleGenerateDescription = async () => {
+  setAiError("");
+
+  if (!formData.name.trim()) {
+    setAiError("Enter the product name first.");
+    return;
+  }
+
+  // Turn variant attributes into text, e.g. "Color: Red, Blue. Size: M, L"
+  const attributeMap = {};
+  (formData.variants || []).forEach((variant) => {
+    (variant.attributes || []).forEach((attr) => {
+      const name = attr?.name?.trim();
+      const value = attr?.value?.trim();
+      if (!name || !value) return;
+      if (!attributeMap[name]) attributeMap[name] = new Set();
+      attributeMap[name].add(value);
+    });
+  });
+
+  const variantText = Object.entries(attributeMap)
+    .map(([name, values]) => `${name}: ${[...values].join(", ")}`)
+    .join(". ");
+
+  // Existing text is used as rough notes from the seller
+  const features = [formData.description.trim(), variantText]
+    .filter(Boolean)
+    .join(". ")
+    .slice(0, 500);
+
+  try {
+    setGeneratingDesc(true);
+
+    const description = await dispatch(
+      generateDescription({
+        name: formData.name.trim(),
+        category: getCategoryName(selectedCategory), // name, not ID
+        brand: formData.brand.trim(),
+        price: formData.price,
+        features,
+        tone: "professional",
+      })
+    ).unwrap();
+
+    setFormData((prev) => ({ ...prev, description }));
+    setError("");
+    setSuccess("");
+  } catch (err) {
+    setAiError(
+      typeof err === "string" ? err : "Could not generate description."
+    );
+  } finally {
+    setGeneratingDesc(false);
+  }
+};
   /* =======================================================
      IMAGE UPLOAD
   ======================================================= */
@@ -1722,37 +1782,61 @@ const validateForm = () => {
 
                 {/* DESCRIPTION */}
 
-                <div>
+            {/* DESCRIPTION */}
 
-                  <label
-                    htmlFor="description"
-                    className="mb-2 block text-sm font-medium text-slate-700 dark:text-gray-300"
-                  >
-                    Description
-                    <span className="ml-1 text-red-500">
-                      *
-                    </span>
-                  </label>
+<div>
 
-                  <textarea
-                    id="description"
-                    name="description"
-                    value={
-                      formData.description
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    rows={5}
-                    placeholder="Enter product description"
-                    className="w-full resize-y rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-slate-800 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/40"
-                  />
+  <div className="mb-2 flex items-center justify-between gap-3">
 
-                  <p className="mt-1.5 text-xs text-slate-400 dark:text-gray-400">
-                    Provide a clear description of the product.
-                  </p>
+    <label
+      htmlFor="description"
+      className="block text-sm font-medium text-slate-700 dark:text-gray-300"
+    >
+      Description
+      <span className="ml-1 text-red-500">*</span>
+    </label>
 
-                </div>
+    <button
+      type="button"
+      onClick={handleGenerateDescription}
+      disabled={generatingDesc}
+      className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/30 px-3 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 transition hover:bg-blue-100 dark:hover:bg-blue-950/50 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      {generatingDesc ? (
+        <>
+          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-blue-300 border-t-blue-600" />
+          Generating...
+        </>
+      ) : (
+        <>
+          <Sparkles size={14} />
+          Generate with AI
+        </>
+      )}
+    </button>
+
+  </div>
+
+  <textarea
+    id="description"
+    name="description"
+    value={formData.description}
+    onChange={handleChange}
+    rows={5}
+    disabled={generatingDesc}
+    placeholder="Enter product description, or type a few notes and click Generate with AI"
+    className="w-full resize-y rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm text-slate-800 dark:text-white outline-none transition placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/40 disabled:opacity-60"
+  />
+
+  {aiError && (
+    <p className="mt-1.5 text-xs text-red-500">{aiError}</p>
+  )}
+
+  <p className="mt-1.5 text-xs text-slate-400 dark:text-gray-400">
+    Provide a clear description of the product. AI text should be reviewed before saving.
+  </p>
+
+</div>
 
                 {/* CATEGORY */}
 

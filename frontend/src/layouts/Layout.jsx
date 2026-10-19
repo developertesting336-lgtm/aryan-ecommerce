@@ -3,6 +3,7 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/Header";
 import Footer from "../components/Footer";
+import ShoppingChatbot from "../components/chat/ShoppingChatbot";
 
 const Layout = () => {
   return (
@@ -12,7 +13,7 @@ const Layout = () => {
       <main className="flex-1">
         <Outlet />
       </main>
-
+<ShoppingChatbot />
       <Footer />
     </div>
   );

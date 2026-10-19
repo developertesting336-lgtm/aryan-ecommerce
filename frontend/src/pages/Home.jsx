@@ -7,6 +7,7 @@ import CategorySection from "../components/home/CategorySection";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { getHomepage } from "../redux/slices/content/homepage/homepageSlice";
+import RecommendedProducts from "../components/products/RecommendedProducts";
 export default function Home() {
   const dispatch = useDispatch();
 
@@ -19,6 +20,7 @@ export default function Home() {
         <Hero />
         <PromoCards />
         <CategorySection />
+        <RecommendedProducts />
         <PromoGrid />
         <ShopByNeed />
         <FeaturedProducts />
