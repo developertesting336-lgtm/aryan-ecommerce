@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { MessageCircle, X, Send, Sparkles, Loader2 } from "lucide-react";
 import { sendChatMessage } from "../../redux/slices/aiSlice";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
 const SUGGESTIONS = [
   "Show me best deals",
