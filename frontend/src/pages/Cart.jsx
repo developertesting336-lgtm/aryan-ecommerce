@@ -1,15 +1,17 @@
-import React, { useMemo, useEffect } from "react";
-import Navbar from "../components/Header";
+import React, { useMemo, useEffect, useRef } from "react";
 import {
   addProduct,
   decreaseQuantity,
+  getCart,
   addToGuestCart,
   decreaseGuestCartQuantity,
+  optimisticAddProduct,
+  optimisticDecreaseQuantity,
 } from "../redux/slices/cartSlice";
 import { enrichGuestCart } from "../utils/guestCart";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
-import { showSuccess, showError } from "../utils/toast";
+import { showError } from "../utils/toast";
 import { getProductSlug } from "../utils/productSlug";
 
 export default function Cart() {
@@ -42,9 +44,19 @@ export default function Cart() {
     return `${BASE_URL}${image}`;
   };
 
-  const { loading, error, cart } = useSelector((state) => state.cart);
+  const { cart } = useSelector((state) => state.cart);
   const { user, token } = useSelector((state) => state.auth);
   const isLoggedIn = Boolean(token || user);
+
+  /* ---------- Request queue ----------
+     Server calls run strictly one after another, in click order.
+     The UI itself updates instantly through the optimistic reducers. */
+  const queueRef = useRef(Promise.resolve());
+
+  const enqueue = (task) => {
+    queueRef.current = queueRef.current.then(task).catch(() => {});
+    return queueRef.current;
+  };
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -63,12 +75,19 @@ export default function Cart() {
   };
 
   const getProductImage = (item) => {
-    const img = item?.product?.images?.[0] || item?.image || item?.product?.image;
+    const img =
+      item?.product?.images?.[0] || item?.image || item?.product?.image;
     return getImageUrl(img);
   };
 
+  // Handles both a plain id and a populated productId object from the backend
   const getProductId = (item) => {
-    return item?.productId || item?.product?._id || item?._id;
+    const id =
+      item?.productId?._id ||
+      item?.productId ||
+      item?.product?._id ||
+      item?._id;
+    return id ? String(id) : "";
   };
 
   const getProductSlugPath = (item) => {
@@ -81,67 +100,74 @@ export default function Cart() {
     return `/product/${slug}`;
   };
 
-  const handleAddCart = async (item) => {
+  /* ---------- Increase quantity ---------- */
+  const handleAddCart = (item) => {
     const pid = getProductId(item);
     const itemPrice = getProductPrice(item);
+
     if (!pid) return;
 
+    const payload = {
+      productId: pid,
+      quantity: 1,
+      name: getProductName(item),
+      price: itemPrice,
+      image: item?.image || item?.product?.images?.[0] || "",
+      slug: item?.slug || item?.product?.slug || "",
+    };
+
     if (!isLoggedIn) {
-      dispatch(
-        addToGuestCart({
-          productId: pid,
-          quantity: 1,
-          name: getProductName(item),
-          price: itemPrice,
-          image: item?.image || item?.product?.images?.[0] || "",
-          slug: item?.slug || item?.product?.slug || "",
-        })
-      );
-      showSuccess("Product added to cart");
+      dispatch(addToGuestCart(payload));
       return;
     }
 
-    try {
-      const result = await dispatch(
-        addProduct({
-          productId: pid,
-          price: itemPrice,
-          quantity: 1,
-        })
-      ).unwrap();
+    // 1) Instant UI update
+    dispatch(optimisticAddProduct(payload));
 
-      showSuccess(result.message || "Product added to cart");
-    } catch (error) {
-      console.error("Add cart error:", error);
-      showError(
-        typeof error === "string"
-          ? error
-          : error?.message || "Failed to add product"
-      );
-    }
+    // 2) Server call, in order
+    enqueue(async () => {
+      try {
+        await dispatch(
+          addProduct({ productId: pid, price: itemPrice, quantity: 1 })
+        ).unwrap();
+      } catch (err) {
+        showError(
+          typeof err === "string"
+            ? err
+            : err?.message || "Failed to increase quantity"
+        );
+        dispatch(getCart()); // restore real data from the server
+      }
+    });
   };
 
-  const handleQuantity = async (item) => {
+  /* ---------- Decrease quantity / remove ---------- */
+  const handleQuantity = (item) => {
     const pid = getProductId(item);
+
     if (!pid) return;
 
     if (!isLoggedIn) {
       dispatch(decreaseGuestCartQuantity(pid));
-      showSuccess("Quantity decreased successfully");
       return;
     }
 
-    try {
-      const result = await dispatch(decreaseQuantity(pid)).unwrap();
-      showSuccess(result.message || "Quantity decreased successfully");
-    } catch (error) {
-      console.error("Decrease error:", error);
-      showError(
-        typeof error === "string"
-          ? error
-          : error?.message || "Failed to decrease quantity"
-      );
-    }
+    // 1) Instant UI update
+    dispatch(optimisticDecreaseQuantity(pid));
+
+    // 2) Server call, in order
+    enqueue(async () => {
+      try {
+        await dispatch(decreaseQuantity(pid)).unwrap();
+      } catch (err) {
+        showError(
+          typeof err === "string"
+            ? err
+            : err?.message || "Failed to decrease quantity"
+        );
+        dispatch(getCart()); // restore real data from the server
+      }
+    });
   };
 
   const handleBuyThis = (item) => {
@@ -163,8 +189,6 @@ export default function Cart() {
 
   return (
     <div className="bg-gray-50 dark:bg-gray-950 dark:text-gray-100 min-h-screen">
-      {/* <Navbar /> */}
-
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-6 sm:mb-8">
           Shopping Cart
@@ -185,18 +209,7 @@ export default function Cart() {
 
             <button
               onClick={() => navigate("/")}
-              className="
-                inline-block
-                bg-blue-600
-                text-white
-                px-6
-                py-3
-                rounded-xl
-                hover:bg-blue-700
-                transition
-                font-medium
-                cursor-pointer
-              "
+              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition font-medium cursor-pointer"
             >
               Continue Shopping
             </button>
@@ -208,22 +221,8 @@ export default function Cart() {
             <div className="lg:col-span-2 space-y-4">
               {cart.items.map((item, index) => (
                 <div
-                  key={index}
-                  className="
-                    bg-white
-                    dark:bg-gray-900
-                    rounded-2xl
-                    shadow-sm
-                    border
-                    border-transparent
-                    dark:border-gray-800
-                    p-4 sm:p-5
-                    flex
-                    flex-col
-                    sm:flex-row
-                    gap-4
-                    sm:gap-5
-                  "
+                  key={getProductId(item) || index}
+                  className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-transparent dark:border-gray-800 p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:gap-5"
                 >
                   {/* Product Image */}
                   <Link
@@ -234,19 +233,7 @@ export default function Cart() {
                     <img
                       src={getProductImage(item)}
                       alt={getProductName(item)}
-                      className="
-                        w-full
-                        sm:w-28
-                        md:w-32
-                        h-52
-                        sm:h-28
-                        md:h-32
-                        object-contain
-                        rounded-lg
-                        cursor-pointer
-                        hover:opacity-90
-                        transition
-                      "
+                      className="w-full sm:w-28 md:w-32 h-52 sm:h-28 md:h-32 object-contain rounded-lg cursor-pointer hover:opacity-90 transition"
                     />
                   </Link>
 
@@ -256,19 +243,7 @@ export default function Cart() {
                       to={getProductSlugPath(item)}
                       state={{ productId: getProductId(item) }}
                     >
-                      <h2
-                        className="
-                          font-semibold
-                          text-base
-                          sm:text-lg
-                          text-gray-800
-                          dark:text-gray-100
-                          hover:text-blue-600
-                          dark:hover:text-blue-400
-                          transition
-                          cursor-pointer
-                        "
-                      >
+                      <h2 className="font-semibold text-base sm:text-lg text-gray-800 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer">
                         {getProductName(item)}
                       </h2>
                     </Link>
@@ -280,19 +255,8 @@ export default function Cart() {
                     {/* Quantity */}
                     <div className="flex items-center gap-4 mt-4">
                       <button
-                        className="
-                          w-8 h-8
-                          rounded-full
-                          bg-gray-200
-                          dark:bg-gray-800
-                          hover:bg-gray-300
-                          dark:hover:bg-gray-700
-                          dark:text-white
-                          cursor-pointer
-                        "
-                        onClick={() =>
-                          handleQuantity(item)
-                        }
+                        className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 dark:text-white cursor-pointer"
+                        onClick={() => handleQuantity(item)}
                       >
                         -
                       </button>
@@ -302,129 +266,50 @@ export default function Cart() {
                       </span>
 
                       <button
-                        className="
-                          w-8 h-8
-                          rounded-full
-                          bg-gray-200
-                          dark:bg-gray-800
-                          hover:bg-gray-300
-                          dark:hover:bg-gray-700
-                          dark:text-white
-                          cursor-pointer
-                        "
+                        className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 dark:text-white cursor-pointer"
                         onClick={() => handleAddCart(item)}
                       >
                         +
                       </button>
                     </div>
+
+                    <div className="flex items-center gap-3 mt-4">
+                      <button
+                        className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition text-sm font-medium cursor-pointer"
+                        onClick={() => handleBuyThis(item)}
+                      >
+                        Buy This
+                      </button>
+                    </div>
                   </div>
 
                   {/* Item Total */}
-                  <div
-                    className="
-                      font-bold
-                      text-lg
-                      sm:text-xl
-                      text-gray-800
-                      dark:text-white
-                      sm:self-center
-                    "
-                  >
+                  <div className="font-bold text-lg sm:text-xl text-gray-800 dark:text-white sm:self-center">
                     ₹{getProductPrice(item) * (Number(item.quantity) || 1)}
                   </div>
-                  <div className="flex items-center gap-3 mt-4">
-  <button
-    className="
-      px-4 py-2
-      bg-blue-600
-      text-white
-      rounded-xl
-      hover:bg-blue-700
-      transition
-      text-sm
-      font-medium
-      cursor-pointer
-    "
-    onClick={() => handleBuyThis(item)}
-  >
-    Buy This
-  </button>
-</div>
                 </div>
               ))}
             </div>
 
             {/* ================= ORDER SUMMARY ================= */}
-            <div
-              className="
-                bg-white
-                dark:bg-gray-900
-                rounded-2xl
-                shadow-sm
-                border
-                border-transparent
-                dark:border-gray-800
-                p-5 sm:p-6
-                h-fit
-                lg:sticky
-                lg:top-5
-              "
-            >
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-transparent dark:border-gray-800 p-5 sm:p-6 h-fit lg:sticky lg:top-5">
               <h2 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-white mb-5">
                 Order Summary
               </h2>
 
-              <div
-                className="
-                  flex
-                  justify-between
-                  mb-3
-                  text-gray-600
-                  dark:text-gray-300
-                  text-sm
-                  sm:text-base
-                "
-              >
+              <div className="flex justify-between mb-3 text-gray-600 dark:text-gray-300 text-sm sm:text-base">
                 <span>Items</span>
-
                 <span>{cart.items.length}</span>
               </div>
 
-              <div
-                className="
-                  flex
-                  justify-between
-                  text-lg
-                  sm:text-xl
-                  font-bold
-                  border-t
-                  border-gray-100
-                  dark:border-gray-800
-                  pt-5
-                  text-gray-900
-                  dark:text-white
-                "
-              >
+              <div className="flex justify-between text-lg sm:text-xl font-bold border-t border-gray-100 dark:border-gray-800 pt-5 text-gray-900 dark:text-white">
                 <span>Total</span>
-
                 <span>₹{totalCartPrice}</span>
               </div>
 
               <button
-                className="
-                  w-full
-                  mt-6
-                  bg-blue-600
-                  text-white
-                  py-3
-                  rounded-xl
-                  hover:bg-blue-700
-                  transition
-                  text-sm
-                  sm:text-base
-                  cursor-pointer
-                "
-                onClick={()=>navigate("/checkout")}
+                className="w-full mt-6 bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition text-sm sm:text-base cursor-pointer"
+                onClick={() => navigate("/checkout")}
               >
                 Proceed to Checkout
               </button>

@@ -1,4 +1,4 @@
-import { Cart, Order, OrderItem,Coupon } from "../models/index.js";
+import { Cart, Order, OrderItem,Coupon, Wishlist } from "../models/index.js";
 import Stripe from "stripe";
 import { PaymentStatus } from "../config/constants.js";
 import { sendEmailtoUser } from "../utils/mail.js";
@@ -225,6 +225,7 @@ export const fulfillOrderPayment = async ({ orderId, userId, session }) => {
             0
           );
           await cart.save();
+                  await removeWishlistProducts([...orderedProductIds],userId)
           console.log(`🛒 Removed ${originalCount - cart.items.length} purchased item(s) from user cart.`);
         }
       }
@@ -435,3 +436,38 @@ export const testingapi = async (req, res) => {
     return res.status(400).send(`Webhook Error: ${error.message}`);
   }
 };
+
+
+async function removeWishlistProducts(product, userid) {
+  try {
+    const wishlist = await Wishlist.findOneAndUpdate(
+      { user: userid },
+      {
+        $pull: {
+          products: { $in: product }
+        }
+      },
+      { new: true }
+    );
+
+    if (!wishlist) {
+      return {
+        success: false,
+        message: "Wishlist not found"
+      };
+    }
+
+    return {
+      success: true,
+      message: "Products removed successfully",
+      wishlist
+    };
+  } catch (error) {
+    console.error(error);
+
+    return {
+      success: false,
+      message: "Failed to remove products"
+    };
+  }
+}

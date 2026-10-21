@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { getCart } from "../redux/slices/cartSlice";
 import { verifyPaymentApi } from "../api/paymentApi";
+import { getWishlist } from "../redux/slices/wishlistSlice";
 
 export default function PaymentSuccess() {
   const navigate = useNavigate();
@@ -53,6 +54,7 @@ export default function PaymentSuccess() {
       // Always refetch cart from API after successful payment
       try {
         await dispatch(getCart());
+        await dispatch(getWishlist());
       } catch (cartErr) {
         console.error("Error refreshing cart:", cartErr);
       }

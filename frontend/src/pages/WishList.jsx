@@ -1,34 +1,30 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import ProductCard from "../components/products/ProductCard";
-import { deleteProducts } from "../redux/slices/wishlistSlice";
 
 export default function Wishlist() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { loading, error, wishlist } = useSelector(
-    (state) => state.wishlist
-  );
+  const { loading, error, wishlist } = useSelector((state) => state.wishlist);
 
   const products = wishlist?.products ?? [];
   const isEmpty = products.length === 0;
 
-  const handleRemove = (productId) => {
-    dispatch(deleteProducts(productId));
-  };
-
-  if (loading) {
+  // Full-page loader only on the very first load (nothing to show yet).
+  // Add/remove never trigger it, and a refetch keeps the list on screen.
+  if (loading && isEmpty) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-        <p className="text-gray-600 dark:text-gray-300 text-lg">Loading wishlist...</p>
+        <p className="text-gray-600 dark:text-gray-300 text-lg">
+          Loading wishlist...
+        </p>
       </div>
     );
   }
 
-  if (error) {
+  if (error && isEmpty) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
         <p className="text-red-500">
@@ -74,11 +70,9 @@ export default function Wishlist() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
-            <ProductCard
-              key={product._id}
-              {...product}
-              onRemove={() => handleRemove(product._id)}
-            />
+            // The heart button inside ProductCard already removes the item
+            // instantly (optimistic), so no onRemove handler is needed here.
+            <ProductCard key={product._id} {...product} />
           ))}
         </div>
       </main>

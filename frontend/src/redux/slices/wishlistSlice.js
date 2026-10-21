@@ -3,158 +3,179 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   addProductApi,
   getWishlistIdApi,
-  deleteProductsApi
+  deleteProductsApi,
 } from "../../api/wishlist";
 
+/* ======================= THUNKS ======================= */
 
 export const addProductInWish = createAsyncThunk(
   "wishlist/addProductInWish",
-
   async (productId, { rejectWithValue }) => {
     try {
-      console.log("addwish");
-
       const response = await addProductApi(productId);
-
-      console.log("wishlist response:", response);
-
-      // return response.data;
-       return {
+      return {
         wishlist: response.data.wishlist,
-        message: response.message,
+        message: response.data?.message || response.message,
       };
-
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message ||
-        "Failed to add product to wishlist"
+          error.message ||
+          "Failed to add product to wishlist"
       );
     }
   }
 );
-
 
 export const getWishlist = createAsyncThunk(
   "wishlist/getWishlist",
-
   async (_, { rejectWithValue }) => {
     try {
-      console.log("getWishlist");
-
       const response = await getWishlistIdApi();
-
-      console.log("wishlist:", response);
-
       return response.data.wishlist;
-
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message ||
-        "Failed to get wishlist"
+          error.message ||
+          "Failed to get wishlist"
       );
     }
   }
 );
-
 
 export const deleteProducts = createAsyncThunk(
   "wishlist/deleteProducts",
-
   async (productId, { rejectWithValue }) => {
     try {
-      console.log("delete:", productId);
-
       const response = await deleteProductsApi(productId);
-
-      console.log("delete response:", response);
-
-      // return response.data.wishlist;
-       return {
+      return {
         wishlist: response.data.wishlist,
-        message: response.message,
+        message: response.data?.message || response.message,
       };
-
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message ||
-        "Failed to delete product"
+          error.message ||
+          "Failed to delete product"
       );
     }
   }
 );
 
+/* ======================= HELPERS ======================= */
+
+const getItemId = (item) => {
+  const id =
+    item?._id ||
+    item?.productId?._id ||
+    item?.productId ||
+    item?.product?._id;
+  return id ? String(id) : "";
+};
+
+const ensureWishlist = (state) => {
+  if (!state.wishlist || typeof state.wishlist !== "object") {
+    state.wishlist = { products: [] };
+  }
+  if (!Array.isArray(state.wishlist.products)) {
+    state.wishlist.products = [];
+  }
+};
+
+/* ======================= SLICE ======================= */
 
 const wishListSlice = createSlice({
   name: "wishlist",
 
   initialState: {
-    wishlist: {
-      products: []
-    },
+    wishlist: { products: [] },
 
+    // `loading` and `error` belong to getWishlist ONLY.
+    // Add/remove are optimistic, so they never show a loader or an error screen.
     loading: false,
-    error: null
+    error: null,
+
+    // Number of add/remove requests still in flight.
+    // Server snapshots are ignored until this is back to 0.
+    pendingMutations: 0,
   },
 
-  reducers: {},
+  reducers: {
+    optimisticAddWishlist: (state, action) => {
+      // Always count it: the matching thunk is always dispatched.
+      state.pendingMutations += 1;
+
+      ensureWishlist(state);
+      const productId = String(action.payload);
+
+      const exists = state.wishlist.products.some(
+        (item) => getItemId(item) === productId
+      );
+
+      if (!exists) {
+        state.wishlist.products.push({ _id: productId });
+      }
+    },
+
+    optimisticRemoveWishlist: (state, action) => {
+      state.pendingMutations += 1;
+
+      ensureWishlist(state);
+      const productId = String(action.payload);
+
+      state.wishlist.products = state.wishlist.products.filter(
+        (item) => getItemId(item) !== productId
+      );
+    },
+  },
 
   extraReducers: (builder) => {
-
-    // ADD TO WISHLIST
+    /* ---------- ADD ---------- */
     builder
-      .addCase(addProductInWish.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-
       .addCase(addProductInWish.fulfilled, (state, action) => {
-        state.loading = false;
-        state.wishlist = action.payload.wishlist;
+        state.pendingMutations = Math.max(0, state.pendingMutations - 1);
+        // Only the LAST response replaces the wishlist
+        if (state.pendingMutations === 0 && action.payload?.wishlist) {
+          state.wishlist = action.payload.wishlist;
+        }
       })
-
-      .addCase(addProductInWish.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+      .addCase(addProductInWish.rejected, (state) => {
+        state.pendingMutations = Math.max(0, state.pendingMutations - 1);
       });
 
+    /* ---------- DELETE ---------- */
+    builder
+      .addCase(deleteProducts.fulfilled, (state, action) => {
+        state.pendingMutations = Math.max(0, state.pendingMutations - 1);
+        if (state.pendingMutations === 0 && action.payload?.wishlist) {
+          state.wishlist = action.payload.wishlist;
+        }
+      })
+      .addCase(deleteProducts.rejected, (state) => {
+        state.pendingMutations = Math.max(0, state.pendingMutations - 1);
+      });
 
-    // GET WISHLIST
+    /* ---------- GET ---------- */
     builder
       .addCase(getWishlist.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-
       .addCase(getWishlist.fulfilled, (state, action) => {
         state.loading = false;
-        state.wishlist = action.payload;
+        // Don't overwrite the UI while toggles are still in flight
+        if (state.pendingMutations === 0) {
+          state.wishlist = action.payload || { products: [] };
+        }
       })
-
       .addCase(getWishlist.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
-
-
-    // DELETE FROM WISHLIST
-    builder
-      .addCase(deleteProducts.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-
-      .addCase(deleteProducts.fulfilled, (state, action) => {
-        state.loading = false;
-        state.wishlist = action.payload.wishlist;
-      })
-
-      .addCase(deleteProducts.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      });
-
-  }
+  },
 });
 
+export const { optimisticAddWishlist, optimisticRemoveWishlist } =
+  wishListSlice.actions;
 
 export default wishListSlice.reducer;

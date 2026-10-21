@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState,useMemo } from "react";
 import {
   FaStar,
   FaStarHalfAlt,
@@ -9,6 +9,7 @@ import {
   FaUndo,
   FaHeart,
 } from "react-icons/fa";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import AddonProducts from "../components/products/AddonProducts";
 
@@ -39,6 +40,9 @@ import {
 } from "../utils/toast";
 
 const API_URL = "http://localhost:3000";
+
+//scroll 
+
 
 /* =========================================================
    IMAGE HELPERS
@@ -994,7 +998,57 @@ useEffect(() => {
     product,
     currentProduct,
   ]);
+const relatedScrollRef = useRef(null);
 
+const [canScrollRelatedLeft, setCanScrollRelatedLeft] = useState(false);
+const [canScrollRelatedRight, setCanScrollRelatedRight] = useState(false);
+
+const updateRelatedScrollButtons = useCallback(() => {
+  const container = relatedScrollRef.current;
+  if (!container) return;
+
+  setCanScrollRelatedLeft(container.scrollLeft > 3);
+
+  setCanScrollRelatedRight(
+    container.scrollLeft + container.clientWidth <
+      container.scrollWidth - 5
+  );
+}, []);
+
+const scrollRelatedProducts = (direction) => {
+  const container = relatedScrollRef.current;
+  if (!container) return;
+
+  const firstCard = container.querySelector("[data-related-card]");
+  const gap = 16;
+
+  const scrollAmount = firstCard
+    ? firstCard.getBoundingClientRect().width + gap
+    : container.clientWidth;
+
+  container.scrollBy({
+    left: direction === "left" ? -scrollAmount : scrollAmount,
+    behavior: "smooth",
+  });
+};
+
+useEffect(() => {
+  const container = relatedScrollRef.current;
+  if (!container) return;
+
+  updateRelatedScrollButtons();
+
+  container.addEventListener("scroll", updateRelatedScrollButtons, {
+    passive: true,
+  });
+
+  window.addEventListener("resize", updateRelatedScrollButtons);
+
+  return () => {
+    container.removeEventListener("scroll", updateRelatedScrollButtons);
+    window.removeEventListener("resize", updateRelatedScrollButtons);
+  };
+}, [relatedProducts.length, updateRelatedScrollButtons]);
   /* =======================================================
      LOGIN
   ======================================================= */
@@ -1961,49 +2015,123 @@ useEffect(() => {
             RELATED PRODUCTS
         ===================================================== */}
 
-        {relatedProducts.length > 0 && (
-          <section className="mt-10">
+ 
 
-            <div className="mb-6">
+{/* =====================================================
+    RELATED PRODUCTS — RESPONSIVE CAROUSEL
+===================================================== */}
 
-              <p className="text-sm font-semibold text-blue-600 mb-1">
-                You May Also Like
-              </p>
+{relatedProducts.length > 0 && (
+  <section className="mx-auto mt-8 w-full max-w-7xl px-3 py-7 min-[375px]:px-4 sm:mt-10 sm:px-6 sm:py-10 lg:px-8">
 
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                Related Products
-              </h2>
+    {/* HEADER */}
+    <div className="mb-5 flex items-end justify-between gap-3 sm:mb-8 sm:gap-4">
+      <div className="min-w-0">
+        <p className="mb-1 text-xs font-semibold text-blue-600 min-[375px]:text-sm">
+          You May Also Like
+        </p>
 
-              <p className="text-sm text-gray-500 mt-1">
-                More products you might be interested in
-              </p>
+        <h2 className="text-lg font-bold leading-tight text-gray-900 dark:text-white min-[375px]:text-xl sm:text-2xl lg:text-3xl">
+          Related Products
+        </h2>
 
-            </div>
+        <p className="mt-1 hidden text-sm text-gray-500 dark:text-gray-400 sm:block">
+          Discover more products you might love
+        </p>
+      </div>
 
-            <div
-              className="
-                grid
-                grid-cols-2
-                sm:grid-cols-3
-                md:grid-cols-4
-                lg:grid-cols-5
-                gap-3
-                sm:gap-4
-                lg:gap-5
-              "
-            >
-              {relatedProducts.map(
-                (item) => (
-                  <ProductCard
-                    key={item._id}
-                    {...item}
-                  />
-                )
-              )}
-            </div>
+      {/* SCROLL CONTROLS */}
+      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+        <button
+          type="button"
+          onClick={() => scrollRelatedProducts("left")}
+          disabled={!canScrollRelatedLeft}
+          aria-label="Previous related product"
+          className="
+            flex h-8 w-8 items-center justify-center rounded-full
+            border border-gray-200 bg-white text-gray-700 shadow-sm
+            transition hover:border-blue-500 hover:text-blue-600
+            active:scale-95 disabled:cursor-not-allowed disabled:opacity-30
+            dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200
+            sm:h-9 sm:w-9
+          "
+        >
+          <ChevronLeft size={18} />
+        </button>
 
-          </section>
-        )}
+        <button
+          type="button"
+          onClick={() => scrollRelatedProducts("right")}
+          disabled={!canScrollRelatedRight}
+          aria-label="Next related product"
+          className="
+            flex h-8 w-8 items-center justify-center rounded-full
+            border border-gray-200 bg-white text-gray-700 shadow-sm
+            transition hover:border-blue-500 hover:text-blue-600
+            active:scale-95 disabled:cursor-not-allowed disabled:opacity-30
+            dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200
+            sm:h-9 sm:w-9
+          "
+        >
+          <ChevronRight size={18} />
+        </button>
+      </div>
+    </div>
+
+    {/* HORIZONTAL CAROUSEL */}
+    <div
+      ref={relatedScrollRef}
+      className="
+        flex w-full gap-4 overflow-x-auto overflow-y-hidden
+        snap-x snap-mandatory md:snap-none
+        py-2
+        [scrollbar-width:none]
+        [&::-webkit-scrollbar]:hidden
+      "
+      style={{
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
+        WebkitOverflowScrolling: "touch",
+      }}
+    >
+      {relatedProducts.map((item, index) => (
+        <div
+          key={item._id || item.id || item.slug || `related-${index}`}
+          data-related-card
+          className="
+            min-w-0 w-full shrink-0 snap-start
+            sm:w-[calc((100%-1rem)/2)]
+            md:w-[calc((100%-2rem)/3)]
+            lg:w-[calc((100%-3rem)/4)]
+          "
+        >
+          <ProductCard
+            {...item}
+            rating={item?.rating?.average ?? item?.rating}
+          />
+        </div>
+      ))}
+    </div>
+
+    {/* OPTIONAL BOTTOM LINK */}
+    <div className="mt-5 flex justify-center sm:mt-7">
+      <button
+        type="button"
+        onClick={() => navigate("/products")}
+        className="
+          rounded-xl border border-gray-200 bg-white
+          px-5 py-2.5 text-xs font-semibold text-gray-700
+          transition hover:border-blue-500 hover:bg-blue-50
+          hover:text-blue-600 dark:border-gray-700
+          dark:bg-gray-900 dark:text-gray-200 sm:text-sm
+        "
+      >
+        Explore All Products
+      </button>
+    </div>
+  </section>
+)}
+
 
         {/* =====================================================
             DESCRIPTION
