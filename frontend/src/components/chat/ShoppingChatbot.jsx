@@ -116,7 +116,7 @@ useEffect(() => {
     );
 
   const goToProduct = (p) => {
-    setOpen(false);
+    // setOpen(false);
     navigate(`/product/${getSlug(p)}`);
   };
 
