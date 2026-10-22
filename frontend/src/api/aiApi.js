@@ -17,3 +17,11 @@ export const chatApi = async (payload) => {
   const response = await api.post("/ai/chat", payload);
   return response.data;
 };
+
+// Cart-based recommendations. Logged in: server reads the cart. Guest: pass ids.
+export const getCartRecommendationsApi = async (ids) => {
+  const response = await api.get("/ai/recommendations/cart", {
+    params: ids?.length ? { ids: ids.join(",") } : {},
+  });
+  return response.data;
+};

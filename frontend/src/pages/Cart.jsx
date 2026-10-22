@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import { showError } from "../utils/toast";
 import { getProductSlug } from "../utils/productSlug";
-
+import CartRecommendedProducts from "../components/products/CartRecommendedproducts ";
 export default function Cart() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -186,7 +186,10 @@ export default function Cart() {
 
   // Cart is empty if cart doesn't exist OR items array is empty
   const isCartEmpty = !cart?.items?.length;
-
+const cartProductIds = useMemo(
+  () => (cart?.items || []).map((item) => getProductId(item)).filter(Boolean),
+  [cart?.items]
+);
   return (
     <div className="bg-gray-50 dark:bg-gray-950 dark:text-gray-100 min-h-screen">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -316,6 +319,7 @@ export default function Cart() {
             </div>
           </div>
         )}
+        <CartRecommendedProducts cartProductIds={cartProductIds} />
       </main>
     </div>
   );

@@ -594,6 +594,7 @@ export const editProduct = async (req, res) => {
       accessories,
       variants,
       hasVariants,
+      removeImages,
     } = req.body;
 
     const updateFields = {};
@@ -798,22 +799,39 @@ export const editProduct = async (req, res) => {
       }
     }
 
-    // -----------------------------------------
-    // Handle product images
-    // -----------------------------------------
+ // -----------------------------------------
+// Handle product images (remove + add)
+// -----------------------------------------
 
-    if (uploadedMedia.length > 0) {
-      const newImagePaths = uploadedMedia
-        .filter((item) => item.type === "image")
-        .map((item) => item.url);
+// Parse images to remove
+let imagesToRemove = [];
 
-      if (newImagePaths.length > 0) {
-        updateFields.images = [
-          ...(product.images || []),
-          ...newImagePaths,
-        ];
-      }
-    }
+if (removeImages !== undefined && removeImages !== null && removeImages !== "") {
+  try {
+    const parsed = JSON.parse(removeImages);
+    imagesToRemove = Array.isArray(parsed) ? parsed : [parsed];
+  } catch {
+    imagesToRemove = [].concat(removeImages);
+  }
+}
+
+imagesToRemove = imagesToRemove.map((v) => String(v));
+
+const newImagePaths = uploadedMedia
+  .filter((item) => item.type === "image")
+  .map((item) => item.url);
+
+if (imagesToRemove.length > 0 || newImagePaths.length > 0) {
+  // Handle both string images and object images ({ url })
+  const getUrl = (img) =>
+    typeof img === "string" ? img : img?.url || img?.secure_url || "";
+
+  const remainingImages = (product.images || []).filter(
+    (img) => !imagesToRemove.includes(getUrl(img))
+  );
+
+  updateFields.images = [...remainingImages, ...newImagePaths];
+}
 
     // -----------------------------------------
     // Check whether anything is being updated

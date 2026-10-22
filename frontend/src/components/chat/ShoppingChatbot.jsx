@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { MessageCircle, X, Send, Sparkles, Loader2 } from "lucide-react";
 import { sendChatMessage } from "../../redux/slices/aiSlice";
-
+import { getCart } from "../../redux/slices/cartSlice";
 const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
 const SUGGESTIONS = [
@@ -49,43 +49,51 @@ export default function ShoppingChatbot() {
     }
   }, [messages, loading, open]);
 
-  const send = async (text) => {
-    const message = (text ?? input).trim();
-    if (!message || loading) return;
+ const send = async (text) => {
+  const message = (text ?? input).trim();
+  if (!message || loading) return;
 
-    const history = messages
-      .slice(-6)
-      .map((m) => ({ role: m.role, text: m.text }));
+  // send product ids too, so "add it to cart" knows which product you mean
+  const history = messages.slice(-6).map((m) => ({
+    role: m.role,
+    text: m.text,
+    productIds: (m.products || []).map((p) => p._id),
+  }));
 
-    setMessages((prev) => [...prev, { role: "user", text: message }]);
-    setInput("");
-    setLoading(true);
+  setMessages((prev) => [...prev, { role: "user", text: message }]);
+  setInput("");
+  setLoading(true);
 
-    try {
-      const data = await dispatch(
-        sendChatMessage({ message, history })
-      ).unwrap();
+  try {
+    const data = await dispatch(
+      sendChatMessage({ message, history })
+    ).unwrap();
 
-      setMessages((prev) => [
-        ...prev,
-        { role: "bot", text: data.reply, products: data.products || [] },
-      ]);
-    } catch (err) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "bot",
-          text:
-            typeof err === "string"
-              ? err
-              : "Sorry, something went wrong. Please try again.",
-          products: [],
-        },
-      ]);
-    } finally {
-      setLoading(false);
+    // chatbot changed the cart on the server -> refresh Redux cart
+    if (data.cartUpdated) {
+      dispatch(getCart());
     }
-  };
+
+    setMessages((prev) => [
+      ...prev,
+      { role: "bot", text: data.reply, products: data.products || [] },
+    ]);
+  } catch (err) {
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "bot",
+        text:
+          typeof err === "string"
+            ? err
+            : "Sorry, something went wrong. Please try again.",
+        products: [],
+      },
+    ]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // The route is protected, so hide the chatbot for guests
   if (!user) return null;

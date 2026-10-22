@@ -523,9 +523,7 @@ export default function RecommendedProducts() {
                   shrink-0
                   snap-start
                   w-full
-                  sm:w-[calc((100%-1rem)/2)]
-                  md:w-[calc((100%-2rem)/3)]
-                  lg:w-[calc((100%-3rem)/4)]
+                  min-[398px]:w-[calc((100%-1rem)/2)] sm:w-[calc((100%-1rem)/2)] md:w-[calc((100%-2rem)/3)] lg:w-[calc((100%-3rem)/4)]
                 "
               >
                 <ProductCard {...item} rating={item?.rating?.average} />
