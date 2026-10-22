@@ -13,10 +13,10 @@ import HeroSlide from "./content/homepage/HeroSlide.model.js";
 import PromoCard from "./content/homepage/promoCard.model.js";
 import PromoGridItem from "./content/homepage/PromoGridItem.model.js";
 import ShopByNeed from "./content/homepage/ShopByNeed.model.js";
-
+import { ChatSession } from "./chatSession.model.js";
 export{
     User,Product,Cart,Wishlist,ProductRelation,Category,Order,OrderItem,OrderAddress, Coupon,CouponUsage,
-    Review,Activity,
+    Review,Activity,ChatSession,
       // Homepage Content
   HeroSlide,
   PromoCard,

@@ -1,9 +1,25 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { MessageCircle, X, Send, Sparkles, Loader2 } from "lucide-react";
-import { sendChatMessage } from "../../redux/slices/aiSlice";
-import { getCart } from "../../redux/slices/cartSlice";
+import {
+  MessageCircle,
+  X,
+  Send,
+  Sparkles,
+  Loader2,
+  ShoppingCart,
+  Check,
+  Trash2
+} from "lucide-react";
+import { sendChatMessage, fetchChatHistory, clearChatHistory } from "../../redux/slices/aiSlice";
+import {
+  getCart,
+  addProduct,
+  optimisticAddProduct,
+} from "../../redux/slices/cartSlice";
+import { showSuccess, showError } from "../../utils/toast";
+
+
 const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
 const SUGGESTIONS = [
@@ -12,36 +28,79 @@ const SUGGESTIONS = [
   "Help me pick a gift",
 ];
 
+const getImageValue = (image) =>
+  typeof image === "string"
+    ? image
+    : image?.url || image?.secure_url || image?.path || "";
+
 const getImageUrl = (image) => {
-  const value =
-    typeof image === "string"
-      ? image
-      : image?.url || image?.secure_url || image?.path || "";
+  const value = getImageValue(image);
 
   if (!value) return "/1786052049893.webp";
   if (/^(https?:|blob:)/.test(value)) return value;
   return `${BASE_URL}${value.startsWith("/") ? "" : "/"}${value}`;
 };
 
+const getSlug = (p) =>
+  p.slug?.trim() ||
+  p.name
+    ?.toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
 export default function ShoppingChatbot() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.auth?.user);
-
+  const cartItems = useSelector((state) => state.cart?.cart?.items || []);
+const WELCOME = {
+  role: "bot",
+  text: "Hi! I'm your shopping assistant. Tell me what you're looking for and your budget.",
+  products: [],
+};
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      role: "bot",
-      text: "Hi! I'm your shopping assistant. Tell me what you're looking for and your budget.",
-      products: [],
-    },
-  ]);
+  const [messages, setMessages] = useState([WELCOME]);
+const historyLoaded = useRef(false);
 
   const bottomRef = useRef(null);
+  const handleClear = async () => {
+  try {
+    await dispatch(clearChatHistory()).unwrap();
+    setMessages([WELCOME]);
+  } catch {
+    showError("Couldn't clear the chat");
+  }
+};
+useEffect(() => {
+  if (!open || !user || historyLoaded.current) return;
+  historyLoaded.current = true;
 
+  dispatch(fetchChatHistory())
+    .unwrap()
+    .then(({ messages: saved }) => {
+      if (!saved?.length) return;
+      setMessages([
+        WELCOME,
+        ...saved.map((m) => ({
+          role: m.role === "assistant" ? "bot" : "user", // server says "assistant", UI says "bot"
+          text: m.text,
+          products: m.products || [],
+        })),
+      ]);
+    })
+    .catch(() => {}); // no saved chat is fine, keep the welcome message
+}, [open, user?._id, dispatch]);
+
+// Different user logged in (or logged out): start fresh
+useEffect(() => {
+  historyLoaded.current = false;
+  setMessages([WELCOME]);
+}, [user?._id]);
   // Scroll to the newest message
   useEffect(() => {
     if (open) {
@@ -49,61 +108,116 @@ export default function ShoppingChatbot() {
     }
   }, [messages, loading, open]);
 
- const send = async (text) => {
-  const message = (text ?? input).trim();
-  if (!message || loading) return;
+  const isInCart = (id) =>
+    cartItems.some(
+      (it) =>
+        String(it?.productId?._id || it?.productId || it?.product?._id) ===
+        String(id)
+    );
 
-  // send product ids too, so "add it to cart" knows which product you mean
-  const history = messages.slice(-6).map((m) => ({
-    role: m.role,
-    text: m.text,
-    productIds: (m.products || []).map((p) => p._id),
-  }));
+  const goToProduct = (p) => {
+    setOpen(false);
+    navigate(`/product/${getSlug(p)}`);
+  };
 
-  setMessages((prev) => [...prev, { role: "user", text: message }]);
-  setInput("");
-  setLoading(true);
-
-  try {
-    const data = await dispatch(
-      sendChatMessage({ message, history })
-    ).unwrap();
-
-    // chatbot changed the cart on the server -> refresh Redux cart
-    if (data.cartUpdated) {
-      dispatch(getCart());
+  const handleAddToCart = (p) => {
+    if (isInCart(p._id)) {
+      setOpen(false);
+      navigate("/cart");
+      return;
     }
 
-    setMessages((prev) => [
-      ...prev,
-      { role: "bot", text: data.reply, products: data.products || [] },
-    ]);
-  } catch (err) {
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: "bot",
-        text:
-          typeof err === "string"
-            ? err
-            : "Sorry, something went wrong. Please try again.",
-        products: [],
-      },
-    ]);
-  } finally {
-    setLoading(false);
-  }
-};
+    if (p.stock !== undefined && p.stock <= 0) {
+      showError("Product is out of stock");
+      return;
+    }
+
+    const productData = {
+      productId: p._id,
+      quantity: 1,
+      name: p.name || "Product",
+      price: Number(p.price) || 0,
+      image: getImageValue(p.images?.[0]),
+      slug: getSlug(p) || "",
+    };
+
+    // STEP 1: instant UI update
+    dispatch(optimisticAddProduct(productData));
+    showSuccess("Product added to cart");
+
+    // STEP 2: server request, in order
+   // STEP 2: server request in the background
+dispatch(
+  addProduct({
+    productId: p._id,
+    quantity: 1,
+    price: Number(p.price) || 0,
+  })
+)
+  .unwrap()
+  .catch((error) => {
+    // STEP 3: on failure, restore the real cart
+    dispatch(getCart());
+    showError(
+      typeof error === "string"
+        ? error
+        : error?.message || "Unable to add product to cart"
+    );
+  });
+  };
+
+  const send = async (text) => {
+    const message = (text ?? input).trim();
+    if (!message || loading) return;
+
+    // send product ids too, so "add it to cart" knows which product you mean
+    const history = messages.slice(-6).map((m) => ({
+      role: m.role,
+      text: m.text,
+      productIds: (m.products || []).map((p) => p._id),
+    }));
+
+    setMessages((prev) => [...prev, { role: "user", text: message }]);
+    setInput("");
+    setLoading(true);
+
+    try {
+      const data = await dispatch(
+        sendChatMessage({ message, history })
+      ).unwrap();
+
+      // chatbot changed the cart on the server -> refresh Redux cart
+      if (data.cartUpdated) {
+        dispatch(getCart());
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        { role: "bot", text: data.reply, products: data.products || [] },
+      ]);
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "bot",
+          text:
+            typeof err === "string"
+              ? err
+              : "Sorry, something went wrong. Please try again.",
+          products: [],
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // The route is protected, so hide the chatbot for guests
   if (!user) return null;
 
   return (
     <>
-      {/* =====================================================
-          FLOATING BUTTON
-      ===================================================== */}
-
+      {/* FLOATING BUTTON */}
       {!open && (
         <button
           type="button"
@@ -115,37 +229,10 @@ export default function ShoppingChatbot() {
         </button>
       )}
 
-      {/* =====================================================
-          CHAT PANEL
-      ===================================================== */}
-
+      {/* CHAT PANEL */}
       {open && (
-        <div
-          className="
-            fixed
-            inset-x-3
-            bottom-3
-            z-50
-            flex
-            h-[75vh]
-            max-h-[600px]
-            flex-col
-            overflow-hidden
-            rounded-2xl
-            border
-            border-gray-200
-            dark:border-gray-700
-            bg-white
-            dark:bg-gray-900
-            shadow-2xl
-            sm:inset-x-auto
-            sm:bottom-5
-            sm:right-5
-            sm:w-[380px]
-          "
-        >
+        <div className="fixed inset-x-3 bottom-3 z-50 flex h-[75vh] max-h-[600px] flex-col overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-2xl sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[380px]">
           {/* HEADER */}
-
           <div className="flex items-center justify-between bg-blue-600 px-4 py-3 text-white">
             <div className="flex items-center gap-2">
               <Sparkles size={18} />
@@ -158,19 +245,27 @@ export default function ShoppingChatbot() {
                 </p>
               </div>
             </div>
-
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              aria-label="Close chat"
-              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg transition hover:bg-blue-500"
-            >
-              <X size={18} />
-            </button>
+  <div className="flex items-center gap-1">
+  <button
+    type="button"
+    onClick={handleClear}
+    aria-label="Clear chat"
+    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg transition hover:bg-blue-500"
+  >
+    <Trash2 size={16} />
+  </button>
+  <button
+    type="button"
+    onClick={() => setOpen(false)}
+    aria-label="Close chat"
+    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg transition hover:bg-blue-500"
+  >
+    <X size={18} />
+  </button>
+</div>
           </div>
 
           {/* MESSAGES */}
-
           <div className="flex-1 space-y-3 overflow-y-auto overscroll-contain bg-gray-50 dark:bg-gray-950 p-3">
             {messages.map((m, index) => (
               <div
@@ -190,69 +285,89 @@ export default function ShoppingChatbot() {
                 </div>
 
                 {/* PRODUCT CARDS */}
-
                 {m.products?.length > 0 && (
                   <div className="mt-2 w-full space-y-2">
-                    {m.products.map((p) => (
-                      <button
-                        key={p._id}
-                        type="button"
-                        // Change this path to your product details route
-                        onClick={() => {
-                          setOpen(false);
-                           const slug =
-    p.slug?.trim() ||
-    p.name
-      ?.toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/[\s_-]+/g, "-")
-      .replace(/^-+|-+$/g, "");
+                    {m.products.map((p) => {
+                      const added = isInCart(p._id);
+                      const outOfStock = p.stock !== undefined && p.stock <= 0;
 
-  navigate(`/product/${slug}`);
-                        }}
-                        className="flex w-full cursor-pointer items-center gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 text-left transition hover:border-blue-400"
-                      >
-                        <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-100 dark:border-gray-700 bg-white">
-                          <img
-                            src={getImageUrl(p.images?.[0])}
-                            alt={p.name}
-                            className="h-full w-full object-contain p-0.5"
-                          />
-                        </div>
+                      return (
+                        <div
+                          key={p._id}
+                          className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 transition hover:border-blue-400"
+                        >
+                          {/* Clickable info area */}
+                          <button
+                            type="button"
+                            onClick={() => goToProduct(p)}
+                            className="flex w-full cursor-pointer items-center gap-3 text-left"
+                          >
+                            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-gray-100 dark:border-gray-700 bg-white">
+                              <img
+                                src={getImageUrl(p.images?.[0])}
+                                alt={p.name}
+                                className="h-full w-full object-contain p-0.5"
+                              />
+                            </div>
 
-                        <div className="min-w-0 flex-1">
-                          <p className="line-clamp-2 text-xs font-semibold text-gray-900 dark:text-white">
-                            {p.name}
-                          </p>
+                            <div className="min-w-0 flex-1">
+                              <p className="line-clamp-2 text-xs font-semibold text-gray-900 dark:text-white">
+                                {p.name}
+                              </p>
 
-                          <div className="mt-1 flex items-center gap-2">
-                            <span className="text-sm font-bold text-gray-900 dark:text-white">
-                              ₹{p.price}
-                            </span>
+                              <div className="mt-1 flex items-center gap-2">
+                                <span className="text-sm font-bold text-gray-900 dark:text-white">
+                                  ₹{p.price}
+                                </span>
 
-                            {p.mrp > p.price && (
-                              <span className="text-[11px] text-gray-400 line-through">
-                                ₹{p.mrp}
-                              </span>
+                                {p.mrp > p.price && (
+                                  <span className="text-[11px] text-gray-400 line-through">
+                                    ₹{p.mrp}
+                                  </span>
+                                )}
+
+                                {p.rating?.average > 0 && (
+                                  <span className="text-[11px] text-amber-500">
+                                    ★ {Number(p.rating.average).toFixed(1)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </button>
+
+                          {/* Add to cart / Go to cart */}
+                          <button
+                            type="button"
+                            onClick={() => handleAddToCart(p)}
+                            disabled={outOfStock && !added}
+                            className={`mt-2 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition disabled:cursor-not-allowed ${
+                              added
+                                ? "bg-green-600 hover:bg-green-700"
+                                : outOfStock
+                                ? "bg-gray-400"
+                                : "bg-blue-600 hover:bg-blue-700"
+                            }`}
+                          >
+                            {added ? (
+                              <Check size={14} />
+                            ) : (
+                              <ShoppingCart size={14} />
                             )}
-
-                            {p.rating?.average > 0 && (
-                              <span className="text-[11px] text-amber-500">
-                                ★ {Number(p.rating.average).toFixed(1)}
-                              </span>
-                            )}
-                          </div>
+                            {added
+                              ? "Go to cart"
+                              : outOfStock
+                              ? "Out of stock"
+                              : "Add to cart"}
+                          </button>
                         </div>
-                      </button>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
             ))}
 
             {/* TYPING INDICATOR */}
-
             {loading && (
               <div className="flex items-start">
                 <div className="flex items-center gap-2 rounded-2xl rounded-bl-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3.5 py-2 text-sm text-gray-500 dark:text-gray-400">
@@ -263,7 +378,6 @@ export default function ShoppingChatbot() {
             )}
 
             {/* SUGGESTIONS (only before the first user message) */}
-
             {messages.length === 1 && !loading && (
               <div className="flex flex-wrap gap-2 pt-1">
                 {SUGGESTIONS.map((s) => (
@@ -283,7 +397,6 @@ export default function ShoppingChatbot() {
           </div>
 
           {/* INPUT */}
-
           <div className="flex items-center gap-2 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3">
             <input
               type="text"

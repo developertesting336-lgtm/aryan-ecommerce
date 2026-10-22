@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getRecommendationsApi,generateDescriptionApi,chatApi,getCartRecommendationsApi   } from "../../api/aiApi";
+import { getRecommendationsApi,generateDescriptionApi,chatApi,
+  getCartRecommendationsApi,getChatHistoryApi, clearChatHistoryApi,
+   } from "../../api/aiApi";
 
 // =====================================================
 // GET RECOMMENDED PRODUCTS
@@ -89,6 +91,33 @@ export const getCartRecommendations = createAsyncThunk(
     }
   }
 );
+
+export const fetchChatHistory = createAsyncThunk(
+  "ai/fetchChatHistory",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await getChatHistoryApi();
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || "Couldn't load chat."
+      );
+    }
+  }
+);
+
+export const clearChatHistory = createAsyncThunk(
+  "ai/clearChatHistory",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await clearChatHistoryApi();
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || "Couldn't clear chat."
+      );
+    }
+  }
+);
+
 // =====================================================
 // INITIAL STATE
 // =====================================================

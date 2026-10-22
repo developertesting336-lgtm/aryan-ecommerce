@@ -25,3 +25,14 @@ export const getCartRecommendationsApi = async (ids) => {
   });
   return response.data;
 };
+
+// Saved chat for the logged-in user
+export const getChatHistoryApi = async () => {
+  const response = await api.get("/ai/chat/history");
+  return response.data; // { messages: [{ role, text, productIds, products }] }
+};
+
+export const clearChatHistoryApi = async () => {
+  const response = await api.delete("/ai/chat/history");
+  return response.data;
+};
