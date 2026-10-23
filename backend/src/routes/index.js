@@ -12,6 +12,7 @@ import vendorRoutes from "./vendor.routes.js"
 import couponRoutes from "./coupon.routes.js"
 import reviewRoutes from "./reviews.routes.js"
 import aiRoutes from "./ai.routes.js"
+import adminReviewRoutes from "./adminreview.routes.js"
 // ============================================================
 // HOMEPAGE CONTENT ROUTES
 // ============================================================
@@ -70,6 +71,10 @@ const routes = [
     {
         path: `${api}/ai/`,
         route: aiRoutes
+    },
+    {
+        path: `${api}/admin/reviews/`,
+        route: adminReviewRoutes
     },
      // ==========================================================
   // ADMIN HOMEPAGE CONTENT

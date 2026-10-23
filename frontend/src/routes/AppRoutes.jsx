@@ -52,7 +52,7 @@ const CategoryDetails = lazy(() => import("../pages/admin/CategoryDetails"));
 const EditProduct = lazy(() => import("../pages/EditProduct"));
 const AdminOrderDetails = lazy(() => import("../pages/admin/AdminOrderDetails"));
 const AdminContent = lazy(() => import("../pages/admin/AdminContent"));
-
+const ReviewsPage = lazy(()=> import("../pages/admin/ReviewsPage"));
 // Admin Homepage Content Management
 const HeroManagement = lazy(() => import("../pages/admin/content/homepage/HeroManagement"));
 const PromoCardsManagement = lazy(() => import("../pages/admin/content/homepage/PromoCardsManagement"));
@@ -76,6 +76,7 @@ import { getCart } from "../redux/slices/cartSlice";
 import { getWishlist } from "../redux/slices/wishlistSlice";
 import { getRootCategories } from "../redux/slices/categorySlice";
 import { mergeGuestCart, enrichGuestCart } from "../utils/guestCart";
+import ReviewsListPage from "../pages/admin/Reviewslistpage";
 
 // ============================================================
 // APP ROUTES
@@ -216,6 +217,9 @@ function AppRoutes() {
             <Route path="coupons/:id" element={<CouponDetails />} />
 
             <Route path="coupons/:id/edit" element={<EditCoupon />} />
+
+            <Route path="reviews" element={<ReviewsPage />} />
+          <Route path="reviews/list" element={<ReviewsListPage />} /> 
              {/* ==================================================
                 CONTENT MANAGEMENT
             ================================================== */}
@@ -265,7 +269,7 @@ function AppRoutes() {
 
           <Route path="/create-category" element={<CreateCategory />} />
           <Route path="/categories/:id" element={<CategoryDetails />} />
-          
+           
           
         </Route>
 
