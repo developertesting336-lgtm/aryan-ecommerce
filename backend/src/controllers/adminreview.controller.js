@@ -212,7 +212,7 @@ export const getAdminReviews = async (req, res) => {
 
     if (search?.trim()) {
       const rx = new RegExp(escapeRegex(search.trim()), "i");
-      const users = await User.find({ $or: [{ name: rx }, { email: rx }] })
+      const users = await User.find({ $or: [{ firstName: rx }, { email: rx }] })
         .select("_id")
         .limit(200)
         .lean();
