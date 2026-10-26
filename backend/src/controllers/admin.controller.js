@@ -3,6 +3,7 @@ import { ApiError, ApiResponse } from "../utils/apiResponse.js";
 import { OrderStatus,FulfillmentStatus,PaymentStatus,fulfillmentTransitions } from "../config/constants.js";
 import { generateSlug } from "../utils/common.js";
 import mongoose from "mongoose";
+import { approveReferrals, rejectReferrals } from "./referral.controller.js";
 
 export const adminDashboard = async (req, res) => {
   try {
@@ -737,7 +738,14 @@ export const adminUpdateOrderStatus = async (req,res) => {
     order.fulfillmentStatus = fulfillmentStatus;
 
     await order.save();
-
+if (order.fulfillmentStatus === "DELIVERED") {
+  await approveReferrals(order._id);
+} else if (
+  ["RETURNED", "CANCELLED"].includes(order.fulfillmentStatus) ||
+  order.status === "CANCELLED"
+) {
+  await rejectReferrals(order);
+}
     return res.status(200).json({
       success: true,
       message: `Fulfillment status changed from ${currentStatus} to ${fulfillmentStatus}`,

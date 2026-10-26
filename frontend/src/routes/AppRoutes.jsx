@@ -40,6 +40,7 @@ const PaymentSuccess = lazy(() => import("../pages/PaymentSuccess"));
 const PrivacyPolicy = lazy(() => import("../pages/PrivacyPolicy"));
 const Contact = lazy(() => import("../components/Contact"));
 const Help = lazy(() => import("../pages/Help"));
+const MyPoints = lazy(() => import("../pages/MyPoints"))
 
 // Admin Pages (heavy components + charting)
 const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
@@ -168,6 +169,7 @@ function AppRoutes() {
             <Route path="/orders/:orderId/tracking" element={<OrderTracking />}/>
 
             <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/my-points" element={<MyPoints />} />
           </Route>
         </Route>
 

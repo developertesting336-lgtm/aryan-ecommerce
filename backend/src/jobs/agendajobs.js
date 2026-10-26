@@ -1,5 +1,6 @@
 import {agenda} from '../config/agenda.js'
 import { fulfillmentTransitions } from '../config/constants.js';
+import { approveReferrals, rejectReferrals } from "../controllers/referral.controller.js";
 
 
 
@@ -39,7 +40,14 @@ agenda.define("update-order-status", async (job) => {
   order.fulfillmentStatus = fulfillmentStatus;
 
   await order.save();
-
+if (order.fulfillmentStatus === "DELIVERED") {
+  await approveReferrals(order._id);
+} else if (
+  ["RETURNED", "CANCELLED"].includes(order.fulfillmentStatus) ||
+  order.status === "CANCELLED"
+) {
+  await rejectReferrals(order);
+}
   console.log(
     `Order ${orderId}: ${currentStatus} → ${fulfillmentStatus}`
   );

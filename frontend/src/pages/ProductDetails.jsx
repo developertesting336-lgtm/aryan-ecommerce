@@ -1,4 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState,useMemo } from "react";
+import ShareProductButton from "../components/ShareProductButton";
+import { useSearchParams } from "react-router-dom";
+import { trackReferralClickApi } from "../api/referralApi";
+
+import { saveProductRef } from "../utils/referral";
 import {
   FaStar,
   FaStarHalfAlt,
@@ -114,7 +119,27 @@ const getPricing = (product) => {
     discount,
   };
 };
+ function useCaptureReferral(productId) {
+  const [searchParams] = useSearchParams();
 
+  const code = searchParams.get("ref");
+
+  useEffect(() => {
+    if (!code || !productId) {
+      return;
+    }
+
+    saveProductRef(productId, code);
+
+    // count the click once per browser session
+    const key = `ref_clicked_${code}`;
+
+    if (!sessionStorage.getItem(key)) {
+      sessionStorage.setItem(key, "1");
+      trackReferralClickApi(code).catch(() => {});
+    }
+  }, [code, productId]);
+}
 /* =========================================================
    LOADING
 ========================================================= */
@@ -404,7 +429,8 @@ function ProductDetails() {
     stateProductId ||
     candidateIdFromSlug ||
     slugOrId;
-
+// NEW: save ?ref=CODE for this product when a friend opens a shared link
+useCaptureReferral(currentProduct?._id);
   /* =======================================================
      ACTIVE VARIANTS
      
@@ -1965,7 +1991,9 @@ useEffect(() => {
                 </button>
 
               </div>
-
+<div className="mt-6">
+  <ShareProductButton product={currentProduct} />
+</div>
               {/* =================================================
                   BENEFITS
               ================================================= */}

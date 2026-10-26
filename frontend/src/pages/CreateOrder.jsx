@@ -12,7 +12,10 @@ import {
   Loader2,
   Tag,
   X,
+  Coins,
 } from "lucide-react";
+import { getMyPoints } from "../redux/slices/referralSlice";
+import { getReferralsForItems, clearProductRefs } from "../utils/referral";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { createOrder } from "../redux/slices/orderSlice";
@@ -73,7 +76,9 @@ export default function CreateOrder() {
   // =====================================================
   // REDUX
   // =====================================================
+const { available: availablePoints } = useSelector((state) => state.referral);
 
+const [usePoints, setUsePoints] = useState(false);
   const {
     cart,
     loading: cartLoading,
@@ -140,6 +145,9 @@ console.log("coupon state", {
     dispatch(getCart());
   }, [dispatch]);
 
+  useEffect(() => {
+  dispatch(getMyPoints());
+}, [dispatch]);
   // =====================================================
   // FETCH ADDRESSES
   // =====================================================
@@ -390,7 +398,24 @@ const selectedProduct = selectedItems[0]?.product;
       0,
       subtotal - discountAmount
     );
+// =====================================================
+// POINTS (min order ₹500, 1 point = ₹1)
+// =====================================================
 
+const MIN_ORDER_FOR_POINTS = 500;
+
+const canUsePoints =
+  subtotal >= MIN_ORDER_FOR_POINTS && availablePoints > 0;
+
+// keep at least ₹1 payable (same rule as backend)
+const maxPointsForOrder = Math.max(0, Math.floor(discountedSubtotal) - 1);
+
+const pointsUsed =
+  usePoints && canUsePoints
+    ? Math.min(availablePoints, maxPointsForOrder)
+    : 0;
+
+const pointsDiscount = pointsUsed; // 1 point = ₹1
   // =====================================================
   // SHIPPING
   // =====================================================
@@ -405,7 +430,7 @@ const selectedProduct = selectedItems[0]?.product;
   // =====================================================
 
   const total =
-    discountedSubtotal +
+    discountedSubtotal - pointsDiscount  +
     shippingCharge;
 
   // =====================================================
@@ -620,6 +645,10 @@ const handleApplyCoupon = async () => {
           code: couponCode.trim(),
         }
       : {}),
+
+      // NEW
+  usePoints: pointsUsed > 0,
+  referrals: getReferralsForItems(selectedItems),
 };
 
 console.log("🔥 SENDING ORDER:", orderData);
@@ -644,7 +673,7 @@ console.log("🔥 SENDING ORDER:", orderData);
           "Order was not created"
         );
       }
-
+clearProductRefs(selectedItems);
       // ===============================================
       // CREATE PAYMENT
       // ===============================================
@@ -681,6 +710,8 @@ console.log("🔥 SENDING ORDER:", orderData);
         "Checkout error:",
         error
       );
+      // points may be reserved by the failed attempt
+      dispatch(getMyPoints());
     }
   };
 
@@ -1852,7 +1883,53 @@ console.log("🔥 SENDING ORDER:", orderData);
                     )}
 
                   </div>
+{/* =================================================
+    POINTS
+================================================= */}
 
+<div className="mt-5 rounded-xl border border-gray-200 bg-gray-50 p-4">
+
+  <div className="flex items-start gap-3">
+
+    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-600">
+      <Coins size={17} />
+    </div>
+
+   <div className="min-w-0 flex-1">
+
+  <h3 className="text-sm font-semibold text-gray-900">
+    Use Reward Points
+  </h3>
+
+  <p className="mt-1 text-xs text-gray-500">
+    {availablePoints} points available (₹{availablePoints})
+  </p>
+
+  {subtotal < MIN_ORDER_FOR_POINTS && (
+    <p className="mt-1 text-xs text-amber-600">
+      Points can be used on orders of ₹{MIN_ORDER_FOR_POINTS} or more.
+    </p>
+  )}
+
+  {usePoints && pointsUsed > 0 && (
+    <p className="mt-1 text-xs font-medium text-green-600">
+      Using {pointsUsed} points. They are deducted after payment succeeds.
+    </p>
+  )}
+
+</div>
+
+    <input
+      type="checkbox"
+      checked={usePoints}
+      disabled={!canUsePoints}
+      onChange={(e) => setUsePoints(e.target.checked)}
+      className="mt-1 h-4 w-4 cursor-pointer disabled:cursor-not-allowed"
+    />
+
+  </div>
+
+</div>
                   {/* =================================================
                       PRICE
                   ================================================= */}
@@ -1895,7 +1972,14 @@ console.log("🔥 SENDING ORDER:", orderData);
 
                       </div>
                     )}
-
+{pointsDiscount > 0 && (
+  <div className="flex justify-between text-sm">
+    <span className="text-amber-600">Points Discount ({pointsUsed} pts)</span>
+    <span className="font-medium text-amber-600">
+      -₹{pointsDiscount.toFixed(2)}
+    </span>
+  </div>
+)}
                     {/* SHIPPING */}
 
                     <div className="flex justify-between text-sm">

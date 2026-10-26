@@ -8,7 +8,15 @@ import {
   OrderItem,
   OrderAddress,
   Review,
+  PointsLedger
 } from "../models/index.js";
+import {                                                        // NEW
+  getAvailablePoints,
+  getReservedPoints,
+  recordReferrals,
+  POINT_VALUE,
+  MIN_ORDER_FOR_REDEEM,
+} from "./referral.controller.js";
 import {agenda} from '../config/agenda.js'
 import { ApiError, ApiResponse } from "../utils/apiResponse.js";
 import { generateSlug } from "../utils/common.js";
@@ -52,6 +60,8 @@ export const createOrder = async (req, res) => {
       postalCode,
       country,
       code,
+      usePoints,   // NEW (CHANGE 1)
+      referrals,
     } = req.body;
 
     // =====================================================
@@ -67,7 +77,7 @@ export const createOrder = async (req, res) => {
     // =====================================================
     // 2. FIND CART
     // =====================================================
-
+console.log("REFERRALS FROM FRONTEND:", referrals);
     const cart = await Cart.findOne({
       user: req.user._id,
     }).populate("items.product");
@@ -186,7 +196,28 @@ export const createOrder = async (req, res) => {
     // =====================================================
 
     const discountedSubtotal = Math.max(0, subtotal - discount);
+     // =====================================================
+    // 8.1 POINTS (calculated now, deducted after payment)
+    // =====================================================
 
+    let pointsUsed = 0;
+    let pointsDiscount = 0;
+
+    if (usePoints && subtotal >= MIN_ORDER_FOR_REDEEM) {
+      const [balance, reserved] = await Promise.all([
+        getAvailablePoints(user._id),
+        getReservedPoints(user._id),
+      ]);
+
+      const spendable = Math.max(0, balance - reserved);
+
+      // keep at least ₹1 payable (Stripe can't charge 0)
+      const maxPoints = Math.max(0, Math.floor(discountedSubtotal / POINT_VALUE) - 1);
+
+      pointsUsed = Math.max(0, Math.min(spendable, maxPoints));
+      pointsDiscount = pointsUsed * POINT_VALUE;
+    }
+    // --------------------------------------------------
     // =====================================================
     // 9. CALCULATE SHIPPING
     // =====================================================
@@ -197,7 +228,7 @@ export const createOrder = async (req, res) => {
     // 10. CALCULATE FINAL TOTAL
     // =====================================================
 
-    const total = subtotal + shippingCharge - discount;
+    const total = subtotal + shippingCharge - discount - pointsDiscount;
 
     console.log({
       subtotal,
@@ -222,7 +253,14 @@ export const createOrder = async (req, res) => {
       shippingCharge,
       discount,
       couponCode,
+      pointsUsed,       // NEW (CHANGE 3)
+      pointsDiscount,
       total,
+       referrals: Array.isArray(referrals)
+        ? referrals
+            .filter((r) => r?.productId && r?.refCode)
+            .map((r) => ({ productId: r.productId, refCode: String(r.refCode) }))
+        : [],
     });
 
     // =====================================================
@@ -277,7 +315,7 @@ export const createOrder = async (req, res) => {
     // =====================================================
 
     await OrderItem.insertMany(orderItems);
-
+ 
     // =====================================================
     // 15. CREATE SHIPPING ADDRESS
     // =====================================================

@@ -18,6 +18,7 @@ import {
   Clock3,
   CheckCircle2,
   Truck,
+  Coins
 } from "lucide-react";
 
 import {
@@ -302,11 +303,17 @@ const handleSaveUser = async (e) => {
       icon: CreditCard,
       path: "/payments",
     },
+    // {
+    //   id: "settings",
+    //   label: "Account Settings",
+    //   icon: Settings,
+    //   path: "/settings",
+    // },
     {
-      id: "settings",
-      label: "Account Settings",
-      icon: Settings,
-      path: "/settings",
+      id: "mypoints",
+      label: "MY Points",
+      icon: Coins,
+      path: "/my-points",
     },
   ];
 

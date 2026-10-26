@@ -96,6 +96,25 @@ const orderSchema = new mongoose.Schema(
     placedAt: {
       type: Date,
     },
+    pointsUsed: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    pointsDiscount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    // referral codes captured at checkout, processed after payment
+referrals: [
+  {
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+    refCode: { type: String },
+    _id: false,
+  },
+],
   },
   { timestamps: true },
 );
@@ -200,6 +219,10 @@ const orderItemSchema = new mongoose.Schema(
    vendorEarning:{
       type:Number
     },
+// NEW
+pointsDiscount: { type: Number, default: 0 },   // this item's share of points paid by the website
+platformEarning: { type: Number },               // commissionAmount - pointsDiscount
+
   },
   { timestamps: true },
 );

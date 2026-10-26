@@ -103,3 +103,9 @@ export const COUPON_MESSAGES = {
   PRODUCT_NOT_ELIGIBLE: "This coupon is not applicable to the products in your cart.",
   DISCOUNT_CALCULATION_FAILED: "Unable to calculate the discount for this coupon.",
 };
+
+// config/referral.config.js
+export const REFERRAL_PERCENT = 10;      // sender earns 10% of item total
+export const POINT_VALUE = 1;            // 1 point = ₹1
+export const MIN_ORDER_FOR_REDEEM = 500; // minimum subtotal to use points
+export const COMMISSION_RATE = 20;

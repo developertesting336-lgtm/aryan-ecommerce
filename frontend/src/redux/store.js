@@ -14,6 +14,7 @@ import couponReducer from "./slices/couponSlice";
 import reviewReducer from "./slices/reviewsSlice";
 import aiReducer from "./slices/aiSlice";
 import adminReviewReducer from "./slices/adminReviewSlice"
+import referralReducer from "./slices/referralSlice"
 // =====================================================
 // HOMEPAGE CONTENT SLICES
 // =====================================================
@@ -42,6 +43,7 @@ export const store = configureStore({
     coupon: couponReducer,
     review: reviewReducer,
     ai: aiReducer,
+    referral:referralReducer,
     adminReview: adminReviewReducer,
     homepage: homepageReducer,
     hero: heroReducer,
