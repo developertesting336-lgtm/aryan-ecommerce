@@ -13,7 +13,8 @@ router.get("/search",searchProducts);
 router.get("/myProducts", verifyJWT,getVendorsProducts);
 router.post("/", verifyJWT,validate(createProductSchema),upload, createProduct);
 // router.post("/", verifyJWT,validate(createProductSchema),upload.array("images", 5), createProduct);
-router.get("/:id",verifyJWT,getProductById)
+// router.get("/:id",verifyJWT,getProductById)
+router.get("/:id",getProductById)
 router.patch("/:id",verifyJWT, upload,editProduct);
 
 

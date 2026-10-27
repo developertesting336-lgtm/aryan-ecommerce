@@ -115,7 +115,7 @@ export default function EditProduct() {
   ======================================================= */
 
   const {
-    product,
+    selectedProduct,
     loading: reduxLoading,
     error: reduxError,
   } = useSelector(
@@ -354,57 +354,57 @@ const [aiError, setAiError] = useState("");
   ======================================================= */
 
   useEffect(() => {
-    if (!product) return;
+    if (!selectedProduct) return;
 
     const categoryId =
-      typeof product.category === "object"
-        ? getId(product.category)
+      typeof selectedProduct.category === "object"
+        ? getId(selectedProduct.category)
         : String(
-            product.category || ""
+            selectedProduct.category || ""
           );
 
     setFormData({
-      name: product.name || "",
+      name: selectedProduct.name || "",
 
       description:
-        product.description || "",
+        selectedProduct.description || "",
 
       category: categoryId,
 
-      brand: product.brand || "",
+      brand: selectedProduct.brand || "",
 
       price:
-        product.price ??
-        product.sellingPrice ??
+        selectedProduct.price ??
+        selectedProduct.sellingPrice ??
         "",
 
       mrp:
-        product.mrp ??
+        selectedProduct.mrp ??
         "",
 
       discount:
-        product.discount ??
+        selectedProduct.discount ??
         "",
 
       stock:
-        product.stock ??
+        selectedProduct.stock ??
         "",
 
       sku:
-        product.sku ||
+        selectedProduct.sku ||
         "",
 
       status:
-        product.status ||
+        selectedProduct.status ||
         "active",
 
       hasVariants:
-        product.hasVariants === true ||
-        product.hasVariants === "true",
+        selectedProduct.hasVariants === true ||
+        selectedProduct.hasVariants === "true",
 
       variants:
-        Array.isArray(product.variants)
-          ? product.variants
+        Array.isArray(selectedProduct.variants)
+          ? selectedProduct.variants
           : [],
     });
 
@@ -412,8 +412,8 @@ const [aiError, setAiError] = useState("");
      * Existing product images.
      */
     const productImages =
-      Array.isArray(product.images)
-        ? product.images.map(
+      Array.isArray(selectedProduct.images)
+        ? selectedProduct.images.map(
             (image, index) => {
               const imageValue =
                 getImageValue(image);
@@ -450,31 +450,31 @@ const [aiError, setAiError] = useState("");
 
     setImages(productImages);
     setRemovedImages([]);
-  }, [product]);
+  }, [selectedProduct]);
 
   /* =======================================================
      RESOLVE PRODUCT CATEGORY HIERARCHY
   ======================================================= */
 
   useEffect(() => {
-    if (!product?.category) return;
+    if (!selectedProduct?.category) return;
 
     if (!parentCategoriesLoaded) {
       return;
     }
 
     const categoryId =
-      typeof product.category === "object"
-        ? getId(product.category)
+      typeof selectedProduct.category === "object"
+        ? getId(selectedProduct.category)
         : String(
-            product.category || ""
+            selectedProduct.category || ""
           );
 
     if (!categoryId) return;
 
     const categoryObject =
-      typeof product.category === "object"
-        ? product.category
+      typeof selectedProduct.category === "object"
+        ? selectedProduct.category
         : null;
 
     /*
@@ -629,7 +629,7 @@ const [aiError, setAiError] = useState("");
         );
       });
   }, [
-    product,
+    selectedProduct,
     parentCategoriesLoaded,
     parentCategories,
     dispatch,

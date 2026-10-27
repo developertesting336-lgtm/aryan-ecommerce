@@ -6,8 +6,14 @@ import {
   getRealtedProductsApi,
   getProductByIdApi,
   editProductApi,
-  searchProductsApi
+  searchProductsApi,
 } from "../../api/productApi";
+
+const errorMessage = (error, fallback) =>
+  error?.response?.data?.message ||
+  error?.response?.data?.error ||
+  error?.message ||
+  fallback;
 
 // =====================================================
 // CREATE PRODUCT
@@ -18,15 +24,9 @@ export const createProduct = createAsyncThunk(
   async (productData, { rejectWithValue }) => {
     try {
       const response = await createProductApi(productData);
-
       return response.data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message ||
-          error.response?.data?.error ||
-          error.message ||
-          "Failed to create product."
-      );
+      return rejectWithValue(errorMessage(error, "Failed to create product."));
     }
   }
 );
@@ -37,40 +37,16 @@ export const createProduct = createAsyncThunk(
 
 export const getProducts = createAsyncThunk(
   "product/getProducts",
-
-  async (
-    {
-      page = 1,
-      limit = 1000,
-    } = {},
-    { rejectWithValue }
-  ) => {
+  async ({ page = 1, limit = 1000 } = {}, { rejectWithValue }) => {
     try {
-      const response =
-        await getProductsApi(
-          page,
-          limit
-        );
-
-      console.log(
-        "Products response:",
-        response
-      );
+      const response = await getProductsApi(page, limit);
 
       return {
-        products:
-          response.data.products,
-
-        pagination:
-          response.data.pagination,
+        products: response.data.products,
+        pagination: response.data.pagination,
       };
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message ||
-          error.response?.data?.error ||
-          error.message ||
-          "Failed to get products."
-      );
+      return rejectWithValue(errorMessage(error, "Failed to get products."));
     }
   }
 );
@@ -84,101 +60,119 @@ export const getMyProducts = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await myProductsApi();
-
       return response.data.products;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message ||
-          error.response?.data?.error ||
-          error.message ||
-          "Failed to get your products."
+        errorMessage(error, "Failed to get your products.")
       );
     }
   }
 );
+
+// =====================================================
+// GET RELATED PRODUCTS
+// =====================================================
+
 export const getRelatedProducts = createAsyncThunk(
-  "product/getRealtedProducts",
-  async (product, { rejectWithValue }) => {
+  "product/getRelatedProducts",
+  async (productId, { rejectWithValue }) => {
     try {
-      console.log("res related")
-      const response = await getRealtedProductsApi(product);
-     console.log("getproduct",response)
-      return response.data?.products;
+      const response = await getRealtedProductsApi(productId);
+      return response.data?.products || [];
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message ||
-          error.response?.data?.error ||
-          error.message ||
-          "Failed to get your products."
+        errorMessage(error, "Failed to get related products.")
       );
     }
   }
 );
+
+// =====================================================
+// GET PRODUCT BY ID (or slug)
+// Tolerates different response shapes from the backend
+// =====================================================
 
 export const getProductById = createAsyncThunk(
   "product/getProductById",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await getProductByIdApi(id);
-      console.log("admin pro",response)
-      return response.data.data;
+      if (!id) {
+        return rejectWithValue("Product id is required.");
+      }
 
+      const response = await getProductByIdApi(id);
+      const body = response.data;
+
+      return (
+        body?.data?.product ||
+        body?.data ||
+        body?.product ||
+        body ||
+        null
+      );
     } catch (error) {
-      return rejectWithValue(
-    error?.response?.data?.message ||
-    error?.message ||
-    "Something went wrong"
-  );
+      return rejectWithValue(errorMessage(error, "Something went wrong"));
     }
   }
 );
+
+// =====================================================
+// SEARCH PRODUCTS
+// =====================================================
 
 export const searchProducts = createAsyncThunk(
   "product/searchProducts",
   async ({ search, page = 1, limit = 10 }, { rejectWithValue }) => {
     try {
-      const response = await searchProductsApi(search,page,limit);
-      console.log("search pro",response)
-    //  return response.data?.product || [];
-      return{
-        products:response.data.product,
-        pagination:response.data.pagination
-      }
+      const response = await searchProductsApi(search, page, limit);
 
+      return {
+        products: response.data.product,
+        pagination: response.data.pagination,
+      };
     } catch (error) {
-      return rejectWithValue(
-    error?.response?.data?.message ||
-    error?.message ||
-    "Something went wrong"
-  );
+      return rejectWithValue(errorMessage(error, "Something went wrong"));
     }
   }
 );
 
-export const editProduct = createAsyncThunk( "admin/editProduct", async ({ id, data }, { rejectWithValue }) => {
-   try {
-     const response = await editProductApi(id, data);
-      return response.data; 
+// =====================================================
+// EDIT PRODUCT
+// =====================================================
+
+export const editProduct = createAsyncThunk(
+  "admin/editProduct",
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const response = await editProductApi(id, data);
+      return response.data;
     } catch (error) {
-       return rejectWithValue( error.response?.data?.message || "Failed to update product" ); } } );
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update product"
+      );
+    }
+  }
+);
+
 // =====================================================
 // INITIAL STATE
 // =====================================================
 
 const initialState = {
   product: [],
-relatedProducts:[],
-searchedproducts:[],
-pagination: {
-    page: 1,
-    limit: 4,
-    total: 0,
-    totalPages: 0,
-  },
+
+  selectedProduct: null,
+  selectedLoading: false,
+  selectedError: null,
+
+  relatedProducts: [],
+  relatedLoading: false,
+
+  searchedproducts: [],
+  pagination: { page: 1, limit: 4, total: 0, totalPages: 0 },
   loading: false,
   error: null,
 
-  // Create product states
   createLoading: false,
   createError: null,
   createSuccess: false,
@@ -197,48 +191,31 @@ const productSlice = createSlice({
     clearProductError: (state) => {
       state.error = null;
     },
-
     clearCreateProductStatus: (state) => {
       state.createError = null;
       state.createSuccess = false;
+    },
+    clearSelectedProduct: (state) => {
+      state.selectedProduct = null;
+      state.selectedError = null;
     },
   },
 
   extraReducers: (builder) => {
     builder
 
-      // =================================================
-      // CREATE PRODUCT
-      // =================================================
-
+      // ---------------- CREATE PRODUCT ----------------
       .addCase(createProduct.pending, (state) => {
         state.createLoading = true;
         state.createError = null;
         state.createSuccess = false;
       })
-
       .addCase(createProduct.fulfilled, (state, action) => {
         state.createLoading = false;
         state.createError = null;
         state.createSuccess = true;
 
-        /*
-          Depending on your backend response:
-
-          {
-            product: {...}
-          }
-
-          OR
-
-          {
-            _id: "...",
-            name: "..."
-          }
-        */
-
-        const createdProduct =
-          action.payload?.product || action.payload;
+        const createdProduct = action.payload?.product || action.payload;
 
         if (
           createdProduct &&
@@ -248,157 +225,123 @@ const productSlice = createSlice({
           state.product.unshift(createdProduct);
         }
       })
-
       .addCase(createProduct.rejected, (state, action) => {
         state.createLoading = false;
-        state.createError =
-          action.payload || "Failed to create product.";
+        state.createError = action.payload || "Failed to create product.";
         state.createSuccess = false;
       })
 
-      // =================================================
-      // GET PRODUCTS
-      // =================================================
-
+      // ---------------- GET PRODUCTS ----------------
       .addCase(getProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-
       .addCase(getProducts.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
         state.product = action.payload.products || [];
-         state.pagination = action.payload.pagination || {};
+        state.pagination = action.payload.pagination || {};
       })
-
       .addCase(getProducts.rejected, (state, action) => {
         state.loading = false;
-        state.error =
-          action.payload || "Failed to get products.";
+        state.error = action.payload || "Failed to get products.";
       })
 
-      // =================================================
-      // GET MY PRODUCTS
-      // =================================================
-
+      // ---------------- GET MY PRODUCTS ----------------
       .addCase(getMyProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-
       .addCase(getMyProducts.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
         state.product = action.payload || [];
       })
-
       .addCase(getMyProducts.rejected, (state, action) => {
         state.loading = false;
-        state.error =
-          action.payload || "Failed to get your products.";
-      })
-      .addCase(getRelatedProducts.pending, (state) => {
-        state.loading = true;
-        state.relatedProducts = [];
-        state.error = null;
+        state.error = action.payload || "Failed to get your products.";
       })
 
+      // ---------------- RELATED PRODUCTS ----------------
+      .addCase(getRelatedProducts.pending, (state) => {
+        state.relatedLoading = true;
+        state.relatedProducts = [];
+      })
       .addCase(getRelatedProducts.fulfilled, (state, action) => {
-        state.loading = false;
-        state.error = null;
+        state.relatedLoading = false;
         state.relatedProducts = action.payload || [];
       })
-
-      .addCase(getRelatedProducts.rejected, (state, action) => {
-        state.loading = false;
+      .addCase(getRelatedProducts.rejected, (state) => {
+        state.relatedLoading = false;
         state.relatedProducts = [];
-        state.error =
-          action.payload || "Failed to get your products.";
       })
 
-       .addCase(getProductById.pending,(state)=>{
-                  state.loading=true;
-                })
-            
-                .addCase(getProductById.fulfilled,(state,action)=>{
-                  state.loading=false;
-                  state.product=action.payload.product;
-                })
-            
-                .addCase(getProductById.rejected,(state,action)=>{
-                  state.loading=false;
-                  state.error=action.payload;
-                }) 
+      // ---------------- GET PRODUCT BY ID ----------------
+      .addCase(getProductById.pending, (state) => {
+        state.selectedLoading = true;
+        state.selectedError = null;
+      })
+      .addCase(getProductById.fulfilled, (state, action) => {
+        state.selectedLoading = false;
+        state.selectedError = null;
+        state.selectedProduct = action.payload || null;
+      })
+      .addCase(getProductById.rejected, (state, action) => {
+        state.selectedLoading = false;
+        state.selectedProduct = null;
+        state.selectedError = action.payload || "Failed to load product.";
+      })
 
-                     .addCase(editProduct.pending, (state) => {
+      // ---------------- EDIT PRODUCT ----------------
+      .addCase(editProduct.pending, (state) => {
         state.createLoading = true;
         state.createError = null;
-        // state.createSuccess = false;
       })
-
       .addCase(editProduct.fulfilled, (state, action) => {
         state.createLoading = false;
         state.createError = null;
-        // state.createSuccess = true;
 
-        /*
-          Depending on your backend response:
-
-          {
-            product: {...}
-          }
-
-          OR
-
-          {
-            _id: "...",
-            name: "..."
-          }
-        */
-
-        const editedProduct =
-          action.payload?.product || action.payload;
+        const editedProduct = action.payload?.product || action.payload;
 
         if (
           editedProduct &&
           typeof editedProduct === "object" &&
           editedProduct._id
         ) {
-          state.product = editedProduct;
+          // Replace the item inside the array (never overwrite the array itself)
+          const index = state.product.findIndex(
+            (p) => p._id === editedProduct._id
+          );
+          if (index !== -1) {
+            state.product[index] = editedProduct;
+          }
+
+          if (state.selectedProduct?._id === editedProduct._id) {
+            state.selectedProduct = editedProduct;
+          }
         }
       })
-
       .addCase(editProduct.rejected, (state, action) => {
         state.createLoading = false;
-        state.createError =
-          action.payload || "Failed to create product.";
-        // state.createSuccess = false;
+        state.createError = action.payload || "Failed to update product.";
       })
 
-     .addCase(searchProducts.pending, (state) => {
-  state.loading = true;
-  state.error = null;
-})
-
-.addCase(searchProducts.fulfilled, (state, action) => {
-  state.loading = false;
-  state.error = null;
-
-   state.searchedproducts = action.payload.products || [];
- state.pagination = action.payload.pagination;
-  console.log("searched products:", action.payload);
-})
-
-.addCase(searchProducts.rejected, (state, action) => {
-  state.loading = false;
-
-  state.error =
-    action.payload || "Failed to search products.";
-
- state.searchedproducts = [];
-});
-
+      // ---------------- SEARCH PRODUCTS ----------------
+      .addCase(searchProducts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(searchProducts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.searchedproducts = action.payload.products || [];
+        state.pagination = action.payload.pagination;
+      })
+      .addCase(searchProducts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to search products.";
+        state.searchedproducts = [];
+      });
   },
 });
 
@@ -409,6 +352,7 @@ const productSlice = createSlice({
 export const {
   clearProductError,
   clearCreateProductStatus,
+  clearSelectedProduct,
 } = productSlice.actions;
 
 // =====================================================

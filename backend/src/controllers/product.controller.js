@@ -506,11 +506,13 @@ export const getVendorsProducts = async (req, res) => {
 export const getProductById = async (req,res) =>{
   try {
     const {id} = req.params
-const product = await Product.findOne(
-  req.user.role === "admin"
-    ? { _id: id }
-    : { _id: id, vendor: req.user._id }
-);     if (!product) {
+const product = await Product.findOne({_id:id});
+// const product = await Product.findOne(
+//   req.user.role === "admin"
+//     ? { _id: id }
+//     : { _id: id, vendor: req.user._id }
+// );
+     if (!product) {
       throw new ApiError(404, "Product not found");
     }
 
