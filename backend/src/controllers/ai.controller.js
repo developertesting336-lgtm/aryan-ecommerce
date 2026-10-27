@@ -2010,10 +2010,10 @@ async function loadRecentProducts(history) {
  * Short summary of a user's latest orders for the chatbot.
  * If the message mentions one of their order numbers, only that order is returned.
  */
-export const getUserRecentOrders = async (userId, { limit = 3, message = "" } = {}) => {
+export const getUserRecentOrders = async (userId, { limit = 20, message = "" } = {}) => {
   const orders = await Order.find({ user: userId })
     .sort({ createdAt: -1 })
-    .limit(5)
+    .limit(limit)
     .select("orderNumber status paymentStatus fulfillmentStatus total currency createdAt")
     .lean();
 

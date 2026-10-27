@@ -78,6 +78,7 @@ export const getRelatedProducts = createAsyncThunk(
   async (productId, { rejectWithValue }) => {
     try {
       const response = await getRealtedProductsApi(productId);
+      console.log("resorelsa",response)
       return response.data?.products || [];
     } catch (error) {
       return rejectWithValue(
@@ -115,6 +116,7 @@ export const getProductById = createAsyncThunk(
     }
   }
 );
+
 
 // =====================================================
 // SEARCH PRODUCTS
@@ -291,7 +293,7 @@ const productSlice = createSlice({
         state.selectedProduct = null;
         state.selectedError = action.payload || "Failed to load product.";
       })
-
+     
       // ---------------- EDIT PRODUCT ----------------
       .addCase(editProduct.pending, (state) => {
         state.createLoading = true;

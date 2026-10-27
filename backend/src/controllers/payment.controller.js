@@ -908,7 +908,7 @@ export const verifyPayment = async (req, res) => {
         userId: userId.toString(),
         session,
       });
-
+getcouponforEmail(userId,orderId)
       return res.status(200).json({
         success: true,
         paid: true,

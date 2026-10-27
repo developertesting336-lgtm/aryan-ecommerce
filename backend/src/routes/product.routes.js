@@ -1,5 +1,6 @@
 import express from "express";
-import { createProduct,getProducts,getVendorsProducts,getProductById,editProduct, searchProducts,getProductsByFilter } from "../controllers/product.controller.js";
+import { createProduct,getProducts,getVendorsProducts,getProductById,editProduct,
+     searchProducts,getProductsByFilter } from "../controllers/product.controller.js";
 import { validate } from "../middlewares/validate.js";
 import { createProductSchema } from "../utils/validation.js";
 import {verifyJWT} from "../middlewares/auth.middleware.js"

@@ -32,6 +32,7 @@ import PageButtons from "../components/PageButtons";
 import { extractIdFromSlug } from "../utils/productSlug";
 
 import {
+  getProducts,
   getProductById,
   getRelatedProducts,
 } from "../redux/slices/productSlice";
@@ -116,6 +117,7 @@ function useCaptureReferral(productId) {
     }
   }, [code, productId]);
 }
+
 
 /* =========================================================
    LOADING / ERROR / NOT FOUND
@@ -336,6 +338,12 @@ function ProductDetails() {
   const resolvedProductId =
     currentProduct?._id || stateProductId || candidateIdFromSlug || slugOrId;
 
+    useEffect(() => {
+  if (!Array.isArray(product) || product.length === 0) {
+    dispatch(getProducts());
+  }
+}, [dispatch, product.length]);
+
   /* =======================================================
      FETCH PRODUCT BY ID IF NOT IN LIST
   ======================================================= */
@@ -535,30 +543,24 @@ function ProductDetails() {
     }
   }, [dispatch, currentProduct?._id]);
 
-  const relatedProducts = useMemo(() => {
-    if (!currentProduct) return [];
+ const relatedProducts = useMemo(() => {
+  if (!currentProduct || !Array.isArray(product)) return [];
 
-    if (Array.isArray(relatedFromStore) && relatedFromStore.length > 0) {
-      return relatedFromStore
-        .filter((item) => String(item?._id) !== String(currentProduct._id))
-        .slice(0, 10);
-    }
+  const currentCategoryId =
+    currentProduct?.category?._id || currentProduct?.category;
 
-    const currentCategoryId =
-      currentProduct?.category?._id || currentProduct?.category;
+  if (!currentCategoryId) return [];
 
-    if (!currentCategoryId || !Array.isArray(product)) return [];
-
-    return product
-      .filter(
-        (item) =>
-          String(item?._id) !== String(currentProduct._id) &&
-          String(item?.category?._id || item?.category) ===
-            String(currentCategoryId)
-      )
-      .slice(0, 10);
-  }, [product, relatedFromStore, currentProduct]);
-
+  return product
+    .filter(
+      (item) =>
+        String(item?._id) !== String(currentProduct._id) &&
+        String(item?.category?._id || item?.category) ===
+          String(currentCategoryId)
+    )
+    .slice(0, 10);
+}, [product, currentProduct]);
+console.log("relatedProducts",relatedProducts)
   /* =======================================================
      RESET WHEN PRODUCT CHANGES
   ======================================================= */
