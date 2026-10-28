@@ -524,7 +524,8 @@ const getcouponforEmail = async (user, orderid) => {
         discountValue: 20,
       });
     }
-    if (order.subtotal >= 4000 && order.subtotal <= 4500) {
+    // if (order.subtotal >= 4000 && order.subtotal <= 4500) {
+    if (order.subtotal >= 4000) {
       coupon = await Coupon.findOne({
         createdBy: orderItem.vendor,
         discountValue: 30,
