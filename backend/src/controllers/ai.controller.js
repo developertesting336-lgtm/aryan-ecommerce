@@ -655,6 +655,10 @@ const TOTAL_SPEND_RX =
 
   const PRICE_HISTORY_INTENT =
   /\bprice\s+(history|trend|chart|graph|changes?|drops?|hike|increase|decrease)\b|\b(history|trend)\s+of\s+(the\s+)?price\b|\b(lowest|highest|cheapest|minimum|maximum)\s+price\b|\bprice\s+(was|has been|dropped|went)\b|\bwhen\b.*\b(cheap(er|est)?|low(er|est)?|high(er|est)?|expensive|cost)\b|\bwas\s+(it\s+)?(cheaper|lower|costlier)\b|\b(cheaper|lower|higher)\s+(before|earlier|previously)\b|\b(good|right|best)\s+time\s+to\s+buy\b/i;
+
+  const ORDER_LIST_INTENT =
+  /\b(show|list|view|see|display|give|my|all)\b.*\borders?\b|\borders?\s+(list|history)\b/i;
+
 const STOP_WORDS = new Set([
   // general filler
   "the", "and", "for", "with", "show", "give", "find", "want", "need", "looking", "look",
@@ -854,15 +858,19 @@ export const getUserRecentOrders = async (userId, { limit = 20, message = "" } =
   const selected = (mentioned.length ? mentioned : orders).slice(0, limit);
 
   const items = await OrderItem.find({ order: { $in: selected.map((o) => o._id) } })
-    .select("order productName quantity")
+    .select("order productName quantity price")
     .lean();
 
   const itemsByOrder = new Map();
-  for (const i of items) {
-    const key = i.order.toString();
-    if (!itemsByOrder.has(key)) itemsByOrder.set(key, []);
-    itemsByOrder.get(key).push(`${i.productName} x${i.quantity}`);
-  }
+for (const i of items) {
+  const key = i.order.toString();
+  if (!itemsByOrder.has(key)) itemsByOrder.set(key, []);
+  itemsByOrder.get(key).push({
+    name: i.productName,
+    quantity: i.quantity,
+    price: i.unitPrice ?? i.price ?? null,
+  });
+}
 
   return selected.map((o) => ({
     orderNumber: o.orderNumber,
@@ -923,28 +931,26 @@ async function handleOrderList({ userId, message }) {
     };
   }
 
-  const lines = orders.map(
-    (o, n) =>
-      `${n + 1}. ${o.orderNumber} · ${o.placedOn} · ${o.status} · ${o.total}\n   ${
-        o.items.join(", ") || "No items"
-      }`
-  );
+  const lines = orders.map((o, n) => {
+    const items = o.items.length
+      ? o.items
+          .map(
+            (i) =>
+              `   • ${i.name} × ${i.quantity}${i.price != null ? ` · ${money(i.price)}` : ""}`
+          )
+          .join("\n")
+      : "   • No items";
+    return `${n + 1}. ${o.orderNumber} · ${o.placedOn} · ${o.status} · ${o.total}\n${items}`;
+  });
 
   const header =
     orders.length === 1 && total > 1
       ? `Here is that order (you have ${total} orders in total):`
       : `You have ${total} order${total > 1 ? "s" : ""} in total. Showing your latest ${orders.length}:`;
 
-  // Product cards for what they bought
-  const purchased = await getPurchasedProducts(userId);
-  const ids = purchased.slice(0, 6).map((p) => p._id);
-  const docs = ids.length
-    ? await Product.find({ _id: { $in: ids } }).select(PRODUCT_FIELDS).lean()
-    : [];
-
   return {
-    reply: `${header}\n${lines.join("\n")}\n\nOpen the Orders page for full details, returns or tracking.`,
-    products: docs.map(stripDescription),
+    reply: `${header}\n\n${lines.join("\n\n")}\n\nOpen the Orders page for full details, returns or tracking.`,
+    products: [], // no product cards, the list already shows names, prices and quantities
   };
 }
 
@@ -1212,6 +1218,25 @@ async function handleAdd({ userId, message, keywords, found, history }) {
   }
 }
 
+function formatOrders(orders) {
+  if (!orders.length) {
+    return "I couldn't find any orders on your account yet. Once you place one, it will show up here.";
+  }
+
+  const lines = orders.map((o, n) => {
+    const items = o.items
+      .map(
+        (i) =>
+          `   • ${i.name} × ${i.quantity}${i.price != null ? ` · ${money(i.price)}` : ""}`
+      )
+      .join("\n");
+    return `${n + 1}. ${o.orderNumber} · ${o.placedOn} · ${o.status} · ${o.total}\n${items}`;
+  });
+
+  return `You have ${orders.length} order${orders.length > 1 ? "s" : ""}:\n\n${lines.join("\n\n")}\n\nOpen the Orders page for full details, returns or tracking.`;
+}
+
+
 /* =====================================================
    6. SHOPPING CHATBOT
 ===================================================== */
@@ -1318,7 +1343,7 @@ export const chatAssistant = async (req, res) => {
       }
       return res.json({ ...out, cartUpdated: false });
     }
-    
+
     // 2c. Orders (logged-in users only)
     const orderInfo =
       userId && ORDER_INTENT.test(message)
@@ -1380,7 +1405,7 @@ export const chatAssistant = async (req, res) => {
     // cartUpdated lets the frontend refresh the cart (dispatch(getCart()))
     res.json({ reply, products, cartUpdated });
   } catch (err) {
-    console.error("Chat error:", err.status, err.message);
+    console.error("Chat error:", err.status, err.message,err);
     res.status(500).json({ message: "Chat is unavailable right now" });
   }
 };

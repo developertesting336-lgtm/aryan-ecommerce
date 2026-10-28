@@ -334,7 +334,6 @@ function ProductDetails() {
 
     return null;
   }, [listProduct, selectedProduct, possibleIds, slugOrId]);
-
   const resolvedProductId =
     currentProduct?._id || stateProductId || candidateIdFromSlug || slugOrId;
 
@@ -907,7 +906,6 @@ console.log("relatedProducts",relatedProducts)
                   className="text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline"
                 >
                   {currentProduct.vendor?.firstName ||
-                    currentProduct.vendor?.name ||
                     "Unknown Vendor"}
                 </button>
                 <span className="text-xs bg-green-50 text-green-600 px-2 py-1 rounded-md font-medium">
