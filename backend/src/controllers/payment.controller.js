@@ -535,7 +535,7 @@ const getcouponforEmail = async (user, orderid) => {
     if (!coupon) {
       throw new ApiError(404, "coupon not found");
     }
-    return sendEmailtoUser(coupon, user.email);
+    return await  sendEmailtoUser(coupon, user.email);
   } catch (error) {
     console.log("getcouponforEmail error:", error);
   }

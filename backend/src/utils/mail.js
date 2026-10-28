@@ -42,7 +42,7 @@ const formatDate = (date) => {
 
 
 
-export const sendEmailtoUser=(coupon,user)=>{
+export const sendEmailtoUser= async (coupon,user)=>{
   
 const discountText =
   coupon.discountType === "percentage"
@@ -76,11 +76,20 @@ Use coupon code ${coupon.code} at checkout to enjoy your discount!
 Thank you for shopping with us.
 We appreciate your business!`,
 };
-transporter.sendMail(mailOptions, function(error, info){
-  if (error) {
-    console.log(error);
-  } else {
-    console.log('Email sent: ' + info.response);
+
+ try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent:", info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("Email sending failed:", error);
+    throw error;
   }
-});
+// transporter.sendMail(mailOptions, function(error, info){
+//   if (error) {
+//     console.log(error);
+//   } else {
+//     console.log('Email sent: ' + info.response);
+//   }
+// });
 }
