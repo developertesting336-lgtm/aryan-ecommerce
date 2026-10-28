@@ -5,6 +5,8 @@ import { validate } from "../middlewares/validate.js";
 import { createProductSchema } from "../utils/validation.js";
 import {verifyJWT} from "../middlewares/auth.middleware.js"
 import { upload } from "../middlewares/multer.js";
+import { getPriceHistory } from "../controllers/priceHistory.controller.js";
+
 const router = express.Router();
 
 // CREATE
@@ -17,7 +19,7 @@ router.post("/", verifyJWT,validate(createProductSchema),upload, createProduct);
 // router.get("/:id",verifyJWT,getProductById)
 router.get("/:id",getProductById)
 router.patch("/:id",verifyJWT, upload,editProduct);
-
+router.get("/:id/price-history", getPriceHistory);
 
 
 export default router;

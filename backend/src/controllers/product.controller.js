@@ -5,7 +5,7 @@ import { prepareProductVariants } from "../utils/productVariantHelper.js";
 import mongoose from "mongoose";
 import {uploadOnCloudinary} from "../config/cloudinary.js";
 import fs from "fs";
-
+import { recordPriceChanges } from "../controllers/priceHistory.controller.js";
 // =====================================================
 // CREATE PRODUCT
 // =====================================================
@@ -205,8 +205,12 @@ const preparedVariants = prepareProductVariants({
       // Vendor products start as draft.
       status: user.role === "admin" ? "active" : "draft",
     });
-
-    // -----------------------------------------
+    // price history
+try {
+  await recordInitialPrice(product, req.user._id);
+} catch (err) {
+  console.error("Initial price history error:", err);
+}    // -----------------------------------------
     // Create product relations
     // -----------------------------------------
 
@@ -579,7 +583,7 @@ export const editProduct = async (req, res) => {
     if (!product) {
       throw new ApiError(404, "Product not found");
     }
-
+const before = product.toObject(); // snapshot before any update
     // -----------------------------------------
     // Request body
     // -----------------------------------------
@@ -873,7 +877,17 @@ if (imagesToRemove.length > 0 || newImagePaths.length > 0) {
         "Product not found"
       );
     }
-
+// Save price history (only writes rows if price/mrp actually changed)
+try {
+  await recordPriceChanges({
+    before,
+    after: updatedProduct.toObject(),
+    userId: req.user._id,
+    reason: "manual",
+  });
+} catch (err) {
+  console.error("Price history error:", err); // don't fail the edit
+}
     // -----------------------------------------
     // Update accessories
     // -----------------------------------------

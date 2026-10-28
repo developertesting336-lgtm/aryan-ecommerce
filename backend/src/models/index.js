@@ -17,9 +17,10 @@ import { ChatSession } from "./chatSession.model.js";
 import {  ProductReferral } from "./referral/ProductReferral.model.js";
 import { PointsLedger } from "./referral/pointsLedger.model.js";
 import { ReferralLink } from "./referral/ReferralLink.model.js";
+import { PriceHistory } from "./priceHistory.model.js";
 export{
     User,Product,Cart,Wishlist,ProductRelation,Category,Order,OrderItem,OrderAddress, Coupon,CouponUsage,
-    Review,Activity,ChatSession,ReferralLink,ProductReferral,PointsLedger,
+    Review,Activity,ChatSession,ReferralLink,ProductReferral,PointsLedger,PriceHistory,
       // Homepage Content
   HeroSlide,
   PromoCard,

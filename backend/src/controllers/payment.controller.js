@@ -844,13 +844,13 @@ export const fulfillOrderPayment = async ({ orderId, userId, session }) => {
   }
 
   // 6. Send coupon email
-  // try {
-  //   const email =
-  //     session?.customer_details?.email || session?.metadata?.email || "";
-  //   await getcouponforEmail({ userId, email }, order._id);
-  // } catch (couponError) {
-  //   console.error("🔴 Coupon email error:", couponError);
-  // }
+  try {
+    const email =
+      session?.customer_details?.email || session?.metadata?.email || "";
+    await getcouponforEmail({ userId, email }, order._id);
+  } catch (couponError) {
+    console.error("🔴 Coupon email error:", couponError);
+  }
 
   // 7. Handle vendor commission
   try {
@@ -908,7 +908,7 @@ export const verifyPayment = async (req, res) => {
         userId: userId.toString(),
         session,
       });
-getcouponforEmail(userId,orderId)
+// getcouponforEmail(userId,orderId)
       return res.status(200).json({
         success: true,
         paid: true,

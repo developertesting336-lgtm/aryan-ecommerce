@@ -12,6 +12,7 @@ import {
   Trash2
 } from "lucide-react";
 import { sendChatMessage, fetchChatHistory, clearChatHistory } from "../../redux/slices/aiSlice";
+import PriceHistoryCard from "./PriceHistoryCard";
 import {
   getCart,
   addProduct,
@@ -191,9 +192,23 @@ dispatch(
         dispatch(getCart());
       }
 
+      // setMessages((prev) => [
+      //   ...prev,
+      //   { role: "bot", text: data.reply, products: data.products || [] },
+      // ]);
+            // chatbot changed the cart on the server -> refresh Redux cart
+      if (data.cartUpdated) {
+        dispatch(getCart());
+      }
+
       setMessages((prev) => [
         ...prev,
-        { role: "bot", text: data.reply, products: data.products || [] },
+        {
+          role: "bot",
+          text: data.reply,
+          products: data.products || [],
+          priceHistory: data.priceHistory || null,
+        },
       ]);
     } catch (err) {
       setMessages((prev) => [
@@ -283,7 +298,11 @@ dispatch(
                 >
                   {m.text}
                 </div>
-
+{m.priceHistory && (
+  <div className="mt-2 w-full">
+    <PriceHistoryCard data={m.priceHistory} />
+  </div>
+)}
                 {/* PRODUCT CARDS */}
                 {m.products?.length > 0 && (
                   <div className="mt-2 w-full space-y-2">
