@@ -201,6 +201,17 @@ const productSlice = createSlice({
       state.selectedProduct = null;
       state.selectedError = null;
     },
+    updateProductRatingLocally: (state, action) => {
+      const { productId, rating } = action.payload || {};
+      if (!productId || !rating) return;
+      if (state.selectedProduct && String(state.selectedProduct._id) === String(productId)) {
+        state.selectedProduct.rating = { ...state.selectedProduct.rating, ...rating };
+      }
+      const idx = state.product.findIndex((p) => String(p._id) === String(productId));
+      if (idx !== -1) {
+        state.product[idx].rating = { ...state.product[idx].rating, ...rating };
+      }
+    },
   },
 
   extraReducers: (builder) => {
@@ -287,6 +298,14 @@ const productSlice = createSlice({
         state.selectedLoading = false;
         state.selectedError = null;
         state.selectedProduct = action.payload || null;
+        if (action.payload?._id && Array.isArray(state.product)) {
+          const index = state.product.findIndex(
+            (p) => String(p._id) === String(action.payload._id)
+          );
+          if (index !== -1) {
+            state.product[index] = { ...state.product[index], ...action.payload };
+          }
+        }
       })
       .addCase(getProductById.rejected, (state, action) => {
         state.selectedLoading = false;
@@ -355,6 +374,7 @@ export const {
   clearProductError,
   clearCreateProductStatus,
   clearSelectedProduct,
+  updateProductRatingLocally,
 } = productSlice.actions;
 
 // =====================================================

@@ -21,6 +21,16 @@ export default function AdminSidebar({
       path: "/admin/orders",
     },
     {
+      name: "Refunds",
+      icon: <RefundIcon />,
+      path: "/admin/refunds",
+    },
+    // {
+    //   name: "Complaints",
+    //   icon: <ComplaintIcon />,
+    //   path: "/admin/complaints",
+    // },
+    {
       name: "Customers",
       icon: <CustomersIcon />,
       path: "/admin/users",
@@ -40,11 +50,11 @@ export default function AdminSidebar({
       icon: <ReviewIcon />,
       path: "/admin/reviews",
     },
-     {
-    name: "Content",
-    icon: <ContentIcon />,
-    path: "/admin/content",
-  },
+    {
+      name: "Content",
+      icon: <ContentIcon />,
+      path: "/admin/content",
+    },
   ];
 
   return (
@@ -85,10 +95,9 @@ export default function AdminSidebar({
 
           lg:translate-x-0
 
-          ${
-            isOpen
-              ? "translate-x-0"
-              : "-translate-x-full"
+          ${isOpen
+            ? "translate-x-0"
+            : "-translate-x-full"
           }
         `}
       >
@@ -97,6 +106,7 @@ export default function AdminSidebar({
         <div
           className="
             flex h-19
+            shrink-0
             items-center
             border-b border-slate-100
             px-5
@@ -157,140 +167,142 @@ export default function AdminSidebar({
           </button>
         </div>
 
-        {/* Main menu */}
-        <div className="px-3 pt-6 overflow-y-auto">
+        {/* Scrollable Navigation Area */}
+        <div className="flex-1 overflow-y-auto px-3 py-6 admin-sidebar-scroll overscroll-contain">
 
-          <p
-            className="
-              mb-3 px-3
-              text-[10px] font-bold
-              uppercase
-              tracking-[0.12em]
-              text-slate-400
-
-              dark:text-slate-500
-            "
-          >
-            Main Menu
-          </p>
-
-          <nav className="space-y-1">
-            {menuItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                onClick={() => setIsOpen(false)}
-                className={({ isActive }) =>
-                  `
-                    group flex items-center gap-3
-                    rounded-lg
-                    px-3 py-2.5
-                    text-[13px] font-medium
-                    transition-all duration-200
-
-                    ${
-                      isActive
-                        ? "bg-[#079c4d] text-white shadow-sm"
-                        : `
-                          text-slate-500
-                          hover:bg-[#f1faf5]
-                          hover:text-[#079c4d]
-
-                          dark:text-slate-400
-                          dark:hover:bg-emerald-950/30
-                          dark:hover:text-emerald-400
-                        `
-                    }
-                  `
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <span
-                      className={`
-                        flex h-7 w-7
-                        items-center justify-center
-                        rounded-md
-
-                        ${
-                          isActive
-                            ? "text-white"
-                            : "text-slate-400 group-hover:text-[#079c4d] dark:text-slate-500 dark:group-hover:text-emerald-400"
-                        }
-                      `}
-                    >
-                      {item.icon}
-                    </span>
-
-                    <span>{item.name}</span>
-                  </>
-                )}
-              </NavLink>
-            ))}
-          </nav>
-        </div>
-
-        {/* Settings */}
-        <div className="px-3 pt-7">
-
-          <p
-            className="
-              mb-3 px-3
-              text-[10px] font-bold
-              uppercase
-              tracking-[0.12em]
-              text-slate-400
-
-              dark:text-slate-500
-            "
-          >
-            Settings
-          </p>
-
-          <NavLink
-            to="/admin/settings"
-            onClick={() => setIsOpen(false)}
-            className={({ isActive }) =>
-              `
-                group flex items-center gap-3
-                rounded-lg
-                px-3 py-2.5
-                text-[13px] font-medium
-                transition
-
-                ${
-                  isActive
-                    ? "bg-[#079c4d] text-white"
-                    : `
-                      text-slate-500
-                      hover:bg-[#f1faf5]
-                      hover:text-[#079c4d]
-
-                      dark:text-slate-400
-                      dark:hover:bg-emerald-950/30
-                      dark:hover:text-emerald-400
-                    `
-                }
-              `
-            }
-          >
-            <span
+          {/* Main menu */}
+          <div>
+            <p
               className="
-                flex h-7 w-7
-                items-center justify-center
+                mb-3 px-3
+                text-[10px] font-bold
+                uppercase
+                tracking-[0.12em]
+                text-slate-400
+
+                dark:text-slate-500
               "
             >
-              <SettingsIcon />
-            </span>
+              Main Menu
+            </p>
 
-            <span>Settings</span>
-          </NavLink>
+            <nav className="space-y-1">
+              {menuItems.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setIsOpen(false)}
+                  className={({ isActive }) =>
+                    `
+                      group flex items-center gap-3
+                      rounded-lg
+                      px-3 py-2.5
+                      text-[13px] font-medium
+                      transition-all duration-200
+
+                      ${isActive
+                      ? "bg-[#079c4d] text-white shadow-sm"
+                      : `
+                            text-slate-500
+                            hover:bg-[#f1faf5]
+                            hover:text-[#079c4d]
+
+                            dark:text-slate-400
+                            dark:hover:bg-emerald-950/30
+                            dark:hover:text-emerald-400
+                          `
+                    }
+                    `
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <span
+                        className={`
+                          flex h-7 w-7
+                          items-center justify-center
+                          rounded-md
+
+                          ${isActive
+                            ? "text-white"
+                            : "text-slate-400 group-hover:text-[#079c4d] dark:text-slate-500 dark:group-hover:text-emerald-400"
+                          }
+                        `}
+                      >
+                        {item.icon}
+                      </span>
+
+                      <span>{item.name}</span>
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </nav>
+          </div>
+
+          {/* Settings */}
+          {/* <div className="pt-7">
+            <p
+              className="
+                mb-3 px-3
+                text-[10px] font-bold
+                uppercase
+                tracking-[0.12em]
+                text-slate-400
+
+                dark:text-slate-500
+              "
+            >
+              Settings
+            </p>
+
+            <NavLink
+              to="/admin/settings"
+              onClick={() => setIsOpen(false)}
+              className={({ isActive }) =>
+                `
+                  group flex items-center gap-3
+                  rounded-lg
+                  px-3 py-2.5
+                  text-[13px] font-medium
+                  transition
+
+                  ${
+                    isActive
+                      ? "bg-[#079c4d] text-white"
+                      : `
+                        text-slate-500
+                        hover:bg-[#f1faf5]
+                        hover:text-[#079c4d]
+
+                        dark:text-slate-400
+                        dark:hover:bg-emerald-950/30
+                        dark:hover:text-emerald-400
+                      `
+                  }
+                `
+              }
+            >
+              <span
+                className="
+                  flex h-7 w-7
+                  items-center justify-center
+                "
+              >
+                <SettingsIcon />
+              </span>
+
+              <span>Settings</span>
+            </NavLink>
+          </div> */}
+
         </div>
 
         {/* Bottom admin */}
         <div
           className="
             mt-auto
+            shrink-0
             border-t border-slate-100
             p-4
 
@@ -512,6 +524,43 @@ function ReviewIcon() {
     >
       <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z" />
       <path d="m12 7 1.2 2.4 2.7.4-2 1.9.5 2.7-2.4-1.3-2.4 1.3.5-2.7-2-1.9 2.7-.4L12 7Z" />
+    </svg>
+  );
+}
+
+function RefundIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+      <path d="M3 3v5h5" />
+    </svg>
+  );
+}
+
+function ComplaintIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12.01" y2="16" />
     </svg>
   );
 }

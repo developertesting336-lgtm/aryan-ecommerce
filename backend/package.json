@@ -7,7 +7,9 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test tests/refund.test.js tests/complaint.test.js",
+    "test:refund": "node --test tests/refund.test.js",
+    "test:complaint": "node --test tests/complaint.test.js",
     "start": "node src/index.js",
     "dev": "nodemon --exec \"node --env-file=.env\" src/index.js"
   },

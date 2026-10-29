@@ -9,6 +9,8 @@ import {
   bulkReviewsApi,
   deleteReviewApi,
 } from "../../api/adminReviewApi";
+import { emitReviewUpdate } from "../../utils/reviewEvents";
+import { updateProductRatingLocally } from "./productSlice";
 
 const getError = (error, fallback) =>
   error.response?.data?.message ||
@@ -75,10 +77,29 @@ export const getReviewById = createAsyncThunk(
 
 export const toggleReviewApproval = createAsyncThunk(
   "adminReview/toggleApproval",
-  async ({ id, isApproved }, { rejectWithValue }) => {
+  async ({ id, isApproved }, { dispatch, rejectWithValue }) => {
     try {
-      await updateReviewApprovalApi(id, isApproved);
-      return { id, isApproved };
+      const res = await updateReviewApprovalApi(id, isApproved);
+      const data = res.data?.data || {};
+
+      emitReviewUpdate({
+        action: "toggleApproval",
+        reviewId: id,
+        isApproved,
+        productId: data.productId,
+        rating: data.rating,
+      });
+
+      if (data.productId && data.rating) {
+        dispatch(
+          updateProductRatingLocally({
+            productId: data.productId,
+            rating: data.rating,
+          })
+        );
+      }
+
+      return { id, isApproved, productId: data.productId, rating: data.rating };
     } catch (error) {
       return rejectWithValue(getError(error, "Failed to update review."));
     }
@@ -89,8 +110,16 @@ export const bulkUpdateReviews = createAsyncThunk(
   "adminReview/bulkUpdate",
   async ({ ids, action }, { rejectWithValue }) => {
     try {
-      await bulkReviewsApi(ids, action);
-      return { ids, action };
+      const res = await bulkReviewsApi(ids, action);
+      const data = res.data?.data || {};
+
+      emitReviewUpdate({
+        action,
+        reviewIds: ids,
+        productIds: data.productIds,
+      });
+
+      return { ids, action, productIds: data.productIds };
     } catch (error) {
       return rejectWithValue(getError(error, "Bulk action failed."));
     }
@@ -99,9 +128,27 @@ export const bulkUpdateReviews = createAsyncThunk(
 
 export const deleteReview = createAsyncThunk(
   "adminReview/delete",
-  async (id, { rejectWithValue }) => {
+  async (id, { dispatch, rejectWithValue }) => {
     try {
-      await deleteReviewApi(id);
+      const res = await deleteReviewApi(id);
+      const data = res.data?.data || {};
+
+      emitReviewUpdate({
+        action: "delete",
+        reviewId: id,
+        productId: data.productId,
+        rating: data.rating,
+      });
+
+      if (data.productId && data.rating) {
+        dispatch(
+          updateProductRatingLocally({
+            productId: data.productId,
+            rating: data.rating,
+          })
+        );
+      }
+
       return id;
     } catch (error) {
       return rejectWithValue(getError(error, "Failed to delete review."));

@@ -1,4 +1,4 @@
-import { Order, OrderItem, Product, User } from "../models/index.js";
+import { Order, OrderItem, Product, User, Review } from "../models/index.js";
 import { ApiError, ApiResponse } from "../utils/apiResponse.js";
 import { OrderStatus,FulfillmentStatus,PaymentStatus,fulfillmentTransitions } from "../config/constants.js";
 import { generateSlug } from "../utils/common.js";
@@ -788,3 +788,112 @@ export const getOrderById = async(req,res)=>{
     });
     }
 }
+
+export const getAdminUserOrders = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw new ApiError(400, "Invalid user ID");
+    }
+
+    const user = await User.findById(userId).select("firstName lastName email role status createdAt");
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit) || 10, 1);
+    const skip = (page - 1) * limit;
+
+    const totalOrders = await Order.countDocuments({ user: userId });
+    const orders = await Order.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    const orderIds = orders.map((o) => o._id);
+    const items = await OrderItem.find({ order: { $in: orderIds } })
+      .populate("product", "name images price")
+      .lean();
+
+    const ordersWithItems = orders.map((order) => ({
+      ...order,
+      items: items.filter((item) => String(item.order) === String(order._id)),
+    }));
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          user,
+          orders: ordersWithItems,
+          pagination: {
+            totalOrders,
+            page,
+            limit,
+            totalPages: Math.ceil(totalOrders / limit) || 1,
+          },
+        },
+        "User orders fetched successfully"
+      )
+    );
+  } catch (error) {
+    console.error("getAdminUserOrders error:", error);
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || "Failed to fetch user orders",
+    });
+  }
+};
+
+export const getAdminUserReviews = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw new ApiError(400, "Invalid user ID");
+    }
+
+    const user = await User.findById(userId).select("firstName lastName email role status createdAt");
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit) || 10, 1);
+    const skip = (page - 1) * limit;
+
+    const totalReviews = await Review.countDocuments({ user: userId });
+    const reviews = await Review.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("product", "name images price slug")
+      .lean();
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          user,
+          reviews,
+          pagination: {
+            totalReviews,
+            page,
+            limit,
+            totalPages: Math.ceil(totalReviews / limit) || 1,
+          },
+        },
+        "User reviews fetched successfully"
+      )
+    );
+  } catch (error) {
+    console.error("getAdminUserReviews error:", error);
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || "Failed to fetch user reviews",
+    });
+  }
+};

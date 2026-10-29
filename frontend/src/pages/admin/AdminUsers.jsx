@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { ShoppingBag, Star, AlertCircle } from "lucide-react";
 import { getAdminUsers } from "../../redux/slices/adminSlice";
 import PageButtons from "../../components/PageButtons";
+import useClickOutside from "../../hooks/useClickOutside";
 
 export default function AdminUsers() {
   const [search, setSearch] = useState("");
@@ -489,19 +491,7 @@ export default function AdminUsers() {
 
                       {/* Actions */}
                       <td className="px-5 py-3.5 text-right">
-                        <button
-                          title="More"
-                          className="
-                            rounded-lg
-                            p-2
-                            text-(--admin-text-muted)
-                            transition-all duration-200
-                            hover:bg-(--admin-surface-soft)
-                            hover:text-(--admin-text)
-                          "
-                        >
-                          ⋮
-                        </button>
+                        <CustomerActionsDropdown user={user} />
                       </td>
 
                     </tr>
@@ -722,3 +712,168 @@ function UserStatus({ status }) {
     </span>
   );
 }
+
+/* =========================================================
+   CUSTOMER ACTIONS DROPDOWN (Task 3 + Task 5)
+========================================================= */
+
+function CustomerActionsDropdown({ user }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [dropUp, setDropUp] = useState(false);
+  const navigate = useNavigate();
+  const closeTimerRef = useRef(null);
+
+  const closeDropdown = useCallback(() => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    setIsOpen(false);
+  }, []);
+
+  const dropdownRef = useClickOutside(closeDropdown, isOpen);
+
+  const checkPosition = () => {
+    if (dropdownRef.current) {
+      const rect = dropdownRef.current.getBoundingClientRect();
+      // If there's less than 110px below, flip dropdown upwards to prevent clipping
+      if (window.innerHeight - rect.bottom < 110) {
+        setDropUp(true);
+      } else {
+        setDropUp(false);
+      }
+    }
+  };
+
+  const handleMouseEnter = () => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    checkPosition();
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    closeTimerRef.current = setTimeout(() => {
+      setIsOpen(false);
+    }, 150);
+  };
+
+  const handleToggle = (e) => {
+    e.stopPropagation();
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    if (!isOpen) checkPosition();
+    setIsOpen((prev) => !prev);
+  };
+
+  const handleSelectOrders = (e) => {
+    e.stopPropagation();
+    closeDropdown();
+    navigate(`/admin/customers/${user._id}/orders`);
+  };
+
+  const handleSelectReviews = (e) => {
+    e.stopPropagation();
+    closeDropdown();
+    navigate(`/admin/customers/${user._id}/reviews`);
+  };
+
+  const handleSelectComplaints = (e) => {
+    e.stopPropagation();
+    closeDropdown();
+    navigate(`/admin/complaints?userId=${user._id}`);
+  };
+
+  return (
+    <div
+      ref={dropdownRef}
+      className="relative inline-block text-left"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <button
+        type="button"
+        title="Customer Actions"
+        aria-haspopup="true"
+        aria-expanded={isOpen}
+        onClick={handleToggle}
+        className={`
+          rounded-lg p-2 text-sm font-bold leading-none
+          transition-all duration-200 cursor-pointer
+          ${
+            isOpen
+              ? "bg-(--admin-surface-soft) text-(--admin-primary)"
+              : "text-(--admin-text-muted) hover:bg-(--admin-surface-soft) hover:text-(--admin-text)"
+          }
+        `}
+      >
+        <span className="inline-block tracking-widest leading-none">⋮</span>
+      </button>
+
+      {isOpen && (
+        <div
+          role="menu"
+          aria-orientation="vertical"
+          className={`
+            absolute right-0 z-50 min-w-36
+            rounded-xl border border-(--admin-border)
+            bg-(--admin-surface) p-1.5 shadow-xl
+            transition-all duration-150
+            ${
+              dropUp
+                ? "bottom-full mb-1 origin-bottom-right"
+                : "top-full mt-1 origin-top-right"
+            }
+          `}
+        >
+          <button
+            type="button"
+            role="menuitem"
+            onClick={handleSelectOrders}
+            className="
+              flex w-full items-center gap-2.5 rounded-lg px-3 py-2
+              text-left text-xs font-medium text-(--admin-text-secondary)
+              transition-colors duration-150
+              hover:bg-(--admin-surface-soft) hover:text-(--admin-primary)
+              focus:bg-(--admin-surface-soft) focus:text-(--admin-primary)
+              outline-none cursor-pointer
+            "
+          >
+            <ShoppingBag size={14} className="shrink-0 text-(--admin-primary)" />
+            <span>Orders</span>
+          </button>
+
+          <button
+            type="button"
+            role="menuitem"
+            onClick={handleSelectReviews}
+            className="
+              flex w-full items-center gap-2.5 rounded-lg px-3 py-2
+              text-left text-xs font-medium text-(--admin-text-secondary)
+              transition-colors duration-150
+              hover:bg-(--admin-surface-soft) hover:text-(--admin-primary)
+              focus:bg-(--admin-surface-soft) focus:text-(--admin-primary)
+              outline-none cursor-pointer
+            "
+          >
+            <Star size={14} className="shrink-0 text-amber-400" />
+            <span>Reviews</span>
+          </button>
+
+          {/* <button
+            type="button"
+            role="menuitem"
+            onClick={handleSelectComplaints}
+            className="
+              flex w-full items-center gap-2.5 rounded-lg px-3 py-2
+              text-left text-xs font-medium text-(--admin-text-secondary)
+              transition-colors duration-150
+              hover:bg-(--admin-surface-soft) hover:text-(--admin-primary)
+              focus:bg-(--admin-surface-soft) focus:text-(--admin-primary)
+              outline-none cursor-pointer
+            "
+          >
+            <AlertCircle size={14} className="shrink-0 text-rose-500" />
+            <span>Complaints</span>
+          </button> */}
+        </div>
+      )}
+    </div>
+  );
+}
+

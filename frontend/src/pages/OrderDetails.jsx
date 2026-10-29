@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { showSuccess, showError } from "../utils/toast";
@@ -23,6 +23,8 @@ import {
   Send,
   ImagePlus,
   Trash2,
+  RotateCcw,
+  AlertCircle,
 } from "lucide-react";
 
 import {
@@ -36,6 +38,13 @@ import {
   updateReview,
   getReviewById,
 } from "../redux/slices/reviewsSlice";
+
+import RefundRequestModal from "../components/RefundRequestModal";
+import RaiseComplaintModal from "../components/RaiseComplaintModal";
+import {
+  checkOrderEligibility,
+  getUserRefunds,
+} from "../redux/slices/refundSlice";
 
 export default function OrderDetails() {
   const dispatch = useDispatch();
@@ -57,9 +66,16 @@ export default function OrderDetails() {
     updateLoading: updateReviewLoading,
     error: reviewError,
   } = useSelector((state) => state.review);
+
+  const { refunds = [], eligibility, eligibilityLoading } = useSelector(
+    (state) => state.refund || {}
+  );
   // =====================================================
   // LOCAL STATE
   // =====================================================
+  const [refundModalOpen, setRefundModalOpen] = useState(false);
+  const [complaintModalOpen, setComplaintModalOpen] = useState(false);
+  const [selectedComplaintProduct, setSelectedComplaintProduct] = useState(null);
   const [getReviewLoading, setGetReviewLoading] = useState(false);
   const [updateRatingModal, setUpdateRatingModal] = useState(false);
 
@@ -99,6 +115,15 @@ export default function OrderDetails() {
 
   console.log("orderitmmm", orderItem);
   console.log("reviews", reviews);
+
+  const orderRefunds = useMemo(() => {
+    return (refunds || []).filter(
+      (r) =>
+        String(r.order?._id || r.order) === String(orderId) ||
+        String(r.order?.orderNumber) ===
+        String(orderItem?.[0]?.order?.orderNumber)
+    );
+  }, [refunds, orderId, orderItem]);
   // =====================================================
   // API URL
   // =====================================================
@@ -131,6 +156,7 @@ export default function OrderDetails() {
   useEffect(() => {
     if (orderId) {
       dispatch(getOrderItems(orderId));
+      dispatch(getUserRefunds());
     }
 
     return () => {
@@ -350,6 +376,24 @@ export default function OrderDetails() {
       showError(message);
     } finally {
       setCancelLoading(false);
+    }
+  };
+
+  // =====================================================
+  // OPEN REFUND / RETURN MODAL
+  // =====================================================
+
+  const handleOpenRefundModal = async () => {
+    try {
+      await dispatch(checkOrderEligibility(orderId)).unwrap();
+      setRefundModalOpen(true);
+    } catch (err) {
+      console.error("Check eligibility error:", err);
+      const message =
+        typeof err === "string"
+          ? err
+          : err?.message || err?.error || "Failed to check return eligibility.";
+      showError(message);
     }
   };
 
@@ -971,7 +1015,7 @@ export default function OrderDetails() {
                       <p className="text-sm font-medium text-gray-900 mt-1">
                         {formatDate(
                           orderItem?.[0]?.order?.createdAt ||
-                            orderDetails?.order?.createdAt,
+                          orderDetails?.order?.createdAt,
                         )}
                       </p>
                     </div>
@@ -990,6 +1034,81 @@ export default function OrderDetails() {
                   </div>
                 </div>
               </div>
+
+              {/* ==================================================
+                  RETURN & REFUND REQUESTS
+              ================================================== */}
+              {orderRefunds.length > 0 && (
+                <div className="bg-white dark:bg-gray-900 rounded-2xl border border-blue-200 dark:border-blue-900/60 shadow-sm p-5 sm:p-6 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                      <RotateCcw size={20} />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        Return & Refund Status
+                      </h2>
+                      <p className="text-xs text-gray-500">
+                        History and progress of your return request(s)
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                    {orderRefunds.map((ref) => (
+                      <div key={ref._id} className="py-4 first:pt-2 last:pb-0 space-y-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                          <span className="font-mono font-bold text-sm text-blue-600 dark:text-blue-400">
+                            #{ref.requestNumber}
+                          </span>
+                          <span
+                            className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold uppercase w-fit ${ref.status === "REFUNDED"
+                                ? "bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-400"
+                                : ref.status === "REJECTED"
+                                  ? "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400"
+                                  : ref.status === "APPROVED"
+                                    ? "bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400"
+                                    : ref.status === "RETURN_RECEIVED"
+                                      ? "bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-400"
+                                      : "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400"
+                              }`}
+                          >
+                            {ref.status}
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between items-center text-xs text-gray-600 dark:text-gray-300">
+                          <span>
+                            {ref.items?.length || 0} item(s) &bull; Submitted on{" "}
+                            {new Date(ref.createdAt).toLocaleDateString("en-IN")}
+                          </span>
+                          <span className="font-bold text-sm text-gray-900 dark:text-white">
+                            ₹{Number(ref.totalRefundAmount || 0).toLocaleString("en-IN")}
+                          </span>
+                        </div>
+
+                        {ref.status === "REJECTED" && ref.rejectionReason && (
+                          <p className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 p-2.5 rounded-lg border border-red-100 dark:border-red-900/40">
+                            <span className="font-semibold">Reason:</span> {ref.rejectionReason}
+                          </p>
+                        )}
+
+                        {ref.status === "APPROVED" && (
+                          <p className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 p-2.5 rounded-lg border border-blue-100 dark:border-blue-900/40">
+                            Return approved. Please ship the items back. Your refund will be processed once items are received.
+                          </p>
+                        )}
+
+                        {ref.status === "REFUNDED" && (
+                          <p className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 p-2.5 rounded-lg border border-green-100 dark:border-green-900/40">
+                            Refund of ₹{Number(ref.totalRefundAmount || 0).toLocaleString("en-IN")} completed.
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* ==================================================
                   PRODUCTS
@@ -1147,7 +1266,7 @@ export default function OrderDetails() {
                                 ₹
                                 {Number(
                                   item.total ||
-                                    (item.price || 0) * (item.quantity || 1),
+                                  (item.price || 0) * (item.quantity || 1),
                                 ).toFixed(2)}
                               </span>
                             </div>
@@ -1210,6 +1329,20 @@ export default function OrderDetails() {
                                   </button>
                                 );
                               })()}
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedComplaintProduct(
+                                  item.product || { _id: getItemProductId(item), name: item.name }
+                                );
+                                setComplaintModalOpen(true);
+                              }}
+                              className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors cursor-pointer mt-1"
+                            >
+                              <AlertCircle size={13} />
+                              Report Issue
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -1416,12 +1549,12 @@ export default function OrderDetails() {
                       </div>
                     </div>
                   </div>
-{normalizedStatus !== "CANCELLED" &&
- normalizedStatus !== "CANCELED" && (
-  <button
-    type="button"
-    onClick={() => navigate(`/orders/${orderId}/tracking`)}
-    className="
+                  {normalizedStatus !== "CANCELLED" &&
+                    normalizedStatus !== "CANCELED" && (
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/orders/${orderId}/tracking`)}
+                        className="
       w-full
       h-11
       rounded-xl
@@ -1438,11 +1571,54 @@ export default function OrderDetails() {
       shadow-sm
       cursor-pointer
     "
-  >
-    <Truck size={17} />
-    Track Order
-  </button>
-)}
+                      >
+                        <Truck size={17} />
+                        Track Order
+                      </button>
+                    )}
+
+                  {normalizedStatus === "DELIVERED" && (
+                    <button
+                      type="button"
+                      onClick={handleOpenRefundModal}
+                      disabled={eligibilityLoading}
+                      className="
+      w-full
+      h-11
+      rounded-xl
+      border
+      border-blue-200
+      dark:border-blue-900/60
+      bg-blue-50
+      dark:bg-blue-950/40
+      hover:bg-blue-100
+      dark:hover:bg-blue-900/60
+      text-blue-600
+      dark:text-blue-400
+      text-sm
+      font-semibold
+      transition
+      flex
+      items-center
+      justify-center
+      gap-2
+      cursor-pointer
+      shadow-sm
+    "
+                    >
+                      {eligibilityLoading ? (
+                        <>
+                          <Loader2 size={17} className="animate-spin" />
+                          Checking Eligibility...
+                        </>
+                      ) : (
+                        <>
+                          <RotateCcw size={17} />
+                          Request Return / Refund
+                        </>
+                      )}
+                    </button>
+                  )}
                   {/* CANCEL ORDER */}
 
                   {canCancel && (
@@ -1485,6 +1661,41 @@ export default function OrderDetails() {
                       )}
                     </button>
                   )}
+
+                  {/* RAISE COMPLAINT */}
+                  {/* <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedComplaintProduct(null);
+                      setComplaintModalOpen(true);
+                    }}
+                    className="
+                      w-full
+                      h-11
+                      rounded-xl
+                      border
+                      border-amber-200
+                      dark:border-amber-900/60
+                      bg-amber-50
+                      dark:bg-amber-950/40
+                      hover:bg-amber-100
+                      dark:hover:bg-amber-900/60
+                      text-amber-700
+                      dark:text-amber-400
+                      text-sm
+                      font-semibold
+                      transition
+                      flex
+                      items-center
+                      justify-center
+                      gap-2
+                      cursor-pointer
+                      shadow-sm
+                    "
+                  >
+                    <AlertCircle size={17} />
+                    Raise Complaint
+                  </button> */}
 
                   {/* BACK */}
 
@@ -1727,9 +1938,8 @@ export default function OrderDetails() {
                         >
                           <Star
                             size={32}
-                            className={`${
-                              active ? "text-yellow-400" : "text-gray-300"
-                            }
+                            className={`${active ? "text-yellow-400" : "text-gray-300"
+                              }
                                   `}
                             fill={active ? "currentColor" : "none"}
                           />
@@ -2256,6 +2466,40 @@ export default function OrderDetails() {
           </div>
         </div>
       )}
+
+      {/* ==================================================
+          RETURN / REFUND REQUEST MODAL
+      ================================================== */}
+      <RefundRequestModal
+        isOpen={refundModalOpen}
+        onClose={() => setRefundModalOpen(false)}
+        orderId={orderId}
+        orderNumber={
+          orderItem?.[0]?.order?.orderNumber ||
+          orderDetails?.order?.orderNumber ||
+          "Order"
+        }
+        eligibilityData={eligibility}
+        onSuccess={() => dispatch(getOrderItems(orderId))}
+      />
+
+      {/* ==================================================
+          RAISE COMPLAINT MODAL
+      ================================================== */}
+      <RaiseComplaintModal
+        isOpen={complaintModalOpen}
+        onClose={() => {
+          setComplaintModalOpen(false);
+          setSelectedComplaintProduct(null);
+        }}
+        prefilledOrder={
+          orderItem?.[0]?.order || orderDetails?.order || { _id: orderId }
+        }
+        prefilledProduct={selectedComplaintProduct}
+        onSuccess={() => {
+          showSuccess("Complaint registered successfully. Our team will review it.");
+        }}
+      />
     </>
   );
 }

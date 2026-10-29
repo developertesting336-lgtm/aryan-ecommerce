@@ -12,6 +12,7 @@ import {
   RefreshCw,
   CalendarDays,
   IndianRupee,
+  RotateCcw,
 } from "lucide-react";
 
 import {
@@ -92,6 +93,22 @@ console.log("orderlist",orders)
         label: "Cancelled",
         icon: XCircle,
         className: "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border-red-100 dark:border-red-900/40",
+      };
+    }
+
+    if (fulfillmentStatus === "RETURNED" || paymentStatus === "REFUNDED") {
+      return {
+        label: "Refunded",
+        icon: RotateCcw,
+        className: "bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 border-orange-100 dark:border-orange-900/40",
+      };
+    }
+
+    if (paymentStatus === "PARTIALLY_REFUNDED") {
+      return {
+        label: "Partially Refunded",
+        icon: RotateCcw,
+        className: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-900/40",
       };
     }
 

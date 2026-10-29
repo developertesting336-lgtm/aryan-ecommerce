@@ -15,6 +15,8 @@ import reviewReducer from "./slices/reviewsSlice";
 import aiReducer from "./slices/aiSlice";
 import adminReviewReducer from "./slices/adminReviewSlice"
 import referralReducer from "./slices/referralSlice"
+import refundReducer from "./slices/refundSlice";
+import complaintReducer from "./slices/complaintSlice";
 // =====================================================
 // HOMEPAGE CONTENT SLICES
 // =====================================================
@@ -45,6 +47,8 @@ export const store = configureStore({
     ai: aiReducer,
     referral:referralReducer,
     adminReview: adminReviewReducer,
+    refund: refundReducer,
+    complaint: complaintReducer,
     homepage: homepageReducer,
     hero: heroReducer,
     promoCard: promoCardReducer,

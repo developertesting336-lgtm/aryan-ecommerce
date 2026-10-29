@@ -51,22 +51,116 @@ const getSlug = (p) =>
     .replace(/[\s_-]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
+const STORAGE_KEY = "shopping_chatbot_size";
+const DEFAULT_SIZE = { width: 380, height: 560 };
+const MIN_WIDTH = 320;
+const MIN_HEIGHT = 380;
+
+const getStoredSize = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return DEFAULT_SIZE;
+    const parsed = JSON.parse(raw);
+    const width = Number(parsed.width);
+    const height = Number(parsed.height);
+    if (
+      Number.isFinite(width) &&
+      Number.isFinite(height) &&
+      width >= MIN_WIDTH &&
+      height >= MIN_HEIGHT
+    ) {
+      return { width, height };
+    }
+  } catch {
+    // ignore parse error and use default
+  }
+  return DEFAULT_SIZE;
+};
+
 export default function ShoppingChatbot() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const user = useSelector((state) => state.auth?.user);
   const cartItems = useSelector((state) => state.cart?.cart?.items || []);
-const WELCOME = {
-  role: "bot",
-  text: "Hi! I'm your shopping assistant. Tell me what you're looking for and your budget.",
-  products: [],
-};
+  const WELCOME = {
+    role: "bot",
+    text: "Hi! I'm your shopping assistant. Tell me what you're looking for and your budget.",
+    products: [],
+  };
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([WELCOME]);
-const historyLoaded = useRef(false);
+  const historyLoaded = useRef(false);
+
+  // Drag resize state
+  const [size, setSize] = useState(getStoredSize);
+  const dragRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      document.body.style.userSelect = "";
+    };
+  }, []);
+
+  const handlePointerDown = (direction, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    dragRef.current = {
+      direction,
+      startX: e.clientX,
+      startY: e.clientY,
+      startWidth: size.width,
+      startHeight: size.height,
+    };
+
+    document.body.style.userSelect = "none";
+
+    const onPointerMove = (moveEvent) => {
+      if (!dragRef.current) return;
+      const { direction, startX, startY, startWidth, startHeight } = dragRef.current;
+      const deltaX = startX - moveEvent.clientX; // moving left increases width
+      const deltaY = startY - moveEvent.clientY; // moving up increases height
+
+      const maxW = Math.min(760, window.innerWidth - 32);
+      const maxH = Math.min(840, window.innerHeight - 32);
+
+      setSize((prev) => {
+        let newW = prev.width;
+        let newH = prev.height;
+
+        if (direction === "corner" || direction === "left") {
+          newW = Math.max(MIN_WIDTH, Math.min(maxW, startWidth + deltaX));
+        }
+        if (direction === "corner" || direction === "top") {
+          newH = Math.max(MIN_HEIGHT, Math.min(maxH, startHeight + deltaY));
+        }
+
+        return { width: newW, height: newH };
+      });
+    };
+
+    const onPointerUp = () => {
+      dragRef.current = null;
+      document.body.style.userSelect = "";
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
+
+      setSize((current) => {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+        } catch {}
+        return current;
+      });
+    };
+
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerUp);
+  };
 
   const bottomRef = useRef(null);
   const handleClear = async () => {
@@ -246,9 +340,38 @@ dispatch(
 
       {/* CHAT PANEL */}
       {open && (
-        <div className="fixed inset-x-3 bottom-3 z-50 flex h-[75vh] max-h-[600px] flex-col overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-2xl sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[380px]">
+        <div
+          style={{
+            width: `min(${size.width}px, calc(100vw - 24px))`,
+            height: `min(${size.height}px, calc(100vh - 24px))`,
+          }}
+          className="fixed inset-x-3 bottom-3 z-50 flex flex-col overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-2xl sm:inset-x-auto sm:bottom-5 sm:right-5 transition-shadow"
+        >
+          {/* RESIZE HANDLES (Mouse + Touch drag) */}
+          {/* Top-Left Corner Handle */}
+          <div
+            onPointerDown={(e) => handlePointerDown("corner", e)}
+            title="Drag to resize"
+            aria-label="Drag to resize chatbot"
+            className="absolute top-0 left-0 z-30 flex h-5 w-5 cursor-nwse-resize items-center justify-center group"
+          >
+            <div className="absolute top-1.5 left-1.5 h-2.5 w-2.5 border-t-2 border-l-2 border-white/60 group-hover:border-white transition-colors" />
+          </div>
+
+          {/* Top Edge Handle */}
+          <div
+            onPointerDown={(e) => handlePointerDown("top", e)}
+            className="absolute top-0 left-5 right-12 z-20 h-2 cursor-ns-resize"
+          />
+
+          {/* Left Edge Handle */}
+          <div
+            onPointerDown={(e) => handlePointerDown("left", e)}
+            className="absolute top-5 bottom-0 left-0 z-20 w-2 cursor-ew-resize"
+          />
+
           {/* HEADER */}
-          <div className="flex items-center justify-between bg-blue-600 px-4 py-3 text-white">
+          <div className="flex items-center justify-between bg-blue-600 px-4 py-3 text-white pl-6">
             <div className="flex items-center gap-2">
               <Sparkles size={18} />
               <div>

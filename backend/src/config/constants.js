@@ -109,3 +109,60 @@ export const REFERRAL_PERCENT = 10;      // sender earns 10% of item total
 export const POINT_VALUE = 1;            // 1 point = ₹1
 export const MIN_ORDER_FOR_REDEEM = 500; // minimum subtotal to use points
 export const COMMISSION_RATE = 20;
+
+export const ReturnReason = {
+  DEFECTIVE: 'DEFECTIVE',
+  DAMAGED_IN_TRANSIT: 'DAMAGED_IN_TRANSIT',
+  WRONG_ITEM: 'WRONG_ITEM',
+  SIZE_FIT_ISSUE: 'SIZE_FIT_ISSUE',
+  NOT_AS_DESCRIBED: 'NOT_AS_DESCRIBED',
+  CHANGED_MIND: 'CHANGED_MIND',
+  OTHER: 'OTHER',
+};
+
+export const RefundType = {
+  FULL: 'FULL',
+  PARTIAL: 'PARTIAL',
+};
+
+export const RefundGatewayStatus = {
+  PENDING: 'PENDING',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+};
+
+export const DEFAULT_RETURN_WINDOW_DAYS = 7;
+
+export const ComplaintCategory = {
+  PRODUCT_QUALITY: "PRODUCT_QUALITY",
+  WRONG_ITEM: "WRONG_ITEM",
+  DELIVERY_DELAY: "DELIVERY_DELAY",
+  PAYMENT_ISSUE: "PAYMENT_ISSUE",
+  SELLER_SERVICE: "SELLER_SERVICE",
+  OTHER: "OTHER",
+};
+
+export const ComplaintStatus = {
+  OPEN: "OPEN",
+  IN_PROGRESS: "IN_PROGRESS",
+  RESOLVED: "RESOLVED",
+  CLOSED: "CLOSED",
+  REJECTED: "REJECTED",
+};
+
+export const ComplaintPriority = {
+  LOW: "LOW",
+  MEDIUM: "MEDIUM",
+  HIGH: "HIGH",
+};
+
+export const complaintTransitions = {
+  OPEN: ["IN_PROGRESS", "REJECTED", "CLOSED"],
+  IN_PROGRESS: ["RESOLVED", "REJECTED", "CLOSED"],
+  RESOLVED: ["CLOSED", "IN_PROGRESS"],
+  CLOSED: [],
+  REJECTED: [],
+};
+
+export const MAX_COMPLAINT_ATTACHMENTS = 5;
+export const MAX_COMPLAINT_ATTACHMENT_SIZE_MB = 10;

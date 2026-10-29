@@ -14,6 +14,10 @@ import reviewRoutes from "./reviews.routes.js"
 import aiRoutes from "./ai.routes.js"
 import adminReviewRoutes from "./adminreview.routes.js"
 import referralRoutes from "./referral.routes.js"
+import refundRoutes from "./refund.routes.js"
+import adminRefundRoutes from "./adminRefund.routes.js"
+import complaintRoutes from "./complaint.routes.js"
+import adminComplaintRoutes from "./adminComplaint.routes.js"
 // ============================================================
 // HOMEPAGE CONTENT ROUTES
 // ============================================================
@@ -114,6 +118,22 @@ const routes = [
     {
         path: `${api}/coupon/`,
         route: couponRoutes
+    },
+    {
+        path: `${api}/refunds/`,
+        route: refundRoutes
+    },
+    {
+        path: `${api}/admin/refunds/`,
+        route: adminRefundRoutes
+    },
+    {
+        path: `${api}/complaints/`,
+        route: complaintRoutes
+    },
+    {
+        path: `${api}/admin/complaints/`,
+        route: adminComplaintRoutes
     },
 ];
 

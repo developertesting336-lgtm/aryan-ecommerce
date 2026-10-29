@@ -35,6 +35,7 @@ import {
   getProducts,
   getProductById,
   getRelatedProducts,
+  updateProductRatingLocally,
 } from "../redux/slices/productSlice";
 import { addProduct, addToGuestCart } from "../redux/slices/cartSlice";
 import {
@@ -43,6 +44,7 @@ import {
 } from "../redux/slices/wishlistSlice";
 import ProductCard from "../components/products/ProductCard";
 import { getProductReviews } from "../redux/slices/reviewsSlice";
+import { onReviewUpdate } from "../utils/reviewEvents";
 import { showSuccess, showError } from "../utils/toast";
 
 const API_URL = "http://localhost:3000";
@@ -489,7 +491,34 @@ function ProductDetails() {
   ======================================================= */
 
   useEffect(() => {
-    if (currentProduct?._id) {
+    if (!currentProduct?._id) return;
+
+    dispatch(
+      getProductReviews({
+        productId: currentProduct._id,
+        page: reviewsPage,
+        limit: 10,
+      })
+    );
+  }, [dispatch, currentProduct?._id, reviewsPage]);
+
+  // Task 2: Live review updates without manual refresh
+  useEffect(() => {
+    if (!currentProduct?._id) return;
+
+    const refreshReviewsAndRating = (data) => {
+      // If event specified a productId, verify it matches
+      if (data?.productId && String(data.productId) !== String(currentProduct._id)) {
+        return;
+      }
+      if (data?.rating) {
+        dispatch(
+          updateProductRatingLocally({
+            productId: currentProduct._id,
+            rating: data.rating,
+          })
+        );
+      }
       dispatch(
         getProductReviews({
           productId: currentProduct._id,
@@ -497,7 +526,28 @@ function ProductDetails() {
           limit: 10,
         })
       );
-    }
+      dispatch(getProductById(currentProduct._id));
+    };
+
+    const unsubscribe = onReviewUpdate(refreshReviewsAndRating);
+
+    const handleFocus = () => {
+      refreshReviewsAndRating();
+    };
+
+    window.addEventListener("focus", handleFocus);
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        refreshReviewsAndRating();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, [dispatch, currentProduct?._id, reviewsPage]);
 
   /* =======================================================

@@ -41,10 +41,14 @@ const PrivacyPolicy = lazy(() => import("../pages/PrivacyPolicy"));
 const Contact = lazy(() => import("../components/Contact"));
 const Help = lazy(() => import("../pages/Help"));
 const MyPoints = lazy(() => import("../pages/MyPoints"))
+const MyComplaints = lazy(() => import("../pages/MyComplaints"));
+const ComplaintDetails = lazy(() => import("../pages/ComplaintDetails"));
 
 // Admin Pages (heavy components + charting)
 const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
 const AdminUsers = lazy(() => import("../pages/admin/AdminUsers"));
+const AdminCustomerOrders = lazy(() => import("../pages/admin/AdminCustomerOrders"));
+const AdminCustomerReviews = lazy(() => import("../pages/admin/AdminCustomerReviews"));
 const AdminOrders = lazy(() => import("../pages/admin/AdminOrders"));
 const AdminProducts = lazy(() => import("../pages/admin/AdminProducts"));
 const CreateCategory = lazy(() => import("../pages/admin/CreateCategory"));
@@ -52,6 +56,10 @@ const Categories = lazy(() => import("../pages/admin/Categories"));
 const CategoryDetails = lazy(() => import("../pages/admin/CategoryDetails"));
 const EditProduct = lazy(() => import("../pages/EditProduct"));
 const AdminOrderDetails = lazy(() => import("../pages/admin/AdminOrderDetails"));
+const AdminRefunds = lazy(() => import("../pages/admin/AdminRefunds"));
+const AdminRefundDetails = lazy(() => import("../pages/admin/AdminRefundDetails"));
+const AdminComplaints = lazy(() => import("../pages/admin/AdminComplaints"));
+const AdminComplaintDetails = lazy(() => import("../pages/admin/AdminComplaintDetails"));
 const AdminContent = lazy(() => import("../pages/admin/AdminContent"));
 const ReviewsPage = lazy(()=> import("../pages/admin/ReviewsPage"));
 // Admin Homepage Content Management
@@ -170,6 +178,8 @@ function AppRoutes() {
 
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/my-points" element={<MyPoints />} />
+            <Route path="/my-complaints" element={<MyComplaints />} />
+            <Route path="/my-complaints/:id" element={<ComplaintDetails />} />
           </Route>
         </Route>
 
@@ -199,12 +209,24 @@ function AppRoutes() {
 
             {/* /admin/users */}
             <Route path="users" element={<AdminUsers />} />
+            <Route path="users/:userId/orders" element={<AdminCustomerOrders />} />
+            <Route path="customers/:userId/orders" element={<AdminCustomerOrders />} />
+            <Route path="users/:userId/reviews" element={<AdminCustomerReviews />} />
+            <Route path="customers/:userId/reviews" element={<AdminCustomerReviews />} />
 
             {/* /admin/orders */}
             <Route path="orders" element={<AdminOrders />} />
 
             {/* /admin/orders/:orderId */}
             <Route path="orders/:orderId" element={<AdminOrderDetails />} />
+
+            {/* /admin/refunds */}
+            <Route path="refunds" element={<AdminRefunds />} />
+            <Route path="refunds/:id" element={<AdminRefundDetails />} />
+
+            {/* /admin/complaints */}
+            <Route path="complaints" element={<AdminComplaints />} />
+            <Route path="complaints/:id" element={<AdminComplaintDetails />} />
 
             {/* /admin/products */}
             <Route path="products" element={<AdminProducts />} />

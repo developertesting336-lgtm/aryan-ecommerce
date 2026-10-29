@@ -18,9 +18,13 @@ import {  ProductReferral } from "./referral/ProductReferral.model.js";
 import { PointsLedger } from "./referral/pointsLedger.model.js";
 import { ReferralLink } from "./referral/ReferralLink.model.js";
 import { PriceHistory } from "./priceHistory.model.js";
+import { RefundRequest } from "./refundRequest.model.js";
+import { Complaint } from "./complaint.model.js";
+import { ComplaintMessage } from "./complaintMessage.model.js";
 export{
     User,Product,Cart,Wishlist,ProductRelation,Category,Order,OrderItem,OrderAddress, Coupon,CouponUsage,
-    Review,Activity,ChatSession,ReferralLink,ProductReferral,PointsLedger,PriceHistory,
+    Review,Activity,ChatSession,ReferralLink,ProductReferral,PointsLedger,PriceHistory,RefundRequest,
+    Complaint,ComplaintMessage,
       // Homepage Content
   HeroSlide,
   PromoCard,

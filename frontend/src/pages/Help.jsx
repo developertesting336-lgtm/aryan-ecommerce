@@ -553,6 +553,14 @@ export default function Help() {
 
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
             <Link
+              to="/my-complaints"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-600 px-6 py-3.5 text-sm font-bold text-black shadow-sm transition-all hover:-translate-y-0.5"
+            >
+              <FileText size={17} />
+              My Complaints
+            </Link>
+
+            <Link
               to="/contact"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-app-primary px-6 py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:opacity-90"
             >

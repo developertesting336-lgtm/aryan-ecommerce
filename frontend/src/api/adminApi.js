@@ -39,3 +39,15 @@ export const getProductByIdApi = (id) => {
 export const adminEditProductsApi = (id, data) => { 
   return api.put(`${API_URL}/products/${id}`,
      data, { headers: { "Content-Type": "multipart/form-data", }, }); };
+
+export const getAdminUserOrdersApi = (userId, page = 1, limit = 10) => {
+  return api.get(`${API_URL}/users/${userId}/orders`, {
+    params: { page, limit },
+  });
+};
+
+export const getAdminUserReviewsApi = (userId, page = 1, limit = 10) => {
+  return api.get(`${API_URL}/users/${userId}/reviews`, {
+    params: { page, limit },
+  });
+};

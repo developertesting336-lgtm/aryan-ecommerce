@@ -115,6 +115,21 @@ referrals: [
     _id: false,
   },
 ],
+    totalRefunded: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    paymentIntentId: {
+      type: String,
+      default: null,
+      trim: true,
+    },
+    stripeSessionId: {
+      type: String,
+      default: null,
+      trim: true,
+    },
   },
   { timestamps: true },
 );

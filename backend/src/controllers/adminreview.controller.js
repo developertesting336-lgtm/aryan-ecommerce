@@ -2,6 +2,7 @@
 import mongoose from "mongoose";
 import { Review, User } from "../models/index.js";
 import { ApiResponse, ApiError } from "../utils/apiResponse.js";
+import { updateProductRating } from "./reviews.controller.js";
 // =====================================================
 // HELPERS
 // =====================================================
@@ -317,10 +318,20 @@ export const updateReviewApproval = async (req, res) => {
       throw new ApiError(404, "Review not found.");
     }
 
+    let updatedRating = null;
+    if (review.product) {
+      updatedRating = await updateProductRating(review.product);
+    }
+
     return res.status(200).json(
       new ApiResponse(
         200,
-        { id, isApproved: review.isApproved },
+        {
+          id,
+          isApproved: review.isApproved,
+          productId: review.product,
+          rating: updatedRating,
+        },
         "Review approval updated successfully"
       )
     );
@@ -359,6 +370,16 @@ export const bulkUpdateReviews = async (req, res) => {
       throw new ApiError(400, "Action must be approve, hide or delete.");
     }
 
+    // Capture affected product IDs before modification/deletion
+    const existingReviews = await Review.find({ _id: { $in: ids } }).select("product");
+    const productIds = [
+      ...new Set(
+        existingReviews
+          .map((r) => r.product?.toString())
+          .filter(Boolean)
+      ),
+    ];
+
     let affected;
 
     if (action === "delete") {
@@ -372,10 +393,13 @@ export const bulkUpdateReviews = async (req, res) => {
       affected = result.modifiedCount;
     }
 
+    // Recalculate rating for all affected products
+    await Promise.all(productIds.map((pId) => updateProductRating(pId)));
+
     return res.status(200).json(
       new ApiResponse(
         200,
-        { ids, action, affected },
+        { ids, action, affected, productIds },
         "Bulk review action completed successfully"
       )
     );
@@ -407,8 +431,21 @@ export const deleteReview = async (req, res) => {
       throw new ApiError(404, "Review not found.");
     }
 
+    let updatedRating = null;
+    if (review.product) {
+      updatedRating = await updateProductRating(review.product);
+    }
+
     return res.status(200).json(
-      new ApiResponse(200, { id }, "Review deleted successfully")
+      new ApiResponse(
+        200,
+        {
+          id,
+          productId: review.product,
+          rating: updatedRating,
+        },
+        "Review deleted successfully"
+      )
     );
   } catch (error) {
     console.log("error", error);

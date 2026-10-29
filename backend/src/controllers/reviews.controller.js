@@ -8,28 +8,33 @@ import fs from "fs";
 // HELPER - UPDATE PRODUCT RATING
 // =====================================================
 
-const updateProductRating = async (productId) => {
+export const updateProductRating = async (productId) => {
   const reviews = await Review.find({
     product: productId,
+    isApproved: true,
   }).select("rating");
 
   const count = reviews.length;
 
   // No reviews
   if (count === 0) {
-    await Product.findByIdAndUpdate(productId, {
-      $set: {
-        "rating.average": 0,
-        "rating.count": 0,
-        "rating.distribution.5": 0,
-        "rating.distribution.4": 0,
-        "rating.distribution.3": 0,
-        "rating.distribution.2": 0,
-        "rating.distribution.1": 0,
+    const updated = await Product.findByIdAndUpdate(
+      productId,
+      {
+        $set: {
+          "rating.average": 0,
+          "rating.count": 0,
+          "rating.distribution.5": 0,
+          "rating.distribution.4": 0,
+          "rating.distribution.3": 0,
+          "rating.distribution.2": 0,
+          "rating.distribution.1": 0,
+        },
       },
-    });
+      { new: true }
+    );
 
-    return;
+    return updated?.rating || { average: 0, count: 0 };
   }
 
   // Calculate average
@@ -54,18 +59,24 @@ const updateProductRating = async (productId) => {
   });
 
   // Update Product
-  await Product.findByIdAndUpdate(productId, {
-    $set: {
-      "rating.average": average,
-      "rating.count": count,
+  const updated = await Product.findByIdAndUpdate(
+    productId,
+    {
+      $set: {
+        "rating.average": average,
+        "rating.count": count,
 
-      "rating.distribution.5": distribution[5],
-      "rating.distribution.4": distribution[4],
-      "rating.distribution.3": distribution[3],
-      "rating.distribution.2": distribution[2],
-      "rating.distribution.1": distribution[1],
+        "rating.distribution.5": distribution[5],
+        "rating.distribution.4": distribution[4],
+        "rating.distribution.3": distribution[3],
+        "rating.distribution.2": distribution[2],
+        "rating.distribution.1": distribution[1],
+      },
     },
-  });
+    { new: true }
+  );
+
+  return updated?.rating || { average, count, distribution };
 };
 
 // =====================================================

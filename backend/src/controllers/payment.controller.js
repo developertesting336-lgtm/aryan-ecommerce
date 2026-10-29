@@ -758,6 +758,12 @@ export const fulfillOrderPayment = async ({ orderId, userId, session }) => {
   order.paymentStatus = PaymentStatus.PAID;
   order.status = "CONFIRMED";
   order.placedAt = new Date();
+  if (session?.payment_intent) {
+    order.paymentIntentId = String(session.payment_intent);
+  }
+  if (session?.id) {
+    order.stripeSessionId = String(session.id);
+  }
   await order.save();
   console.log(`✅ Order ${orderId} payment status updated to PAID`);
 

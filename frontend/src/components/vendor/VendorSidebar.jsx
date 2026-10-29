@@ -63,11 +63,11 @@ export default function VendorSidebar({
       icon: TicketPercent ,
       path: "/vendor/coupons",
     },
-    {
-      label: "Payouts",
-      path: "/vendor/payouts",
-      icon: Wallet,
-    },
+    // {
+    //   label: "Payouts",
+    //   path: "/vendor/payouts",
+    //   icon: Wallet,
+    // },
    
   ];
 
@@ -269,7 +269,7 @@ export default function VendorSidebar({
           </nav>
 
 
-          <p className="mb-3 mt-7 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-blue-100/70">
+          {/* <p className="mb-3 mt-7 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-blue-100/70">
             Support
           </p>
 
@@ -312,7 +312,7 @@ export default function VendorSidebar({
               );
             })}
 
-          </nav>
+          </nav> */}
 
         </div>
 

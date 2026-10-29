@@ -431,3 +431,51 @@ td {
     font-size: 10px !important;
   }
 }
+
+/* =========================================================
+   ADMIN SIDEBAR CUSTOM SCROLLBAR
+   ========================================================= */
+
+.admin-sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+}
+
+.admin-sidebar-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.admin-sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 6px 0;
+}
+
+.admin-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+.admin-sidebar-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.6);
+}
+
+.admin-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+}
+
+:where(.dark, [data-theme="dark"]) .admin-sidebar-scroll {
+  scrollbar-color: rgba(100, 116, 139, 0.4) transparent;
+}
+
+:where(.dark, [data-theme="dark"]) .admin-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.35);
+}
+
+:where(.dark, [data-theme="dark"]) .admin-sidebar-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.65);
+}
+
+:where(.dark, [data-theme="dark"]) .admin-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: #10b981;
+}

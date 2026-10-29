@@ -1,16 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useTheme } from "../../context/ThemeContext";
+import { logout } from "../../redux/slices/authSlice";
+import useClickOutside from "../../hooks/useClickOutside";
 
 export default function AdminNavbar({ setIsOpen }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const { user } = useSelector((state) => state.auth);
 
   const [search, setSearch] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
+  const closeTimerRef = useRef(null);
+
+  const closeProfileDropdown = useCallback(() => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    setProfileOpen(false);
+  }, []);
+
+  const profileRef = useClickOutside(closeProfileDropdown, profileOpen);
+
+  const handleProfileMouseEnter = () => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    setProfileOpen(true);
+  };
+
+  const handleProfileMouseLeave = () => {
+    closeTimerRef.current = setTimeout(() => {
+      setProfileOpen(false);
+    }, 180);
+  };
+
+  const handleProfileToggle = (e) => {
+    e.stopPropagation();
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    setProfileOpen((prev) => !prev);
+  };
+
+  const handleLogout = () => {
+    closeProfileDropdown();
+    dispatch(logout());
+    navigate("/login");
+  };
 
   // Single shared theme system
   const { darkMode, toggleTheme } = useTheme();
@@ -308,10 +342,18 @@ export default function AdminNavbar({ setIsOpen }) {
               PROFILE
           ================================================= */}
 
-          <div className="relative">
+          <div
+            ref={profileRef}
+            className="relative"
+            onMouseEnter={handleProfileMouseEnter}
+            onMouseLeave={handleProfileMouseLeave}
+          >
 
             <button
-              onClick={() => setProfileOpen(!profileOpen)}
+              type="button"
+              onClick={handleProfileToggle}
+              aria-haspopup="true"
+              aria-expanded={profileOpen}
               className="
                 flex items-center gap-2
                 rounded-xl
@@ -320,6 +362,7 @@ export default function AdminNavbar({ setIsOpen }) {
                 transition
                 hover:border-(--admin-border)
                 hover:bg-(--admin-surface-soft)
+                cursor-pointer
               "
             >
 
@@ -386,6 +429,8 @@ export default function AdminNavbar({ setIsOpen }) {
 
             {profileOpen && (
               <div
+                role="menu"
+                aria-orientation="vertical"
                 className="
                   absolute right-0 top-13
                   z-50
@@ -457,8 +502,10 @@ export default function AdminNavbar({ setIsOpen }) {
                 <div className="p-2">
 
                   <button
+                    type="button"
+                    role="menuitem"
                     onClick={() => {
-                      setProfileOpen(false);
+                      closeProfileDropdown();
                       navigate("/profile");
                     }}
                     className="
@@ -472,6 +519,7 @@ export default function AdminNavbar({ setIsOpen }) {
                       transition
                       hover:bg-[color-mix(in_srgb,var(--admin-primary)_10%,transparent)]
                       hover:text-(--admin-primary)
+                      cursor-pointer
                     "
                   >
                     <span
@@ -489,9 +537,11 @@ export default function AdminNavbar({ setIsOpen }) {
                     <span>My Profile</span>
                   </button>
 
-                  <button
+                  {/* <button
+                    type="button"
+                    role="menuitem"
                     onClick={() => {
-                      setProfileOpen(false);
+                      closeProfileDropdown();
                       navigate("/admin/settings");
                     }}
                     className="
@@ -505,6 +555,7 @@ export default function AdminNavbar({ setIsOpen }) {
                       transition
                       hover:bg-[color-mix(in_srgb,var(--admin-primary)_10%,transparent)]
                       hover:text-(--admin-primary)
+                      cursor-pointer
                     "
                   >
                     <span
@@ -520,11 +571,14 @@ export default function AdminNavbar({ setIsOpen }) {
                     </span>
 
                     <span>Settings</span>
-                  </button>
+                  </button> */}
 
                   <div className="my-2 border-t border-(--admin-border)" />
 
                   <button
+                    type="button"
+                    role="menuitem"
+                    onClick={handleLogout}
                     className="
                       flex w-full
                       items-center gap-3
@@ -535,6 +589,7 @@ export default function AdminNavbar({ setIsOpen }) {
                       text-(--admin-danger)
                       transition
                       hover:bg-[color-mix(in_srgb,var(--admin-danger)_10%,transparent)]
+                      cursor-pointer
                     "
                   >
                     <span
