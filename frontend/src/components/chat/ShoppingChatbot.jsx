@@ -349,14 +349,27 @@ dispatch(
         >
           {/* RESIZE HANDLES (Mouse + Touch drag) */}
           {/* Top-Left Corner Handle */}
-          <div
-            onPointerDown={(e) => handlePointerDown("corner", e)}
-            title="Drag to resize"
-            aria-label="Drag to resize chatbot"
-            className="absolute top-0 left-0 z-30 flex h-5 w-5 cursor-nwse-resize items-center justify-center group"
-          >
-            <div className="absolute top-1.5 left-1.5 h-2.5 w-2.5 border-t-2 border-l-2 border-white/60 group-hover:border-white transition-colors" />
-          </div>
+          {/* Top-Left Corner Handle */}
+<div
+  onPointerDown={(e) => handlePointerDown("corner", e)}
+  title="Drag to resize"
+  aria-label="Drag to resize chatbot"
+  className="absolute top-0 left-0 z-30 flex h-5 w-5 cursor-nwse-resize touch-none items-center justify-center group"
+>
+  <div className="absolute top-1.5 left-1.5 h-2.5 w-2.5 border-t-2 border-l-2 border-white/60 group-hover:border-white transition-colors" />
+</div>
+
+{/* Top Edge Handle */}
+<div
+  onPointerDown={(e) => handlePointerDown("top", e)}
+  className="absolute top-0 left-5 right-12 z-20 h-2 cursor-ns-resize touch-none"
+/>
+
+{/* Left Edge Handle */}
+<div
+  onPointerDown={(e) => handlePointerDown("left", e)}
+  className="absolute top-5 bottom-0 left-0 z-20 w-2 cursor-ew-resize touch-none"
+/>
 
           {/* Top Edge Handle */}
           <div
