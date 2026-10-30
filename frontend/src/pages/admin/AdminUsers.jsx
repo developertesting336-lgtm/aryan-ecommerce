@@ -855,7 +855,7 @@ function CustomerActionsDropdown({ user }) {
             <span>Reviews</span>
           </button>
 
-          {/* <button
+          <button
             type="button"
             role="menuitem"
             onClick={handleSelectComplaints}
@@ -870,7 +870,7 @@ function CustomerActionsDropdown({ user }) {
           >
             <AlertCircle size={14} className="shrink-0 text-rose-500" />
             <span>Complaints</span>
-          </button> */}
+          </button>
         </div>
       )}
     </div>

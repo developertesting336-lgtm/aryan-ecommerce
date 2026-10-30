@@ -25,11 +25,11 @@ export default function AdminSidebar({
       icon: <RefundIcon />,
       path: "/admin/refunds",
     },
-    // {
-    //   name: "Complaints",
-    //   icon: <ComplaintIcon />,
-    //   path: "/admin/complaints",
-    // },
+    {
+      name: "Complaints",
+      icon: <ComplaintIcon />,
+      path: "/admin/complaints",
+    },
     {
       name: "Customers",
       icon: <CustomersIcon />,

@@ -1663,7 +1663,7 @@ export default function OrderDetails() {
                   )}
 
                   {/* RAISE COMPLAINT */}
-                  {/* <button
+                  <button
                     type="button"
                     onClick={() => {
                       setSelectedComplaintProduct(null);
@@ -1695,7 +1695,7 @@ export default function OrderDetails() {
                   >
                     <AlertCircle size={17} />
                     Raise Complaint
-                  </button> */}
+                  </button>
 
                   {/* BACK */}
 
