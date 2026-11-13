@@ -29,13 +29,7 @@ import {
 } from "../redux/slices/productSlice";
 import { generateDescription } from "../redux/slices/aiSlice"; // NEW
 import  api from "../api/axios"
-import {
-  getRootCategories,
-  getCategoryChildren,
-  selectRootCategories,
-  selectCategoryChildren,
-  selectCategoryLoading,
-} from "../redux/slices/categorySlice";
+
 const MAX_IMAGES = 5;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -346,9 +340,9 @@ const [aiError, setAiError] = useState("");
   // INITIAL ROOT CATEGORY LOAD
   // =====================================================
 
-  useEffect(() => {
-    fetchRootCategories();
-  }, []);
+  // useEffect(() => {
+  //   fetchRootCategories();
+  // }, []);
 
   // =====================================================
   // CATEGORY - SELECT
@@ -1781,7 +1775,7 @@ const handleGenerateDescription = async () => {
 
               {user?.role === "admin"
                 ? "Active on Creation"
-                : "Draft on Creation"}
+                : "Pending on Creation"}
             </div>
 
           </div>
@@ -3458,7 +3452,7 @@ const handleGenerateDescription = async () => {
                           {user?.role ===
                           "admin"
                             ? "Active"
-                            : "Draft"}
+                            : "Pending"}
                         </p>
 
                         <p

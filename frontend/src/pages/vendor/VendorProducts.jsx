@@ -1271,14 +1271,14 @@ function ProductImage({ product }) {
       rounded-xl
       border
       border-slate-200
-      bg-white
+      bg-white!
       p-1
       dark:border-gray-700
     ">
 
-      {product.image ? (
+      {product.images ? (
         <img
-          src={product.image}
+          src={product.images[0]}
           alt={product.name}
           className="
             h-full

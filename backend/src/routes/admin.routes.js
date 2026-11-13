@@ -10,6 +10,8 @@ import {
   getOrderById,
   getAdminUserOrders,
   getAdminUserReviews,
+  getProductsByStatus,
+  updateProductStatus,
 } from "../controllers/admin.controller.js";
 import { verifyJWT, verifyAdmin } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.js";
@@ -18,6 +20,7 @@ const router = express.Router();
 
 router.get("/dashboard", verifyJWT, verifyAdmin, adminDashboard);
 router.get("/products", verifyJWT, verifyAdmin, adminProducts);
+router.get("/products/by-status",verifyJWT, verifyAdmin, getProductsByStatus);
 router.get("/users", verifyJWT, verifyAdmin, adminUsers);
 router.get("/orders", verifyJWT, verifyAdmin, adminOrders);
 router.get("/products/:id", verifyJWT, verifyAdmin, getProductById);
@@ -30,6 +33,8 @@ router.get("/users/:userId/orders", verifyJWT, verifyAdmin, getAdminUserOrders);
 router.get("/customers/:userId/orders", verifyJWT, verifyAdmin, getAdminUserOrders);
 router.get("/users/:userId/reviews", verifyJWT, verifyAdmin, getAdminUserReviews);
 router.get("/customers/:userId/reviews", verifyJWT, verifyAdmin, getAdminUserReviews);
+//products approvals
 
+router.patch("/products/:id/status", verifyJWT, verifyAdmin,updateProductStatus);
 
 export default router;

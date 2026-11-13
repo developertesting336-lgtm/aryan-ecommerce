@@ -165,4 +165,12 @@ export const complaintTransitions = {
 };
 
 export const MAX_COMPLAINT_ATTACHMENTS = 5;
-export const MAX_COMPLAINT_ATTACHMENT_SIZE_MB = 10;
+export const MAX_COMPLAINT_ATTACHMENT_SIZE_MB = 10;
+
+export const PRODUCT_STATUSES = ["pending", "active", "rejected", "inactive"];
+
+export const ALLOWED_TRANSITIONS = {
+  active: ["pending", "rejected", "inactive"], // approve / re-approve / re-activate
+  rejected: ["pending"],                       // reject
+  inactive: ["active"],                        // take down a live product
+};

@@ -273,14 +273,14 @@ export default function Footer() {
 
               <li>
                 <Link
-                  to="/shipping"
+                  to="/my-complaints"
                   className="
                     text-gray-400
                     transition
                     hover:text-white
                   "
                 >
-                  Shipping Information
+                  My Complaints
                 </Link>
               </li>
 

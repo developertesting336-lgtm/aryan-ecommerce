@@ -1,6 +1,6 @@
 import { Order, OrderItem, Product, User, Review } from "../models/index.js";
 import { ApiError, ApiResponse } from "../utils/apiResponse.js";
-import { OrderStatus,FulfillmentStatus,PaymentStatus,fulfillmentTransitions } from "../config/constants.js";
+import { OrderStatus,FulfillmentStatus,PaymentStatus,fulfillmentTransitions,ALLOWED_TRANSITIONS,PRODUCT_STATUSES  } from "../config/constants.js";
 import { generateSlug } from "../utils/common.js";
 import mongoose from "mongoose";
 import { approveReferrals, rejectReferrals } from "./referral.controller.js";
@@ -350,11 +350,17 @@ const skip = (page - 1) * limit;
             price:{
               $first : "$price"
             },
+            mrp:{
+              $first : "$mrp"
+            },
              stock:{
               $first : "$stock"
             },
             status:{
               $first : "$status"
+            },
+            images:{
+              $first : "$images"
             },
             category: {
               $first: "$categorydetails.name",
@@ -894,6 +900,150 @@ export const getAdminUserReviews = async (req, res) => {
     return res.status(error.statusCode || 500).json({
       success: false,
       message: error.message || "Failed to fetch user reviews",
+    });
+  }
+};
+
+
+// const PRODUCT_STATUSES = ["pending", "active", "rejected", "inactive"];
+
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// GET /admin/products/by-status?status=pending&page=1&limit=5&search=
+// status can also be "all"
+export const getProductsByStatus = async (req, res) => {
+  try {
+    const status = req.query.status || "pending";
+
+    if (status !== "all" && !PRODUCT_STATUSES.includes(status)) {
+      throw new ApiError(400, `Status must be one of: all, ${PRODUCT_STATUSES.join(", ")}`);
+    }
+
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 50);
+    const skip = (page - 1) * limit;
+
+    const query = status === "all" ? {} : { status };
+
+    const search = req.query.search?.trim();
+    if (search) {
+      const regex = new RegExp(escapeRegex(search), "i");
+      query.$or = [{ name: regex }, { sku: regex }];
+    }
+
+    const [
+      totalProducts,
+      pendingProducts,
+      activeProducts,
+      rejectedProducts,
+      inactiveProducts,
+      products,
+      filteredTotal,
+    ] = await Promise.all([
+      Product.countDocuments({}),
+      Product.countDocuments({ status: "pending" }),
+      Product.countDocuments({ status: "active" }),
+      Product.countDocuments({ status: "rejected" }),
+      Product.countDocuments({ status: "inactive" }),
+      Product.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate("category", "name slug")
+        .populate("vendor", "firstName lastName email")
+        .lean(),
+      Product.countDocuments(query),
+    ]);
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          products,
+          stats: {
+            totalProducts,
+            pendingProducts,
+            activeProducts,
+            rejectedProducts,
+            inactiveProducts,
+          },
+          pagination: {
+            totalProducts: filteredTotal,
+            page,
+            limit,
+            totalPages: Math.ceil(filteredTotal / limit) || 1,
+          },
+        },
+        "Products fetched successfully"
+      )
+    );
+  } catch (error) {
+    console.error("getProductsByStatus error:", error);
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || "Failed to fetch products",
+    });
+  }
+};
+
+
+// key = new status, value = statuses it is allowed to change from
+// const ALLOWED_TRANSITIONS = {
+//   active: ["pending", "rejected", "inactive"], // approve / re-approve / re-activate
+//   rejected: ["pending"],                       // reject
+//   inactive: ["active"],                        // take down a live product
+// };
+
+// PATCH /admin/products/:id/status   body: { status, reason? }
+export const updateProductStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, reason } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new ApiError(400, "Invalid product ID");
+    }
+
+    if (!ALLOWED_TRANSITIONS[status]) {
+      throw new ApiError(400, "Status must be active, rejected or inactive");
+    }
+
+    const update = {
+      status,
+      reviewedAt: new Date(),
+      reviewedBy: req.user._id,
+    };
+
+    if (status === "rejected") {
+      const trimmedReason = reason?.trim();
+      if (!trimmedReason || trimmedReason.length < 10) {
+        throw new ApiError(400, "Rejection reason must be at least 10 characters");
+      }
+      update.rejectionReason = trimmedReason;
+    }
+
+    if (status === "active") {
+      update.$unset = { rejectionReason: "" };
+    }
+
+    const product = await Product.findOneAndUpdate(
+      { _id: id, status: { $in: ALLOWED_TRANSITIONS[status] } },
+      update,
+      { new: true }
+    );
+
+    if (!product) {
+      throw new ApiError(404, `Product not found or cannot be changed to ${status}`);
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, product, `Product marked as ${status}`));
+  } catch (error) {
+    console.error("updateProductStatus error:", error);
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || "Failed to update product status",
     });
   }
 };

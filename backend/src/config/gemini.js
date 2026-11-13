@@ -42,7 +42,7 @@ export async function generateText({
   fast = true,
 }) {
   const response = await callGemini({
-    model: fast ? FAST_MODEL : GEMINI_MODEL,
+    model: FAST_MODEL,
     prompt, system, temperature, maxOutputTokens,
   });
 

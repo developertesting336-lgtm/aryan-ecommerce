@@ -587,6 +587,7 @@ export const vendorProducts = async (req, res) => {
         $group: {
           _id: "$_id",
           name: { $first: "$name" },
+          images:{$first : "$images"},
           price: { $first: "$price" },
           stock: { $first: "$stock" },
           status: { $first: "$status" },

@@ -5,7 +5,7 @@ import { prepareProductVariants } from "../utils/productVariantHelper.js";
 import mongoose from "mongoose";
 import {uploadOnCloudinary} from "../config/cloudinary.js";
 import fs from "fs";
-import { recordPriceChanges } from "../controllers/priceHistory.controller.js";
+import { recordPriceChanges,recordInitialPrice } from "../controllers/priceHistory.controller.js";
 // =====================================================
 // CREATE PRODUCT
 // =====================================================
@@ -203,7 +203,7 @@ const preparedVariants = prepareProductVariants({
        variants: preparedVariants,
       // Admin can make it active immediately.
       // Vendor products start as draft.
-      status: user.role === "admin" ? "active" : "draft",
+      status: user.role === "admin" ? "active" : "pending",
     });
     // price history
 try {

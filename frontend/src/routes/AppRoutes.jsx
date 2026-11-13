@@ -86,6 +86,7 @@ import { getWishlist } from "../redux/slices/wishlistSlice";
 import { getRootCategories } from "../redux/slices/categorySlice";
 import { mergeGuestCart, enrichGuestCart } from "../utils/guestCart";
 import ReviewsListPage from "../pages/admin/Reviewslistpage";
+import ProductApprovals from "../pages/admin/ProductApprovals";
 
 // ============================================================
 // APP ROUTES
@@ -230,6 +231,7 @@ function AppRoutes() {
 
             {/* /admin/products */}
             <Route path="products" element={<AdminProducts />} />
+            <Route path="product-approvals" element={<ProductApprovals />} />
 
             {/* /admin/categories */}
             <Route path="categories" element={<Categories />} />

@@ -6,7 +6,7 @@ import rateLimit from "express-rate-limit";
 const router = express.Router();
 router.get("/recommendations", verifyJWT, getRecommendations);
 router.get("/recommendations/cart", verifyJWT, getCartRecommendations);
-router.post("/generate-description", verifyJWT, verifyAdmin, generateProductDescription);
+router.post("/generate-description", verifyJWT,  generateProductDescription);
 router.get("/chat/history", verifyJWT, getChatHistory);
 router.delete("/chat/history", verifyJWT, clearChatHistory);
 const chatLimiter = rateLimit({

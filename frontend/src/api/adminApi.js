@@ -51,3 +51,16 @@ export const getAdminUserReviewsApi = (userId, page = 1, limit = 10) => {
     params: { page, limit },
   });
 };
+
+
+// GET products by status (+ stats)
+export const getProductsByStatusApi = (status = "pending", page = 1, limit = 5, search = "") => {
+  return api.get(`${API_URL}/products/by-status`, {
+    params: { status, page, limit, search },
+  });
+};
+
+// PATCH product status (active | rejected | inactive)
+export const updateProductStatusApi = (id, status, reason) => {
+  return api.patch(`${API_URL}/products/${id}/status`, { status, reason });
+};

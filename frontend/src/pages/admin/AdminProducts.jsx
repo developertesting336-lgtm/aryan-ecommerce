@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getAdminProducts } from "../../redux/slices/adminSlice";
 import PageButtons from "../../components/PageButtons";
-
+import ProductViewDrawer from "../../components/admin/Productviewdrawer";
 export default function AdminProducts() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [status, setStatus] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
-
+const [viewProduct, setViewProduct] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -131,7 +131,7 @@ export default function AdminProducts() {
               Manage your ecommerce products
             </p>
           </div>
-
+<div className="flex flex-wrap gap-3">
           <button
             onClick={() => navigate("/create-product")}
             className="
@@ -152,6 +152,26 @@ export default function AdminProducts() {
           >
             + Add Product
           </button>
+
+            <button
+    onClick={() => navigate("/admin/product-approvals")}
+    className="
+      cursor-pointer
+      rounded-lg
+      border
+      border-(--admin-control-border)
+      bg-(--admin-control-bg)
+      px-4 py-2.5
+      text-sm
+      font-semibold
+      text-(--admin-text-secondary)
+      transition
+      hover:bg-(--admin-surface-soft)
+    "
+  >
+    Product approvals
+  </button>
+  </div>
         </div>
 
         {/* Stats */}
@@ -339,8 +359,8 @@ export default function AdminProducts() {
                 "
               >
                 <option>All</option>
-                <option>Active</option>
-                <option>Out of Stock</option>
+                <option value={"active"}>Active</option>
+                <option value={"inactive"}>Inactive</option>
               </select>
             </div>
           </div>
@@ -453,12 +473,12 @@ export default function AdminProducts() {
                               rounded-xl
                               border
                               border-(--admin-border)
-                              bg-(--admin-surface-soft)
+                              bg-white!
                             "
                           >
-                            {product.image ? (
+                            {product.images ? (
                               <img
-                                src={product.image}
+                                src={product.images[0]}
                                 alt={product.name}
                                 className="h-full w-full object-cover"
                               />
@@ -576,20 +596,20 @@ export default function AdminProducts() {
                           </button>
 
                           <button
-                            title="Delete"
-                            className="
-                              rounded-lg
-                              p-2
-                              text-(--admin-text-muted)
-                              transition
-                              hover:bg-red-50
-                              hover:text-red-600
-                              dark:hover:bg-red-950/30
-                              dark:hover:text-red-400
-                            "
-                          >
-                            🗑️
-                          </button>
+  title="View"
+  onClick={() => setViewProduct(product)}
+  className="
+    cursor-pointer
+    rounded-lg
+    p-2
+    text-(--admin-text-muted)
+    transition
+    hover:bg-(--admin-surface-soft)
+    hover:text-(--admin-text)
+  "
+>
+  👁️
+</button>
 
                           <button
                             title="More"
@@ -707,6 +727,12 @@ export default function AdminProducts() {
           )}
         </div>
       </main>
+{viewProduct && (
+  <ProductViewDrawer
+    product={viewProduct}
+    onClose={() => setViewProduct(null)}
+  />
+)}
     </div>
   );
 }
