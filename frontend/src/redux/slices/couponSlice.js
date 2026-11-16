@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import {createCouponAPI,getCouponsApi,getCouponByIdApi, applyCouponAPI} from "../../api/couponApi"
+import {createCouponAPI,getCouponsApi,getCouponByIdApi, applyCouponAPI, updateCouponAPI} from "../../api/couponApi"
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 // Get authentication token
@@ -76,11 +76,12 @@ export const updateCoupon = createAsyncThunk(
   "coupon/updateCoupon",
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      const response = await axios.patch(
-        `${BASE_URL}/admin/coupons/${id}`,
-        data,
-        getAuthConfig()
-      );
+      // const response = await axios.put(
+      //   `${BASE_URL}/coupon/${id}`,
+      //   data,
+      //   getAuthConfig()
+      // );
+      const response = await updateCouponAPI(id,data)
 
       return response.data;
     } catch (error) {
@@ -204,25 +205,25 @@ const couponSlice = createSlice({
     },
 
     resetCouponState: () => initialState,
-    clearCouponError: (state) => {
-    state.error = null;
-    state.couponError = null;
-  },
+  //   clearCouponError: (state) => {
+  //   state.error = null;
+  //   state.couponError = null;
+  // },
 
-  clearCouponSuccess: (state) => {
-    state.success = null;
-  },
+  // clearCouponSuccess: (state) => {
+  //   state.success = null;
+  // },
 
   clearAppliedCoupon: (state) => {
     state.appliedCoupon = null;
     state.couponError = null;
   },
 
-  clearSelectedCoupon: (state) => {
-    state.selectedCoupon = null;
-  },
+  // clearSelectedCoupon: (state) => {
+  //   state.selectedCoupon = null;
+  // },
 
-  resetCouponState: () => initialState,
+  // resetCouponState: () => initialState,
   },
 
   extraReducers: (builder) => {

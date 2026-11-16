@@ -115,7 +115,7 @@ const [filter, setFilter] = useState("7days");
           </div>
 
           {/* Export */}
-          <button
+          {/* <button
             className="
               hidden
               rounded-lg
@@ -139,7 +139,7 @@ const [filter, setFilter] = useState("7days");
             "
           >
             Export Report
-          </button>
+          </button> */}
         </div>
 
         {/* =====================================================

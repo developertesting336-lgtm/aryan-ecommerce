@@ -48,7 +48,7 @@ export default function CouponFilters({
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+          className="cursor-pointer rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
         >
           <option value="all">All Status</option>
           <option value="active">Active</option>
@@ -61,7 +61,7 @@ export default function CouponFilters({
         <select
           value={discountType}
           onChange={(e) => setDiscountType(e.target.value)}
-          className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+          className="cursor-pointer rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
         >
           <option value="all">All Discount Types</option>
           <option value="percentage">Percentage</option>

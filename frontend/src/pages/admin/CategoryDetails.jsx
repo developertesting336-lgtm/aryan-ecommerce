@@ -318,10 +318,10 @@ const CategoryDetails = () => {
     };
 
     const result = await dispatch(
-      updateCategory({
-        id,
-        categoryData: payload,
-      })
+     updateCategory({
+    categoryId: id,
+    categoryData: payload,
+  })
     );
 
     /*

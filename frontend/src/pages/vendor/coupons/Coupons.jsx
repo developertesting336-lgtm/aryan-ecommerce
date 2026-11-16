@@ -163,7 +163,7 @@ const couponBasePath =
               }`}
             />
 
-            <span className="hidden sm:inline">
+            <span className="hidden sm:inline cursor-pointer">
               Refresh
             </span>
           </button>
@@ -173,7 +173,7 @@ const couponBasePath =
               // navigate("/vendor/coupons/create")
               navigate(`${couponBasePath}/create`)
             }
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-indigo-600 dark:hover:bg-indigo-500"
+            className="cursor-pointer inline-flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-indigo-600 dark:hover:bg-indigo-500"
           >
             <Plus className="h-4 w-4" />
             Create Coupon

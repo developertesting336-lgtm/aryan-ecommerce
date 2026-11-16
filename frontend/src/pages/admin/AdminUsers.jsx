@@ -70,7 +70,7 @@ export default function AdminUsers() {
             </p>
           </div>
 
-          <button
+          {/* <button
             onClick={() => navigate("/create-customer")}
             className="
               rounded-lg
@@ -90,7 +90,7 @@ export default function AdminUsers() {
             "
           >
             + Add Customer
-          </button>
+          </button> */}
         </div>
 
         {/* =====================================================

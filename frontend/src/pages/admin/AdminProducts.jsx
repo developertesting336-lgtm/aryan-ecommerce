@@ -30,36 +30,43 @@ const [viewProduct, setViewProduct] = useState(null);
   );
 
   const productList = products;
+console.log("productList",productList)
+const categories = [
+  ...new Set(
+    productList
+      .map((product) => product.category?.trim())
+      .filter(
+        (name) =>
+          name &&
+          name.toLowerCase() !== "uncategorized"
+      )
+  ),
+].sort((a, b) => a.localeCompare(b));
 
-  const filteredProducts = productList.filter((product) => {
-    const searchTerm = search.toLowerCase();
+ const filteredProducts = productList.filter((product) => {
+  const searchTerm = search.trim().toLowerCase();
 
-    const productName = String(
-      product.name || ""
-    ).toLowerCase();
+  const productName = String(product.name || "").toLowerCase();
 
-    const productCategory = String(
-      product.category || ""
-    ).toLowerCase();
+  const productCategory = String(
+    product.category || ""
+  ).trim().toLowerCase();
 
-    const matchesSearch =
-      productName.includes(searchTerm) ||
-      productCategory.includes(searchTerm);
+  const matchesSearch =
+    productName.includes(searchTerm) ||
+    productCategory.includes(searchTerm);
 
-    const matchesCategory =
-      category === "All" ||
-      product.category === category;
+  const matchesCategory =
+    category === "All" ||
+    productCategory === category.trim().toLowerCase();
 
-    const matchesStatus =
-      status === "All" ||
-      product.status === status;
+  const matchesStatus =
+    status === "All" ||
+    String(product.status || "").toLowerCase() ===
+      status.toLowerCase();
 
-    return (
-      matchesSearch &&
-      matchesCategory &&
-      matchesStatus
-    );
-  });
+  return matchesSearch && matchesCategory && matchesStatus;
+});
 
   const totalProducts = stats.totalProducts || 0;
   const totalPages = Math.max(
@@ -305,35 +312,22 @@ const [viewProduct, setViewProduct] = useState(null);
               </div>
 
               {/* Category */}
-              <select
-                value={category}
-                onChange={(e) => {
-                  setCategory(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="
-                  h-10
-                  rounded-lg
-                  border
-                  border-(--admin-control-border)
-                  bg-(--admin-control-bg)
-                  px-3
-                  text-sm
-                  text-(--admin-text-secondary)
-                  outline-none
-                  transition
-                  focus:border-(--admin-primary)
-                  focus:ring-2
-                  focus:ring-[color-mix(in_srgb,var(--admin-primary)_15%,transparent)]
-                "
-              >
-                <option>All</option>
-                <option>Shoes</option>
-                <option>Electronics</option>
-                <option>Laptops</option>
-                <option>Headphones</option>
-                <option>Wearables</option>
-              </select>
+          <select
+  value={category}
+  onChange={(e) => {
+    setCategory(e.target.value);
+    // setCurrentPage(1);
+  }}
+  className="h-10 rounded-lg border border-(--admin-control-border) bg-(--admin-control-bg) px-3 text-sm text-(--admin-text-secondary) outline-none"
+>
+  <option value="All">All Categories</option>
+
+  {categories.map((cat) => (
+    <option key={cat} value={cat}>
+      {cat}
+    </option>
+  ))}
+</select>
 
               {/* Status */}
               <select
@@ -720,7 +714,10 @@ const [viewProduct, setViewProduct] = useState(null);
               <PageButtons
                 page={currentPage}
                 totalPages={totalPages}
-                onPageChange={(page) => setCurrentPage(page)}
+                onPageChange={(page) => {
+                   setCategory("All")
+                  setCurrentPage(page)
+                }}
                  colorTheme="admin"
               />
             </div>

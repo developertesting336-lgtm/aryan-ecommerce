@@ -47,3 +47,7 @@ export const createCouponAPI = (couponData) => {
      export const applyCouponAPI = ({ code,  productIds }) => { 
   return api.post(`${API_URL}/apply`,{ code,  productIds })
      };
+
+     export const updateCouponAPI = (id, couponData) => {
+  return api.put(`${API_URL}/${id}`, couponData);
+};
