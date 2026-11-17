@@ -61,7 +61,7 @@ const normalizeName = (value = "") =>
 const getCategoryAsset = (categoryName, index = 0) => {
   const name = normalizeName(categoryName);
 
- 
+
   // 💻 Laptops / Computers
   if (
     name === "laptops" ||
@@ -234,13 +234,13 @@ const getTitleLines = (name) => {
 
 export default function CategorySection() {
   const dispatch = useDispatch();
-const navigate = useNavigate()
+  const navigate = useNavigate()
   const scrollerRef = useRef(null);
   const cardRefs = useRef([]);
 
-const isDraggingRef = useRef(false);
-const dragStartXRef = useRef(0);
-const dragStartScrollLeftRef = useRef(0);
+  const isDraggingRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const dragStartScrollLeftRef = useRef(0);
   const [scrollProgress, setScrollProgress] =
     useState(0);
 
@@ -258,7 +258,7 @@ const dragStartScrollLeftRef = useRef(0);
     (state) =>
       state.category?.loading ?? false
   );
-const handleNavigate = (query) => {
+  const handleNavigate = (query) => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
@@ -385,7 +385,7 @@ const handleNavigate = (query) => {
       }
     );
   }, [electronicsChildren]);
-console.log("catcard",categories)
+  console.log("catcard", categories)
   // =======================================================
   // UPDATE SCROLL PROGRESS
   // =======================================================
@@ -412,142 +412,142 @@ console.log("catcard",categories)
     );
   };
 
-useEffect(() => {
-  const scroller = scrollerRef.current;
+  useEffect(() => {
+    const scroller = scrollerRef.current;
 
-  if (!scroller) return;
+    if (!scroller) return;
 
-  const handleWheel = (event) => {
-    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) {
-      return;
-    }
+    const handleWheel = (event) => {
+      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) {
+        return;
+      }
 
-    const maxScroll =
-      scroller.scrollWidth - scroller.clientWidth;
+      const maxScroll =
+        scroller.scrollWidth - scroller.clientWidth;
 
-    if (maxScroll <= 0) return;
+      if (maxScroll <= 0) return;
 
-    const nextScroll =
-      scroller.scrollLeft + event.deltaY;
+      const nextScroll =
+        scroller.scrollLeft + event.deltaY;
 
-    if (
-      nextScroll > 0 &&
-      nextScroll < maxScroll
-    ) {
-      event.preventDefault();
+      if (
+        nextScroll > 0 &&
+        nextScroll < maxScroll
+      ) {
+        event.preventDefault();
 
-      scroller.scrollLeft = nextScroll;
-    }
-  };
+        scroller.scrollLeft = nextScroll;
+      }
+    };
 
-  scroller.addEventListener(
-    "wheel",
-    handleWheel,
-    { passive: false }
-  );
-
-  return () => {
-    scroller.removeEventListener(
+    scroller.addEventListener(
       "wheel",
-      handleWheel
+      handleWheel,
+      { passive: false }
     );
-  };
-}, [categories]);
+
+    return () => {
+      scroller.removeEventListener(
+        "wheel",
+        handleWheel
+      );
+    };
+  }, [categories]);
 
   // =======================================================
   // TOUCH / TRACKPAD / MOUSE WHEEL EXPERIENCE
   // =======================================================
 
- useEffect(() => {
-  const scroller = scrollerRef.current;
+  useEffect(() => {
+    const scroller = scrollerRef.current;
 
-  if (!scroller) return;
+    if (!scroller) return;
 
-  const handlePointerDown = (event) => {
-    if (event.pointerType !== "mouse") return;
+    const handlePointerDown = (event) => {
+      if (event.pointerType !== "mouse") return;
 
-    isDraggingRef.current = true;
-    dragStartXRef.current = event.clientX;
-    dragStartScrollLeftRef.current =
-      scroller.scrollLeft;
+      isDraggingRef.current = true;
+      dragStartXRef.current = event.clientX;
+      dragStartScrollLeftRef.current =
+        scroller.scrollLeft;
 
-    scroller.style.cursor = "grabbing";
-    scroller.style.userSelect = "none";
-  };
+      scroller.style.cursor = "grabbing";
+      scroller.style.userSelect = "none";
+    };
 
-  const handlePointerMove = (event) => {
-    if (
-      !isDraggingRef.current ||
-      event.pointerType !== "mouse"
-    ) {
-      return;
-    }
+    const handlePointerMove = (event) => {
+      if (
+        !isDraggingRef.current ||
+        event.pointerType !== "mouse"
+      ) {
+        return;
+      }
 
-    const distance =
-      event.clientX - dragStartXRef.current;
+      const distance =
+        event.clientX - dragStartXRef.current;
 
-    scroller.scrollLeft =
-      dragStartScrollLeftRef.current - distance;
-  };
+      scroller.scrollLeft =
+        dragStartScrollLeftRef.current - distance;
+    };
 
-  const stopDragging = () => {
-    isDraggingRef.current = false;
-    scroller.style.cursor = "grab";
-    scroller.style.userSelect = "";
-  };
+    const stopDragging = () => {
+      isDraggingRef.current = false;
+      scroller.style.cursor = "grab";
+      scroller.style.userSelect = "";
+    };
 
-  scroller.addEventListener(
-    "pointerdown",
-    handlePointerDown
-  );
-
-  scroller.addEventListener(
-    "pointermove",
-    handlePointerMove
-  );
-
-  scroller.addEventListener(
-    "pointerup",
-    stopDragging
-  );
-
-  scroller.addEventListener(
-    "pointercancel",
-    stopDragging
-  );
-
-  scroller.addEventListener(
-    "pointerleave",
-    stopDragging
-  );
-
-  return () => {
-    scroller.removeEventListener(
+    scroller.addEventListener(
       "pointerdown",
       handlePointerDown
     );
 
-    scroller.removeEventListener(
+    scroller.addEventListener(
       "pointermove",
       handlePointerMove
     );
 
-    scroller.removeEventListener(
+    scroller.addEventListener(
       "pointerup",
       stopDragging
     );
 
-    scroller.removeEventListener(
+    scroller.addEventListener(
       "pointercancel",
       stopDragging
     );
 
-    scroller.removeEventListener(
+    scroller.addEventListener(
       "pointerleave",
       stopDragging
     );
-  };
-}, []);
+
+    return () => {
+      scroller.removeEventListener(
+        "pointerdown",
+        handlePointerDown
+      );
+
+      scroller.removeEventListener(
+        "pointermove",
+        handlePointerMove
+      );
+
+      scroller.removeEventListener(
+        "pointerup",
+        stopDragging
+      );
+
+      scroller.removeEventListener(
+        "pointercancel",
+        stopDragging
+      );
+
+      scroller.removeEventListener(
+        "pointerleave",
+        stopDragging
+      );
+    };
+  }, []);
   // =======================================================
   // GSAP MACOS DOCK EFFECT
   //
@@ -827,7 +827,7 @@ useEffect(() => {
                       cardRefs.current[index] =
                         element;
                     }}
-                    
+
                     role="listitem"
                     className="
                       shrink-0
@@ -838,7 +838,7 @@ useEffect(() => {
                     <CategoryCard
                       category={category}
                       onSelect={() =>
-                       handleNavigate(category.slug)
+                        handleNavigate(category.slug)
                       }
                     />
                   </div>
@@ -873,14 +873,13 @@ useEffect(() => {
                   ease-out
                 "
                 style={{
-                  width: `${
-                    categories.length > 0
-                      ? Math.max(
-                          12,
-                          scrollProgress
-                        )
-                      : 12
-                  }%`,
+                  width: `${categories.length > 0
+                    ? Math.max(
+                      12,
+                      scrollProgress
+                    )
+                    : 12
+                    }%`,
                 }}
               />
             </div>
@@ -927,12 +926,12 @@ useEffect(() => {
 }
 
 
-    // "dev": "vite",
-    // "build": "vite build",
-    // package.json "scripts"
+// "dev": "vite",
+// "build": "vite build",
+// package.json "scripts"
 
 
-    {
+{
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/" }
@@ -943,12 +942,47 @@ useEffect(() => {
 
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/client",
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/api/ssr" }
-  ],
-  "functions": {
+    "outputDirectory": "dist/client",
+      "rewrites": [
+        { "source": "/api/(.*)", "destination": "/api/$1" },
+        { "source": "/(.*)", "destination": "/api/ssr" }
+      ],
+        "functions": {
     "api/ssr.js": { "includeFiles": "dist/server/**" }
   }
+}
+
+
+
+
+
+
+
+
+{
+  "version": 2,
+    "buildCommand": "npm run build",
+      "outputDirectory": "dist/client",
+        "cleanUrls": true,
+          "trailingSlash": false,
+            "functions": {
+    "api/ssr.js": {
+      "includeFiles": "dist/**",
+        "runtime": "nodejs22.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/assets/(.*)",
+      "destination": "/assets/$1"
+    },
+    {
+      "source": "/(.*\\.(?:ico|png|jpg|jpeg|webp|avif|svg|jfif|css|js|json|woff2?|ttf|txt|xml))",
+      "destination": "/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/api/ssr?__p=/$1"
+    }
+  ]
 }
