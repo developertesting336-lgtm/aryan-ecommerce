@@ -429,6 +429,7 @@ export default function AdminContent() {
               onClick={handleRefresh}
               disabled={refreshing}
               className="
+              cursor-pointer
                 flex
                 h-10
                 items-center
@@ -465,6 +466,7 @@ export default function AdminContent() {
             <button
               onClick={handlePreview}
               className="
+              cursor-pointer
                 flex
                 h-10
                 items-center
@@ -640,13 +642,13 @@ export default function AdminContent() {
             STOREFRONT PAGES
         ===================================================== */}
 
-        <SectionHeader
+        {/* <SectionHeader
           icon={<Globe2 size={17} />}
           title="Storefront Pages"
           description="Manage customer-facing pages and business information."
-        />
+        /> */}
 
-        <div
+        {/* <div
           className="
             mb-8
             grid
@@ -664,19 +666,19 @@ export default function AdminContent() {
               onNavigate={navigate}
             />
           ))}
-        </div>
+        </div> */}
 
         {/* =====================================================
             LEGAL / INFORMATION
         ===================================================== */}
 
-        <SectionHeader
+        {/* <SectionHeader
           icon={<FileText size={17} />}
           title="Legal & Information"
           description="Manage policies and important customer information."
-        />
+        /> */}
 
-        <div
+        {/* <div
           className="
             mb-8
             grid
@@ -694,13 +696,13 @@ export default function AdminContent() {
               onNavigate={navigate}
             />
           ))}
-        </div>
+        </div> */}
 
         {/* =====================================================
             CUSTOM PAGES
         ===================================================== */}
 
-        <motion.section
+        {/* <motion.section
           initial={{ opacity: 0, y: 18 }}
           whileInView={{
             opacity: 1,
@@ -842,7 +844,7 @@ export default function AdminContent() {
               </p>
             </div>
           </div>
-        </motion.section>
+        </motion.section> */}
       </main>
     </div>
   );
@@ -1117,6 +1119,7 @@ function ContentCard({
           <button
             onClick={() => onNavigate(item.path)}
             className="
+            cursor-pointer
               flex
               items-center
               gap-1

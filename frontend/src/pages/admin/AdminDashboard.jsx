@@ -6,7 +6,7 @@ import SalesChart from "../../components/admin/SalesChart";
 import RecentOrders from "../../components/admin/RecentOrders";
 import TopProducts from "../../components/admin/TopProducts";
 
-import { Wallet } from "lucide-react";
+import { Wallet,Download  } from "lucide-react";
 
 export default function AdminDashboard() {
   const dispatch = useDispatch();
@@ -58,6 +58,68 @@ const [filter, setFilter] = useState("7days");
 
     return Number(stats?.revenue || 0);
   }, [salesOverview, stats]);
+
+  /* =========================================================
+     EXPORT REPORT
+  ========================================================= */
+
+  const handleExportReport = () => {
+    const rows = [];
+
+    // Report info
+    rows.push(["Admin Dashboard Report"]);
+    rows.push(["Generated On", new Date().toLocaleString("en-IN")]);
+    rows.push(["Filter", filter]);
+    rows.push([]);
+
+    // Stats
+    rows.push(["STATS"]);
+    rows.push(["Metric", "Value"]);
+    rows.push(["Total Sales", Number(stats?.revenue || totalSales)]);
+    rows.push(["Total Orders", Number(stats?.orders || 0)]);
+    rows.push(["Total Products", Number(stats?.products || 0)]);
+    rows.push(["Net Earnings", Number(stats?.adminEarining || 0)]);
+    rows.push([]);
+
+    // Order summary
+    rows.push(["ORDER SUMMARY (%)"]);
+    rows.push(["Status", "Value"]);
+    rows.push(["Pending", Number(orderSummery?.[0] || 0)]);
+    rows.push(["Confirmed", Number(orderSummery?.[1] || 0)]);
+    rows.push(["Shipped", Number(orderSummery?.[2] || 0)]);
+    rows.push(["Cancelled", Number(orderSummery?.[3] || 0)]);
+    rows.push([]);
+
+    // Sales overview
+    rows.push(["SALES OVERVIEW"]);
+    rows.push(["Date", "Sales"]);
+    chartData.forEach((item) => {
+      rows.push([item.date, item.sales]);
+    });
+    rows.push([]);
+
+    // Recent orders & top products (generic: uses whatever fields exist)
+    rows.push(...objectsToRows("RECENT ORDERS", recentOrders));
+    rows.push(...objectsToRows("TOP PRODUCTS", topProducts));
+
+    const csv = rows.map((row) => row.map(escapeCsv).join(",")).join("\n");
+
+    // "\uFEFF" makes Excel read UTF-8 correctly (e.g. the ₹ symbol)
+    const blob = new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `dashboard-report-${filter}-${new Date()
+      .toISOString()
+      .slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div
@@ -115,7 +177,7 @@ const [filter, setFilter] = useState("7days");
           </div>
 
           {/* Export */}
-          {/* <button
+          <button
             className="
               hidden
               rounded-lg
@@ -137,9 +199,12 @@ const [filter, setFilter] = useState("7days");
 
               sm:block
             "
+            onClick={handleExportReport}
+            disabled={loading}
           >
+             {/* <Download size={14} /> */}
             Export Report
-          </button> */}
+          </button>
         </div>
 
         {/* =====================================================
@@ -796,4 +861,40 @@ function formatChartDate(date) {
       day: "numeric",
     }
   );
+}
+
+
+
+
+function escapeCsv(value) {
+  if (value === null || value === undefined) return "";
+
+  let str =
+    typeof value === "object" ? JSON.stringify(value) : String(value);
+
+  // Prevent spreadsheet formula injection
+  if (typeof value === "string" && /^[=+\-@]/.test(str)) {
+    str = "'" + str;
+  }
+
+  return `"${str.replace(/"/g, '""')}"`;
+}
+
+function objectsToRows(title, list = []) {
+  const rows = [[title]];
+
+  if (!Array.isArray(list) || !list.length) {
+    rows.push(["No data"], []);
+    return rows;
+  }
+
+  const headers = Object.keys(list[0]);
+  rows.push(headers);
+
+  list.forEach((item) => {
+    rows.push(headers.map((key) => item?.[key]));
+  });
+
+  rows.push([]);
+  return rows;
 }

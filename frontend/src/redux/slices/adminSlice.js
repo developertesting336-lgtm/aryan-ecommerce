@@ -1,7 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import { getAdminDashboardApi, getAdminProductsApi, getAdminUsersApi,
-   getAdminOrdersApi,getProductByIdApi,adminEditProductsApi,updateProductStatusApi,getProductsByStatusApi } from "../../api/adminApi";
+   getAdminOrdersApi,getProductByIdApi,adminEditProductsApi,updateProductStatusApi,getProductsByStatusApi
+  ,searchAdminUsersApi } from "../../api/adminApi";
 
 // =====================================================
 // GET ADMIN DASHBOARD
@@ -142,6 +143,32 @@ export const updateProductStatus = createAsyncThunk(
   }
 );
 
+export const searchAdminUsers = createAsyncThunk(
+  "admin/searchAdminUsers",
+  async (
+    { page = 1, limit = 4, search = "", status = "" } = {},
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await searchAdminUsersApi(
+        page,
+        limit,
+        search,
+        status
+      );
+
+      return response.data?.data;
+
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to search customers"
+      );
+    }
+  }
+);
+
 // =====================================================
 // INITIAL STATE
 // =====================================================
@@ -181,6 +208,14 @@ users :[],
   approvalLoading: false,
   approvalError: null,
   statusUpdating: false,
+
+  searchUsers: [],
+searchPagination: {
+  filteredTotal: 0,
+  totalPages: 1,
+},
+searchLoading: false,
+searchError: null,
 };
 
 // =====================================================
@@ -259,12 +294,11 @@ const adminSlice = createSlice({
           action.payload?.products || [];
       })
 
-      .addCase(getAdminProducts.rejected, (state, action) => {
-        state.loading = false;
-
-        state.error =
-          action.payload || "Failed to load dashboard.";
-      })
+     .addCase(getAdminProducts.rejected, (state, action) => {
+  if (action.meta.aborted) return;
+  state.loading = false;
+  state.error = action.payload || "Failed to load products.";
+})
       .addCase(getAdminUsers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -286,12 +320,11 @@ const adminSlice = createSlice({
           action.payload?.users || [];
       })
 
-      .addCase(getAdminUsers.rejected, (state, action) => {
-        state.loading = false;
-
-        state.error =
-          action.payload || "Failed to load dashboard.";
-      })
+    .addCase(getAdminUsers.rejected, (state, action) => {
+  if (action.meta.aborted) return;   // ignore cancelled requests
+  state.loading = false;
+  state.error = action.payload || "Failed to load customers.";
+})
       .addCase(getAdminOrders.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -314,11 +347,10 @@ const adminSlice = createSlice({
       })
 
       .addCase(getAdminOrders.rejected, (state, action) => {
-        state.loading = false;
-
-        state.error =
-          action.payload || "Failed to load dashboard.";
-      })
+  if (action.meta.aborted) return;
+  state.loading = false;
+  state.error = action.payload || "Failed to load orders.";
+})
 
        .addCase(getProductById.pending,(state)=>{
             state.loading=true;
@@ -368,7 +400,29 @@ const adminSlice = createSlice({
 
       .addCase(updateProductStatus.rejected, (state) => {
         state.statusUpdating = false;
-      });
+      })
+
+      .addCase(searchAdminUsers.pending, (state) => {
+  state.searchLoading = true;
+  state.searchError = null;
+})
+
+.addCase(searchAdminUsers.fulfilled, (state, action) => {
+  state.searchLoading = false;
+
+  state.searchUsers = action.payload?.users || [];
+
+  state.searchPagination = {
+    filteredTotal: action.payload?.filteredTotal || 0,
+    totalPages: action.payload?.totalPages || 1,
+  };
+})
+
+.addCase(searchAdminUsers.rejected, (state, action) => {
+  if (action.meta.aborted) return;   // ignore cancelled requests
+  state.searchLoading = false;
+  state.searchError = action.payload || "Failed to search customers.";
+})
   },
 });
 

@@ -358,11 +358,12 @@ const productSlice = createSlice({
         state.searchedproducts = action.payload.products || [];
         state.pagination = action.payload.pagination;
       })
-      .addCase(searchProducts.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || "Failed to search products.";
-        state.searchedproducts = [];
-      });
+     .addCase(searchProducts.rejected, (state, action) => {
+  if (action.meta.aborted) return;
+  state.loading = false;
+  state.error = action.payload || "Failed to search products.";
+  state.searchedproducts = [];
+})
   },
 });
 

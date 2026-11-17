@@ -738,6 +738,7 @@ const [previewSlide, setPreviewSlide] =
                 window.history.back()
               }
               className="
+              cursor-pointer
                 mb-3
                 inline-flex
                 items-center
@@ -807,6 +808,7 @@ const [previewSlide, setPreviewSlide] =
               type="button"
               onClick={handleRefresh}
               className="
+              cursor-pointer
                 inline-flex
                 h-10
                 items-center
@@ -836,6 +838,7 @@ const [previewSlide, setPreviewSlide] =
               type="button"
               onClick={handleCreate}
               className="
+              cursor-pointer
                 inline-flex
                 h-10
                 items-center
@@ -908,7 +911,7 @@ const [previewSlide, setPreviewSlide] =
               onClick={() =>
                 dispatch(clearHeroError())
               }
-              className="rounded-lg p-1 hover:bg-red-100"
+              className="cursor-pointer rounded-lg p-1 hover:bg-red-100"
             >
               <X size={15} />
             </button>
@@ -1294,6 +1297,7 @@ function FilterButton({
       type="button"
       onClick={onClick}
       className={`
+        cursor-pointer
         h-9
         rounded-lg
         px-3
@@ -1467,6 +1471,7 @@ function HeroSlideCard({
             type="button"
             onClick={onPreview}
             className="
+            cursor-pointer
               absolute
               bottom-3
               left-3
@@ -1572,6 +1577,7 @@ function HeroSlideCard({
                   );
                 }}
                 className="
+                cursor-pointer
                   flex
                   h-8
                   w-8
@@ -1723,6 +1729,7 @@ function HeroSlideCard({
                 type="button"
                 onClick={onPreview}
                 className="
+                cursor-pointer
                   inline-flex
                   h-8
                   items-center
@@ -1745,6 +1752,7 @@ function HeroSlideCard({
                   onEdit(slide)
                 }
                 className="
+                cursor-pointer
                   inline-flex
                   h-8
                   items-center
@@ -1787,6 +1795,7 @@ function MenuButton({
       onClick={onClick}
       disabled={disabled}
       className={`
+        cursor-pointer
         flex
         w-full
         items-center
@@ -1945,6 +1954,7 @@ function EmptyState({
             type="button"
             onClick={onClear}
             className="
+            cursor-pointer
               inline-flex
               h-9
               items-center
@@ -1965,6 +1975,7 @@ function EmptyState({
             type="button"
             onClick={onCreate}
             className="
+            cursor-pointer
               inline-flex
               h-9
               items-center

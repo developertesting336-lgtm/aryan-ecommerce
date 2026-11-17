@@ -155,6 +155,7 @@ const initialState = {
   error: null,
 
   authChecked: false,
+   hydrated: false, // true once the browser has restored token/user
 };
 
 
@@ -198,6 +199,16 @@ const authSlice = createSlice({
 
       state.error = null;
     },
+
+    hydrateAuth: (state) => {
+  try {
+    state.user = JSON.parse(localStorage.getItem("user"));
+  } catch {
+    state.user = null;
+  }
+  state.token = localStorage.getItem("token") || null;
+  state.hydrated = true;
+},
   },
 
 

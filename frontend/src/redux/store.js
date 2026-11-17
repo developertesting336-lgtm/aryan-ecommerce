@@ -30,7 +30,36 @@ import promoCardReducer from "./slices/content/homepage/promoCardSlice";
 import promoGridReducer from "./slices/content/homepage/promoGridSlice";
 
 import shopByNeedReducer from "./slices/content/homepage/shopByNeedSlice";
-export const store = configureStore({
+// export const store = configureStore({
+//   reducer: {
+//     auth: authReducer,
+//     product: productReducer,
+//     cart: cartReducer,
+//     wishlist: wishlistReducer, // ✅ FIX
+//     category: categoryReducer,
+//     order: orderReducer,
+//     payment: paymentReducer,
+//     address: addressReducer,
+//     admin: adminReducer,
+//     vendor: vendorReducer,
+//     coupon: couponReducer,
+//     review: reviewReducer,
+//     ai: aiReducer,
+//     referral:referralReducer,
+//     adminReview: adminReviewReducer,
+//     refund: refundReducer,
+//     complaint: complaintReducer,
+//     homepage: homepageReducer,
+//     hero: heroReducer,
+//     promoCard: promoCardReducer,
+//     promoGrid: promoGridReducer,
+//     shopByNeed: shopByNeedReducer,
+//   },
+// });
+
+
+export function createStore(preloadedState) {
+return configureStore({
   reducer: {
     auth: authReducer,
     product: productReducer,
@@ -55,4 +84,7 @@ export const store = configureStore({
     promoGrid: promoGridReducer,
     shopByNeed: shopByNeedReducer,
   },
+  preloadedState,
 });
+}
+export const store = createStore();

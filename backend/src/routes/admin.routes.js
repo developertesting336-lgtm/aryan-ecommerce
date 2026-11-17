@@ -12,6 +12,7 @@ import {
   getAdminUserReviews,
   getProductsByStatus,
   updateProductStatus,
+  searchAdminUsers
 } from "../controllers/admin.controller.js";
 import { verifyJWT, verifyAdmin } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.js";
@@ -27,12 +28,14 @@ router.get("/products/:id", verifyJWT, verifyAdmin, getProductById);
 router.put("/products/:id", verifyJWT, verifyAdmin, upload, adminEditProducts);
 router.get("/orders/:id", verifyJWT, getOrderById);
 router.patch("/orders/:id/status", verifyJWT, verifyAdmin, adminUpdateOrderStatus);
+router.get("/users/search",  verifyJWT, verifyAdmin,searchAdminUsers);
 
 // Admin User Specific Orders & Reviews
 router.get("/users/:userId/orders", verifyJWT, verifyAdmin, getAdminUserOrders);
 router.get("/customers/:userId/orders", verifyJWT, verifyAdmin, getAdminUserOrders);
 router.get("/users/:userId/reviews", verifyJWT, verifyAdmin, getAdminUserReviews);
 router.get("/customers/:userId/reviews", verifyJWT, verifyAdmin, getAdminUserReviews);
+
 //products approvals
 
 router.patch("/products/:id/status", verifyJWT, verifyAdmin,updateProductStatus);

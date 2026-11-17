@@ -1,102 +1,115 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { ShoppingBag, Star, AlertCircle } from "lucide-react";
-import { getAdminUsers } from "../../redux/slices/adminSlice";
+import { getAdminUsers, searchAdminUsers } from "../../redux/slices/adminSlice";
 import PageButtons from "../../components/PageButtons";
-import useClickOutside from "../../hooks/useClickOutside";
+// import useClickOutside from "../../hooks/useClickOutside";
+
+const LIMIT = 4;
+
+const TABLE_HEADERS = [
+  { label: "Customer", align: "text-left" },
+  { label: "Phone", align: "text-left" },
+  { label: "Status", align: "text-left" },
+  { label: "Joined", align: "text-left" },
+  { label: "Action", align: "text-right" },
+];
 
 export default function AdminUsers() {
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const {
     stats = {},
     users = [],
+    searchUsers = [],
+    usersPagination = {},
+    searchPagination = {},
     loading,
+    searchLoading,
     error,
+    searchError,
   } = useSelector((state) => state.admin);
 
+  // ---------------------------------------------------
+  // Debounce search input (page reset happens only when
+  // the debounced value actually changes)
+  // ---------------------------------------------------
   useEffect(() => {
-    dispatch(
-      getAdminUsers({
-        page: currentPage,
-        limit: 4,
-      })
-    );
-  }, [dispatch, currentPage]);
+    const timer = setTimeout(() => {
+      const trimmed = search.trim();
+      setDebouncedSearch((prev) => {
+        if (prev !== trimmed) setCurrentPage(1);
+        return trimmed;
+      });
+    }, 500);
 
-  const userList = users || [];
-  const totalUsers = stats.totalUsers || userList.length || 0;
-  const totalPages = Math.max(1, Math.ceil(totalUsers / 4));
+    return () => clearTimeout(timer);
+  }, [search]);
 
-  const filteredUsers = userList.filter((user) => {
-    const searchTerm = search.toLowerCase();
+  // Use search API when there is a search term or a status filter
+  const isSearching = Boolean(debouncedSearch) || status !== "All";
 
-    const firstName = user.firstName?.toLowerCase() || "";
-    const email = user.email?.toLowerCase() || "";
+  // ---------------------------------------------------
+  // Fetch data. The cleanup aborts the previous request so
+  // an old, slower response can't overwrite a newer one.
+  // ---------------------------------------------------
+  useEffect(() => {
+    const request = isSearching
+      ? dispatch(
+          searchAdminUsers({
+            page: currentPage,
+            limit: LIMIT,
+            search: debouncedSearch,
+            status: status === "All" ? "" : status,
+          })
+        )
+      : dispatch(getAdminUsers({ page: currentPage, limit: LIMIT }));
 
-    const matchesSearch =
-      firstName.includes(searchTerm) ||
-      email.includes(searchTerm);
+    return () => request.abort();
+  }, [dispatch, currentPage, debouncedSearch, status, isSearching]);
 
-    const matchesStatus =
-      status === "All" ||
-      user.status?.toLowerCase() === status.toLowerCase();
+  // ---------------------------------------------------
+  // Derived data
+  // ---------------------------------------------------
+  const filteredUsers = (isSearching ? searchUsers : users) || [];
 
-    return matchesSearch && matchesStatus;
-  });
+  const totalUsers = isSearching
+    ? searchPagination.filteredTotal || 0
+    : usersPagination.totalUsers ?? stats.totalUsers ?? 0;
+
+  const totalPages = isSearching
+    ? searchPagination.totalPages || 1
+    : usersPagination.totalPages ||
+      Math.max(1, Math.ceil(totalUsers / LIMIT));
+
+  const isLoading = isSearching ? searchLoading : loading;
+  const displayError = isSearching ? searchError : error;
+
+  const revenue = stats.Revenue ?? stats.revenue ?? 0;
 
   return (
     <div className="min-h-screen bg-(--admin-bg) text-(--admin-text)">
       <main className="mx-auto w-full max-w-375 p-4 sm:p-5 lg:p-6 xl:p-7">
-
-        {/* =====================================================
-            HEADER
-        ===================================================== */}
-
+        {/* HEADER */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-xl font-bold tracking-tight text-(--admin-text) sm:text-2xl">
               Customers
             </h1>
-
             <p className="mt-1 text-xs text-(--admin-text-muted) sm:text-sm">
               Manage your ecommerce customers
             </p>
           </div>
-
-          {/* <button
-            onClick={() => navigate("/create-customer")}
-            className="
-              rounded-lg
-              border border-(--admin-primary)
-              bg-(--admin-primary)
-              px-4 py-2.5
-              text-xs font-semibold
-              text-white
-              shadow-sm
-              transition-all duration-200
-              hover:bg-(--admin-primary-hover)
-              hover:shadow-md
-              focus:outline-none
-              focus:ring-2
-              focus:ring-(--admin-primary)
-              focus:ring-offset-2
-            "
-          >
-            + Add Customer
-          </button> */}
         </div>
 
-        {/* =====================================================
-            STATS
-        ===================================================== */}
-
+        {/* STATS */}
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <UserStat
             title="Total Customers"
@@ -104,107 +117,90 @@ export default function AdminUsers() {
             icon="👥"
             color="purple"
           />
-
           <UserStat
             title="Active Customers"
             value={stats.activeUsers}
             icon="🟢"
             color="green"
           />
-
           <UserStat
             title="Blocked Customers"
             value={stats.blockedUsers}
             icon="🚫"
             color="red"
           />
-
           <UserStat
             title="Total Revenue"
-            value={`₹${Number(stats.Revenue || 0).toLocaleString("en-IN")}`}
+            value={`₹${Number(revenue).toLocaleString("en-IN")}`}
             icon="💰"
             color="blue"
           />
         </div>
 
-        {/* =====================================================
-            MAIN CARD
-        ===================================================== */}
-
+        {/* MAIN CARD */}
         <section
           className="
-            overflow-hidden
-            rounded-xl
+            overflow-hidden rounded-xl
             border border-(--admin-border)
             bg-(--admin-surface)
             shadow-(--admin-card-shadow)
             transition-colors duration-200
           "
         >
-
-          {/* =====================================================
-              TOOLBAR
-          ===================================================== */}
-
+          {/* TOOLBAR */}
           <div
             className="
               flex flex-col gap-4
               border-b border-(--admin-border)
-              p-5
-              lg:flex-row
-              lg:items-center
-              lg:justify-between
+              p-5 lg:flex-row lg:items-center lg:justify-between
             "
           >
             <div>
               <h2 className="text-sm font-bold text-(--admin-text)">
                 All Customers
               </h2>
-
               <p className="mt-1 text-[11px] text-(--admin-text-muted)">
-                {filteredUsers.length} customers found
+                {totalUsers} customers found
               </p>
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
-
               {/* Search */}
               <div
                 className="
-                  flex h-10 w-full
-                  items-center gap-2
-                  rounded-lg
-                  border border-(--admin-control-border)
-                  bg-(--admin-control-bg)
-                  px-3
-                  transition
+                  flex h-10 w-full items-center gap-2
+                  rounded-lg border border-(--admin-control-border)
+                  bg-(--admin-control-bg) px-3 transition
                   focus-within:border-(--admin-primary)
                   focus-within:ring-2
                   focus-within:ring-[color-mix(in_srgb,var(--admin-primary)_12%,transparent)]
                   sm:w-64
                 "
               >
-                <span className="text-sm text-(--admin-text-muted)">
-                  🔍
-                </span>
+                <span className="text-sm text-(--admin-text-muted)">🔍</span>
 
                 <input
                   type="text"
-                  placeholder="Search customers..."
+                  placeholder="Search name, email or phone..."
                   value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setCurrentPage(1);
-                  }}
+                  onChange={(e) => setSearch(e.target.value)}
                   className="
-                    w-full
-                    bg-transparent
-                    text-[11px]
-                    text-(--admin-text)
-                    outline-none
+                    w-full bg-transparent text-[11px]
+                    text-(--admin-text) outline-none
                     placeholder:text-(--admin-text-muted)
                   "
                 />
+
+                {search && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => setSearch("")}
+                    className="text-xs text-(--admin-text-muted) hover:text-(--admin-text)"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
 
               {/* Status */}
@@ -215,16 +211,12 @@ export default function AdminUsers() {
                   setCurrentPage(1);
                 }}
                 className="
-                  h-10
-                  rounded-lg
+                  h-10 rounded-lg
                   border border-(--admin-control-border)
-                  bg-(--admin-control-bg)
-                  px-3
-                  text-[11px]
-                  font-medium
+                  bg-(--admin-control-bg) px-3
+                  text-[11px] font-medium
                   text-(--admin-text-secondary)
-                  outline-none
-                  transition
+                  outline-none transition
                   focus:border-(--admin-primary)
                   focus:ring-2
                   focus:ring-[color-mix(in_srgb,var(--admin-primary)_12%,transparent)]
@@ -238,153 +230,58 @@ export default function AdminUsers() {
             </div>
           </div>
 
-          {/* =====================================================
-              LOADING
-          ===================================================== */}
-
-          {loading && (
+          {/* LOADING */}
+          {isLoading && (
             <div
               className="
                 flex items-center gap-3
                 border-b border-(--admin-border)
                 bg-[color-mix(in_srgb,var(--admin-primary)_5%,transparent)]
-                px-5 py-4
-                text-[11px]
-                font-medium
-                text-(--admin-primary)
+                px-5 py-4 text-[11px] font-medium text-(--admin-primary)
               "
             >
               <span
                 className="
-                  h-4 w-4
-                  animate-spin
-                  rounded-full
-                  border-2
+                  h-4 w-4 animate-spin rounded-full border-2
                   border-[color-mix(in_srgb,var(--admin-primary)_25%,transparent)]
                   border-t-(--admin-primary)
                 "
               />
-
               Loading customers...
             </div>
           )}
 
-          {/* =====================================================
-              ERROR
-          ===================================================== */}
-
-          {error && (
+          {/* ERROR (uses the error of the active mode) */}
+          {displayError && (
             <div
               className="
-                m-5
-                rounded-lg
-                border
-                border-red-200
-                bg-red-50
-                px-4 py-3
-                text-[11px]
-                font-medium
-                text-red-600
-                dark:border-red-900/50
-                dark:bg-red-950/30
-                dark:text-red-400
+                m-5 rounded-lg border border-red-200 bg-red-50
+                px-4 py-3 text-[11px] font-medium text-red-600
+                dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400
               "
             >
-              {error}
+              {displayError}
             </div>
           )}
 
-          {/* =====================================================
-              TABLE
-          ===================================================== */}
-
-          {!loading && (
-            <div
-              className="
-                w-full
-                overflow-x-auto
-                overscroll-x-contain
-                scrollbar-thin
-              "
-            >
+          {/* TABLE */}
+          {!isLoading && filteredUsers.length > 0 && (
+            <div className="w-full overflow-x-auto overscroll-x-contain scrollbar-thin">
               <table className="w-full min-w-212.5">
-
                 <thead>
-                  <tr
-                    className="
-                      border-b border-(--admin-border)
-                      bg-(--admin-surface-soft)
-                    "
-                  >
-                    <th
-                      className="
-                        px-5 py-3.5
-                        text-left
-                        text-[10px]
-                        font-bold
-                        uppercase
-                        tracking-wide
-                        text-(--admin-text-muted)
-                      "
-                    >
-                      Customer
-                    </th>
-
-                    <th
-                      className="
-                        px-5 py-3.5
-                        text-left
-                        text-[10px]
-                        font-bold
-                        uppercase
-                        tracking-wide
-                        text-(--admin-text-muted)
-                      "
-                    >
-                      Phone
-                    </th>
-
-                    <th
-                      className="
-                        px-5 py-3.5
-                        text-left
-                        text-[10px]
-                        font-bold
-                        uppercase
-                        tracking-wide
-                        text-(--admin-text-muted)
-                      "
-                    >
-                      Status
-                    </th>
-
-                    <th
-                      className="
-                        px-5 py-3.5
-                        text-left
-                        text-[10px]
-                        font-bold
-                        uppercase
-                        tracking-wide
-                        text-(--admin-text-muted)
-                      "
-                    >
-                      Joined
-                    </th>
-
-                    <th
-                      className="
-                        px-5 py-3.5
-                        text-right
-                        text-[10px]
-                        font-bold
-                        uppercase
-                        tracking-wide
-                        text-(--admin-text-muted)
-                      "
-                    >
-                      Action
-                    </th>
+                  <tr className="border-b border-(--admin-border) bg-(--admin-surface-soft)">
+                    {TABLE_HEADERS.map((h) => (
+                      <th
+                        key={h.label}
+                        className={`
+                          px-5 py-3.5 ${h.align}
+                          text-[10px] font-bold uppercase tracking-wide
+                          text-(--admin-text-muted)
+                        `}
+                      >
+                        {h.label}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
 
@@ -393,72 +290,39 @@ export default function AdminUsers() {
                     <tr
                       key={user._id}
                       className="
-                        group
-                        border-b border-(--admin-border)
-                        last:border-0
-                        transition-colors duration-200
+                        group border-b border-(--admin-border)
+                        last:border-0 transition-colors duration-200
                         hover:bg-(--admin-surface-soft)
                       "
                     >
-
                       {/* Customer */}
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
-
                           <div
                             className="
-                              flex h-9 w-9
-                              shrink-0
-                              items-center justify-center
-                              rounded-xl
-                              bg-(--admin-stat-purple-icon)
-                              text-[10px]
-                              font-bold
+                              flex h-9 w-9 shrink-0 items-center justify-center
+                              rounded-xl bg-(--admin-stat-purple-icon)
+                              text-[10px] font-bold
                               text-(--admin-stat-purple-text)
                             "
                           >
-                            {user.firstName
-                              ?.charAt(0)
-                              .toUpperCase() || "?"}
+                            {user.firstName?.charAt(0).toUpperCase() || "?"}
                           </div>
 
                           <div className="min-w-0">
-                            <p
-                              className="
-                                truncate
-                                text-[11px]
-                                font-semibold
-                                text-(--admin-text)
-                              "
-                            >
+                            <p className="truncate text-[11px] font-semibold text-(--admin-text)">
                               {user.firstName || "Unknown"}
                             </p>
-
-                            <p
-                              className="
-                                mt-0.5
-                                max-w-55
-                                truncate
-                                text-[10px]
-                                text-(--admin-text-muted)
-                              "
-                            >
+                            <p className="mt-0.5 max-w-55 truncate text-[10px] text-(--admin-text-muted)">
                               {user.email || "No email"}
                             </p>
                           </div>
-
                         </div>
                       </td>
 
                       {/* Phone */}
                       <td className="px-5 py-3.5">
-                        <span
-                          className="
-                            whitespace-nowrap
-                            text-[11px]
-                            text-(--admin-text-secondary)
-                          "
-                        >
+                        <span className="whitespace-nowrap text-[11px] text-(--admin-text-secondary)">
                           {user.phone || "—"}
                         </span>
                       </td>
@@ -470,21 +334,16 @@ export default function AdminUsers() {
 
                       {/* Joined */}
                       <td className="px-5 py-3.5">
-                        <span
-                          className="
-                            whitespace-nowrap
-                            text-[10px]
-                            text-(--admin-text-muted)
-                          "
-                        >
+                        <span className="whitespace-nowrap text-[10px] text-(--admin-text-muted)">
                           {user.createdAt
-                            ? new Date(
-                                user.createdAt
-                              ).toLocaleDateString("en-IN", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              })
+                            ? new Date(user.createdAt).toLocaleDateString(
+                                "en-IN",
+                                {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                }
+                              )
                             : "—"}
                         </span>
                       </td>
@@ -493,7 +352,6 @@ export default function AdminUsers() {
                       <td className="px-5 py-3.5 text-right">
                         <CustomerActionsDropdown user={user} />
                       </td>
-
                     </tr>
                   ))}
                 </tbody>
@@ -501,50 +359,32 @@ export default function AdminUsers() {
             </div>
           )}
 
-          {/* =====================================================
-              EMPTY STATE
-          ===================================================== */}
-
-          {!loading && filteredUsers.length === 0 && (
+          {/* EMPTY STATE */}
+          {!isLoading && !displayError && filteredUsers.length === 0 && (
             <div className="px-5 py-16 text-center">
-
               <div
                 className="
-                  mx-auto
-                  flex h-12 w-12
-                  items-center justify-center
-                  rounded-xl
-                  bg-(--admin-stat-purple-icon)
-                  text-2xl
+                  mx-auto flex h-12 w-12 items-center justify-center
+                  rounded-xl bg-(--admin-stat-purple-icon) text-2xl
                 "
               >
                 👥
               </div>
-
               <h3 className="mt-3 text-sm font-semibold text-(--admin-text)">
                 No customers found
               </h3>
-
               <p className="mt-1 text-[11px] text-(--admin-text-muted)">
                 Try changing your search or filter.
               </p>
-
             </div>
           )}
 
-          {/* =====================================================
-              PAGINATION
-          ===================================================== */}
-
-          {!loading && totalPages > 1 && (
+          {/* PAGINATION */}
+          {!isLoading && totalPages > 1 && (
             <div
               className="
-                flex flex-col gap-3
-                border-t border-(--admin-border)
-                p-5
-                sm:flex-row
-                sm:items-center
-                sm:justify-between
+                flex flex-col gap-3 border-t border-(--admin-border) p-5
+                sm:flex-row sm:items-center sm:justify-between
               "
             >
               <p className="text-[10px] text-(--admin-text-muted)">
@@ -563,11 +403,10 @@ export default function AdminUsers() {
                 page={currentPage}
                 totalPages={totalPages}
                 onPageChange={(page) => setCurrentPage(page)}
-                 colorTheme="admin"
+                colorTheme="admin"
               />
             </div>
           )}
-
         </section>
       </main>
     </div>
@@ -578,28 +417,20 @@ export default function AdminUsers() {
    USER STAT
 ========================================================= */
 
-function UserStat({
-  title,
-  value,
-  icon,
-  color = "purple",
-}) {
+function UserStat({ title, value, icon, color = "purple" }) {
   const colors = {
     purple: {
       bg: "bg-[var(--admin-stat-purple-bg)]",
       icon: "bg-[var(--admin-stat-purple-icon)] text-[var(--admin-stat-purple-text)]",
     },
-
     blue: {
       bg: "bg-[var(--admin-stat-blue-bg)]",
       icon: "bg-[var(--admin-stat-blue-icon)] text-[var(--admin-stat-blue-text)]",
     },
-
     green: {
       bg: "bg-[var(--admin-stat-green-bg)]",
       icon: "bg-[var(--admin-stat-green-icon)] text-[var(--admin-stat-green-text)]",
     },
-
     red: {
       bg: "bg-red-50 dark:bg-red-950/20",
       icon: "bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-400",
@@ -611,44 +442,28 @@ function UserStat({
   return (
     <div
       className={`
-        group
-        relative
-        overflow-hidden
-        rounded-xl
-        border border-(--admin-border)
-        ${theme.bg}
-        p-5
-        transition-all duration-200
-        hover:-translate-y-0.5
+        group relative overflow-hidden rounded-xl
+        border border-(--admin-border) ${theme.bg} p-5
+        transition-all duration-200 hover:-translate-y-0.5
         hover:shadow-[0_8px_24px_rgba(0,0,0,0.10)]
       `}
     >
       <div className="flex items-center justify-between">
-
         <div
           className={`
-            flex h-11 w-11
-            items-center justify-center
-            rounded-xl
-            text-xl
-            ${theme.icon}
-            transition-transform duration-200
+            flex h-11 w-11 items-center justify-center rounded-xl text-xl
+            ${theme.icon} transition-transform duration-200
             group-hover:scale-105
           `}
         >
           {icon}
         </div>
-
-        <span className="text-[10px] text-(--admin-text-muted)">
-          This month
-        </span>
-
+        <span className="text-[10px] text-(--admin-text-muted)">This month</span>
       </div>
 
       <p className="mt-4 text-[11px] font-medium text-(--admin-text-secondary)">
         {title}
       </p>
-
       <h2 className="mt-1 text-[22px] font-bold tracking-tight text-(--admin-text)">
         {value ?? 0}
       </h2>
@@ -661,51 +476,31 @@ function UserStat({
 ========================================================= */
 
 function UserStatus({ status }) {
-  const normalizedStatus =
-    status?.toLowerCase();
+  const normalizedStatus = status?.toLowerCase();
 
   const styles = {
     active: `
-      bg-emerald-50
-      text-emerald-600
-      ring-1 ring-emerald-100
-      dark:bg-emerald-950/40
-      dark:text-emerald-400
-      dark:ring-emerald-900
+      bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100
+      dark:bg-emerald-950/40 dark:text-emerald-400 dark:ring-emerald-900
     `,
-
     inactive: `
-      bg-slate-100
-      text-slate-500
-      ring-1 ring-slate-200
-      dark:bg-slate-800
-      dark:text-slate-400
-      dark:ring-slate-700
+      bg-slate-100 text-slate-500 ring-1 ring-slate-200
+      dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-700
     `,
-
     blocked: `
-      bg-red-50
-      text-red-600
-      ring-1 ring-red-100
-      dark:bg-red-950/40
-      dark:text-red-400
-      dark:ring-red-900
+      bg-red-50 text-red-600 ring-1 ring-red-100
+      dark:bg-red-950/40 dark:text-red-400 dark:ring-red-900
     `,
   };
 
   return (
     <span
       className={`
-        inline-flex
-        rounded-full
-        px-2.5 py-1
-        text-[9px]
-        font-bold
-        ${styles[normalizedStatus] || `
-          bg-(--admin-surface-soft)
-          text-(--admin-text-muted)
-          ring-1 ring-(--admin-border)
-        `}
+        inline-flex rounded-full px-2.5 py-1 text-[9px] font-bold
+        ${
+          styles[normalizedStatus] ||
+          `bg-(--admin-surface-soft) text-(--admin-text-muted) ring-1 ring-(--admin-border)`
+        }
       `}
     >
       {status || "Unknown"}
@@ -714,77 +509,121 @@ function UserStatus({ status }) {
 }
 
 /* =========================================================
-   CUSTOMER ACTIONS DROPDOWN (Task 3 + Task 5)
+   CUSTOMER ACTIONS DROPDOWN
 ========================================================= */
+
+/* =========================================================
+   CUSTOMER ACTIONS DROPDOWN (portal + fixed position)
+========================================================= */
+
+const MENU_HEIGHT = 130; // approx height of the 3 items
+const MENU_GAP = 4;
 
 function CustomerActionsDropdown({ user }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [dropUp, setDropUp] = useState(false);
+  const [pos, setPos] = useState({ right: 0, top: 0, bottom: null });
   const navigate = useNavigate();
+
+  const wrapperRef = useRef(null);
+  const menuRef = useRef(null);
   const closeTimerRef = useRef(null);
 
-  const closeDropdown = useCallback(() => {
+  const clearTimer = () => {
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+  };
+
+  const closeDropdown = useCallback(() => {
+    clearTimer();
     setIsOpen(false);
   }, []);
 
-  const dropdownRef = useClickOutside(closeDropdown, isOpen);
+  // Work out where the menu goes, from the button position on screen
+  const computePosition = () => {
+    if (!wrapperRef.current) return;
+    const rect = wrapperRef.current.getBoundingClientRect();
+    const right = window.innerWidth - rect.right;
+    const spaceBelow = window.innerHeight - rect.bottom;
 
-  const checkPosition = () => {
-    if (dropdownRef.current) {
-      const rect = dropdownRef.current.getBoundingClientRect();
-      // If there's less than 110px below, flip dropdown upwards to prevent clipping
-      if (window.innerHeight - rect.bottom < 110) {
-        setDropUp(true);
-      } else {
-        setDropUp(false);
-      }
+    if (spaceBelow < MENU_HEIGHT + MENU_GAP) {
+      // open upwards
+      setPos({
+        right,
+        top: null,
+        bottom: window.innerHeight - rect.top + MENU_GAP,
+      });
+    } else {
+      // open downwards
+      setPos({ right, top: rect.bottom + MENU_GAP, bottom: null });
     }
   };
 
-  const handleMouseEnter = () => {
-    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
-    checkPosition();
+  const openDropdown = () => {
+    clearTimer();
+    computePosition();
     setIsOpen(true);
   };
 
-  const handleMouseLeave = () => {
-    closeTimerRef.current = setTimeout(() => {
-      setIsOpen(false);
-    }, 150);
+  const scheduleClose = () => {
+    clearTimer();
+    closeTimerRef.current = setTimeout(() => setIsOpen(false), 150);
   };
+
+  // Click outside (checks both the button and the portal menu),
+  // plus close on scroll / resize because the menu is position: fixed
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleOutside = (e) => {
+      if (
+        wrapperRef.current?.contains(e.target) ||
+        menuRef.current?.contains(e.target)
+      ) {
+        return;
+      }
+      closeDropdown();
+    };
+
+    document.addEventListener("mousedown", handleOutside);
+    window.addEventListener("scroll", closeDropdown, true);
+    window.addEventListener("resize", closeDropdown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      window.removeEventListener("scroll", closeDropdown, true);
+      window.removeEventListener("resize", closeDropdown);
+    };
+  }, [isOpen, closeDropdown]);
+
+  // Clear the timer on unmount
+  useEffect(() => clearTimer, []);
 
   const handleToggle = (e) => {
     e.stopPropagation();
-    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
-    if (!isOpen) checkPosition();
-    setIsOpen((prev) => !prev);
+    if (isOpen) closeDropdown();
+    else openDropdown();
   };
 
-  const handleSelectOrders = (e) => {
+  const go = (path) => (e) => {
     e.stopPropagation();
     closeDropdown();
-    navigate(`/admin/customers/${user._id}/orders`);
+    navigate(path);
   };
 
-  const handleSelectReviews = (e) => {
-    e.stopPropagation();
-    closeDropdown();
-    navigate(`/admin/customers/${user._id}/reviews`);
-  };
-
-  const handleSelectComplaints = (e) => {
-    e.stopPropagation();
-    closeDropdown();
-    navigate(`/admin/complaints?userId=${user._id}`);
-  };
+  const itemClass = `
+    flex w-full items-center gap-2.5 rounded-lg px-3 py-2
+    text-left text-xs font-medium text-(--admin-text-secondary)
+    transition-colors duration-150
+    hover:bg-(--admin-surface-soft) hover:text-(--admin-primary)
+    focus:bg-(--admin-surface-soft) focus:text-(--admin-primary)
+    outline-none cursor-pointer
+  `;
 
   return (
     <div
-      ref={dropdownRef}
+      ref={wrapperRef}
       className="relative inline-block text-left"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={openDropdown}
+      onMouseLeave={scheduleClose}
     >
       <button
         type="button"
@@ -805,75 +644,58 @@ function CustomerActionsDropdown({ user }) {
         <span className="inline-block tracking-widest leading-none">⋮</span>
       </button>
 
-      {isOpen && (
-        <div
-          role="menu"
-          aria-orientation="vertical"
-          className={`
-            absolute right-0 z-50 min-w-36
-            rounded-xl border border-(--admin-border)
-            bg-(--admin-surface) p-1.5 shadow-xl
-            transition-all duration-150
-            ${
-              dropUp
-                ? "bottom-full mb-1 origin-bottom-right"
-                : "top-full mt-1 origin-top-right"
-            }
-          `}
-        >
-          <button
-            type="button"
-            role="menuitem"
-            onClick={handleSelectOrders}
+      {isOpen &&
+        createPortal(
+          <div
+            ref={menuRef}
+            role="menu"
+            aria-orientation="vertical"
+            onMouseEnter={clearTimer}
+            onMouseLeave={scheduleClose}
+            style={{
+              position: "fixed",
+              right: pos.right,
+              top: pos.top ?? undefined,
+              bottom: pos.bottom ?? undefined,
+            }}
             className="
-              flex w-full items-center gap-2.5 rounded-lg px-3 py-2
-              text-left text-xs font-medium text-(--admin-text-secondary)
-              transition-colors duration-150
-              hover:bg-(--admin-surface-soft) hover:text-(--admin-primary)
-              focus:bg-(--admin-surface-soft) focus:text-(--admin-primary)
-              outline-none cursor-pointer
+              z-9999 min-w-36 rounded-xl
+              border border-(--admin-border)
+              bg-(--admin-surface) p-1.5 shadow-xl
             "
           >
-            <ShoppingBag size={14} className="shrink-0 text-(--admin-primary)" />
-            <span>Orders</span>
-          </button>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={go(`/admin/customers/${user._id}/orders`)}
+              className={itemClass}
+            >
+              <ShoppingBag size={14} className="shrink-0 text-(--admin-primary)" />
+              <span>Orders</span>
+            </button>
 
-          <button
-            type="button"
-            role="menuitem"
-            onClick={handleSelectReviews}
-            className="
-              flex w-full items-center gap-2.5 rounded-lg px-3 py-2
-              text-left text-xs font-medium text-(--admin-text-secondary)
-              transition-colors duration-150
-              hover:bg-(--admin-surface-soft) hover:text-(--admin-primary)
-              focus:bg-(--admin-surface-soft) focus:text-(--admin-primary)
-              outline-none cursor-pointer
-            "
-          >
-            <Star size={14} className="shrink-0 text-amber-400" />
-            <span>Reviews</span>
-          </button>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={go(`/admin/customers/${user._id}/reviews`)}
+              className={itemClass}
+            >
+              <Star size={14} className="shrink-0 text-amber-400" />
+              <span>Reviews</span>
+            </button>
 
-          <button
-            type="button"
-            role="menuitem"
-            onClick={handleSelectComplaints}
-            className="
-              flex w-full items-center gap-2.5 rounded-lg px-3 py-2
-              text-left text-xs font-medium text-(--admin-text-secondary)
-              transition-colors duration-150
-              hover:bg-(--admin-surface-soft) hover:text-(--admin-primary)
-              focus:bg-(--admin-surface-soft) focus:text-(--admin-primary)
-              outline-none cursor-pointer
-            "
-          >
-            <AlertCircle size={14} className="shrink-0 text-rose-500" />
-            <span>Complaints</span>
-          </button>
-        </div>
-      )}
+            <button
+              type="button"
+              role="menuitem"
+              onClick={go(`/admin/complaints?userId=${user._id}`)}
+              className={itemClass}
+            >
+              <AlertCircle size={14} className="shrink-0 text-rose-500" />
+              <span>Complaints</span>
+            </button>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
-

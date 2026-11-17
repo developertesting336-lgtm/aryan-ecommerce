@@ -212,7 +212,7 @@ export const createReview = async (req, res) => {
 
       // This should later be calculated
       // from the user's order history.
-      isVerifiedPurchase: false,
+      // isVerifiedPurchase: true,
     });
 
     // -----------------------------------------

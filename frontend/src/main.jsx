@@ -7,11 +7,14 @@ import { store } from "./redux/store";
 import AppRoutes from './routes/AppRoutes';
 import { Toaster } from "react-hot-toast";
 import { ToastContainer } from "react-toastify";
+import { HelmetProvider } from "react-helmet-async";
 
 import { ThemeProvider } from "./context/ThemeContext";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <HelmetProvider>
+
     <Provider store={store}>
       <ThemeProvider>
         <AppRoutes />
@@ -33,5 +36,6 @@ createRoot(document.getElementById('root')).render(
         />
       </ThemeProvider>
     </Provider>
+    </HelmetProvider>
   </StrictMode>,
 )

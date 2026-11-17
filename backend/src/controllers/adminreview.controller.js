@@ -43,7 +43,7 @@ export const getReviewDashboard = async (req, res) => {
                 avgRating: { $avg: "$rating" },
                 thisMonth: flag({ $gte: ["$createdAt", monthStart] }),
                 lowRated: flag({ $lte: ["$rating", 2] }),
-                unverified: flag({ $not: ["$isVerifiedPurchase"] }),
+                // unverified: flag({ $not: ["$isVerifiedPurchase"] }),
                 withImages: flag({
                   $gt: [{ $size: { $ifNull: ["$images", []] } }, 0],
                 }),
@@ -85,7 +85,7 @@ export const getReviewDashboard = async (req, res) => {
           quickCounts: {
             hidden: s.hidden || 0,
             lowRated: s.lowRated || 0,
-            unverified: s.unverified || 0,
+            // unverified: s.unverified || 0,
             withImages: s.withImages || 0,
           },
           recent,

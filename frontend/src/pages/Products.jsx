@@ -1750,7 +1750,7 @@ export default function Products() {
                   </div>
 
                   <div>
-                    <p className="text-sm font-bold text-slate-950">
+                    <p className="text-sm font-bold">
                       {
                         filteredProducts.length
                       }{" "}

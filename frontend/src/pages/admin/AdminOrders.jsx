@@ -86,7 +86,7 @@ export default function AdminOrders() {
             </p>
           </div>
 
-          <button
+          {/* <button
             className="
               rounded-lg
               border border-(--admin-control-border)
@@ -103,7 +103,7 @@ export default function AdminOrders() {
             "
           >
             Export Orders
-          </button>
+          </button> */}
         </div>
 
         {/* ================= STATS ================= */}
@@ -393,6 +393,7 @@ export default function AdminOrders() {
                             navigate(`/admin/orders/${order._id}`)
                           }
                           className="
+                          cursor-pointer
                             text-xs font-bold
                             text-(--admin-success)
                             transition
@@ -492,6 +493,7 @@ export default function AdminOrders() {
                               )
                             }
                             className="
+                            cursor-pointer
                               rounded-lg p-2
                               text-(--admin-text-muted)
                               transition-all duration-150

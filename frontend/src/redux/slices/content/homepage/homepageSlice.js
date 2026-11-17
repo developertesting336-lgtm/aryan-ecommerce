@@ -67,6 +67,12 @@ const homepageSlice = createSlice({
 
       state.error = null;
     },
+
+     setHomepage(state, action) {
+    state.data = action.payload;   // match whatever shape your fulfilled case uses
+    state.loading = false;
+    state.error = null;
+  },
   },
 
   extraReducers: (builder) => {
@@ -107,6 +113,7 @@ const homepageSlice = createSlice({
 export const {
   clearHomepageError,
   clearHomepage,
+  setHomepage
 } = homepageSlice.actions;
 
 export default homepageSlice.reducer;

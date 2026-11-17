@@ -18,7 +18,8 @@ export const register =async(req,res)=>{
       firstName,
       lastName,
       password,
-      role
+      role,
+      status:"active",
     });
 
         return res.status(200).json(

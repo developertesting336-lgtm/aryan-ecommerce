@@ -13,6 +13,10 @@ import Layout from "../layouts/Layout";
 import AdminLayout from "../layouts/AdminLayout";
 import VendorLayout from "../layouts/VendorLayout";
 
+
+import Home from "../pages/Home";
+import Products from "../pages/Products";
+import SearchPage from "../pages/SearchProducts";
 // ============================================
 // LAZY LOADED ROUTE PAGES
 // ============================================
@@ -22,15 +26,15 @@ const Login = lazy(() => import("../pages/Login"));
 const RegisterPage = lazy(() => import("../pages/Register"));
 
 // Customer Pages
-const Home = lazy(() => import("../pages/Home"));
-const Products = lazy(() => import("../pages/Products"));
+// const Home = lazy(() => import("../pages/Home"));
+// const Products = lazy(() => import("../pages/Products"));
 const ProductDetails = lazy(() => import("../pages/ProductDetails"));
 const Cart = lazy(() => import("../pages/Cart"));
 const Wishlist = lazy(() => import("../pages/WishList"));
 const Profile = lazy(() => import("../pages/Profile"));
 const Addresses = lazy(() => import("../pages/Addresses"));
 const CategoriesPage = lazy(() => import("../pages/Categories"));
-const SearchPage = lazy(() => import("../pages/SearchProducts"));
+// const SearchPage = lazy(() => import("../pages/SearchProducts"));
 const CreateProduct = lazy(() => import("../pages/CreateProduct"));
 const CreateOrder = lazy(() => import("../pages/CreateOrder"));
 const Orders = lazy(() => import("../pages/Orders"));
@@ -114,7 +118,8 @@ function AppRoutes() {
   }, [dispatch, token]);
 
   return (
-    <BrowserRouter>
+    // <BrowserRouter>
+    <>
       {/* Automatically smooth-scrolls to top on page navigation */}
       <ScrollToTop />
       <Suspense
@@ -470,8 +475,21 @@ function AppRoutes() {
 
         </Routes>
       </Suspense>
-    </BrowserRouter>
+      </>
+    // </BrowserRouter>
   );
 }
 
 export default AppRoutes;
+
+
+
+
+
+
+
+
+
+
+
+

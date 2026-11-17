@@ -925,3 +925,8 @@ useEffect(() => {
     </section>
   );
 }
+
+
+    // "dev": "vite",
+    // "build": "vite build",
+    // package.json "scripts"

@@ -1047,3 +1047,65 @@ export const updateProductStatus = async (req, res) => {
     });
   }
 };
+
+
+
+export const searchAdminUsers = async (req, res) => {
+  try {
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit) || 4, 1);
+    const skip = (page - 1) * limit;
+
+    const search = req.query.search?.trim() || "";
+    const status = req.query.status?.trim().toLowerCase() || "";
+
+    const filter = {};
+
+    if (search) {
+      const safeSearch = search.replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&"
+      );
+
+      filter.$or = [
+        { firstName: { $regex: safeSearch, $options: "i" } },
+        { email: { $regex: safeSearch, $options: "i" } },
+        { phone: { $regex: safeSearch, $options: "i" } },
+      ];
+    }
+
+    if (status && status !== "all") {
+      filter.status = status;
+    }
+
+    const filteredTotal = await User.countDocuments(filter);
+
+    const users = await User.find(filter)
+      .select("-password")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          users,
+          page,
+          limit,
+          filteredTotal,
+          totalPages: Math.ceil(filteredTotal / limit),
+        },
+        "Customers searched successfully"
+      )
+    );
+
+  } catch (error) {
+    console.log("Search Admin Users Error:", error);
+
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

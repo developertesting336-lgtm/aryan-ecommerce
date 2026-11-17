@@ -246,14 +246,7 @@ export default function ReviewsPage() {
       icon: "down",
       filters: { ratingMin: 1, ratingMax: 2 },
     },
-    {
-      title: "Unverified purchases",
-      desc: "Reviewer did not buy from your store",
-      count: quickCounts.unverified,
-      tone: "blue",
-      icon: "shield",
-      filters: { verified: "unverified" },
-    },
+   
     {
       title: "Reviews with photos",
       desc: "Check images before they go live",

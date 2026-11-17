@@ -64,3 +64,20 @@ export const getProductsByStatusApi = (status = "pending", page = 1, limit = 5, 
 export const updateProductStatusApi = (id, status, reason) => {
   return api.patch(`${API_URL}/products/${id}/status`, { status, reason });
 };
+
+
+export const searchAdminUsersApi = (
+  page = 1,
+  limit = 4,
+  search = "",
+  status = ""
+) => {
+  return api.get("/admin/users/search", {
+    params: {
+      page,
+      limit,
+      search,
+      status,
+    },
+  });
+};
