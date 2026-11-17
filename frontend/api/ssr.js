@@ -40,6 +40,7 @@ export default async function handler(req, res) {
   const pathname = url.split("?")[0].replace(/\/$/, "") || "/";
   let html = "";
   let stateScript = "";
+  let ssrStatus = "skipped";
 
   if (SSR_PATHS.includes(pathname)) {
     try {
@@ -48,7 +49,9 @@ export default async function handler(req, res) {
       html = result.html;
       const json = JSON.stringify(result.state).replace(/</g, "\\u003c");
       stateScript = `<script>window.__PRELOADED_STATE__=${json}</script>`;
+      ssrStatus = "ok";
     } catch (e) {
+      ssrStatus = "failed";
       // Fall back to client-side rendering instead of showing a 500
       console.error("SSR RENDER FAILED for", url, e);
     }
@@ -56,6 +59,7 @@ export default async function handler(req, res) {
 
   res.statusCode = 200;
   res.setHeader("Content-Type", "text/html");
+  res.setHeader("x-ssr", ssrStatus); // check in Network tab: ok | failed | skipped
   res.end(
     template
       .replace("<!--app-html-->", html)
