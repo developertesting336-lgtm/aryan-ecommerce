@@ -930,3 +930,11 @@ useEffect(() => {
     // "dev": "vite",
     // "build": "vite build",
     // package.json "scripts"
+
+
+    {
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)", "destination": "/" }
+  ]
+}
