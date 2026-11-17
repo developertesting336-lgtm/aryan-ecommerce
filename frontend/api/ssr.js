@@ -36,7 +36,16 @@ export default async function handler(req, res) {
     return;
   }
 
-  const url = req.url;
+  // On Vercel the rewrite passes the real page path as ?__p=... because
+  // req.url can be the function's own path (/api/ssr) rather than the page.
+  const incoming = new URL(req.url, "http://localhost");
+  const realPath = incoming.searchParams.get("__p");
+  let url = req.url;
+  if (realPath !== null) {
+    incoming.searchParams.delete("__p");
+    url = (realPath.startsWith("/") ? realPath : "/" + realPath) + incoming.search;
+  }
+  res.setHeader("x-ssr-url", url); // debug: what the function thinks it is rendering
   const pathname = url.split("?")[0].replace(/\/$/, "") || "/";
   let html = "";
   let stateScript = "";
@@ -52,6 +61,7 @@ export default async function handler(req, res) {
       ssrStatus = "ok";
     } catch (e) {
       ssrStatus = "failed";
+      res.setHeader("x-ssr-error", String(e && e.message).replace(/[^\x20-\x7e]/g, " ").slice(0, 200));
       // Fall back to client-side rendering instead of showing a 500
       console.error("SSR RENDER FAILED for", url, e);
     }

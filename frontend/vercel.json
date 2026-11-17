@@ -3,7 +3,7 @@
   "outputDirectory": "dist/client",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/api/ssr" }
+    { "source": "/:path*", "destination": "/api/ssr?__p=/:path*" }
   ],
   "functions": {
     "api/ssr.js": { "includeFiles": "dist/server/**" }
