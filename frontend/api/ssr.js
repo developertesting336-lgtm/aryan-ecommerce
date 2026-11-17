@@ -1,78 +1,143 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
-// Fake storage for SSR: the server has no browser storage
-const memoryStorage = { getItem: () => null, setItem() {}, removeItem() {}, clear() {} };
-try {
+// Polyfill minimal storage for SSR in Node serverless function
+const memoryStorage = {
+  getItem: () => null,
+  setItem: () => { },
+  removeItem: () => { },
+  clear: () => { },
+};
+if (typeof globalThis.localStorage === "undefined") {
   globalThis.localStorage = memoryStorage;
+}
+if (typeof globalThis.sessionStorage === "undefined") {
   globalThis.sessionStorage = memoryStorage;
-} catch (e) {
-  console.warn("Could not stub storage:", e.message);
 }
 
-const SSR_PATHS = ["/", "/products", "/search"];
-
-// Resolve relative to this file (not process.cwd()) so it works on Vercel
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TEMPLATE_PATH = path.join(__dirname, "..", "dist", "server", "template.html");
 
-let cachedTemplate;
+let cachedTemplate = null;
 function getTemplate() {
-  // Read inside the handler: a missing file now gives a readable error
-  // in the logs instead of crashing the whole function on load.
-  if (!cachedTemplate) cachedTemplate = fs.readFileSync(TEMPLATE_PATH, "utf-8");
-  return cachedTemplate;
+  if (cachedTemplate) return cachedTemplate;
+
+  const candidatePaths = [
+    path.join(process.cwd(), "dist", "client", "template.html"),
+    path.join(process.cwd(), "dist", "server", "template.html"),
+    path.join(process.cwd(), "dist", "template.html"),
+    path.join(__dirname, "..", "dist", "client", "template.html"),
+    path.join(__dirname, "..", "dist", "server", "template.html"),
+  ];
+
+  for (const candidate of candidatePaths) {
+    if (fs.existsSync(candidate)) {
+      cachedTemplate = fs.readFileSync(candidate, "utf-8");
+      return cachedTemplate;
+    }
+  }
+
+  throw new Error(
+    `Template not found. Checked: ${candidatePaths.join(", ")}`
+  );
+}
+
+let cachedRenderModule = null;
+async function getRenderFunction() {
+  if (cachedRenderModule) return cachedRenderModule;
+
+  const candidatePaths = [
+    path.join(process.cwd(), "dist", "server", "entry-server.js"),
+    path.join(__dirname, "..", "dist", "server", "entry-server.js"),
+  ];
+
+  for (const candidate of candidatePaths) {
+    if (fs.existsSync(candidate)) {
+      const module = await import(pathToFileURL(candidate).href);
+      cachedRenderModule = module.render;
+      return cachedRenderModule;
+    }
+  }
+
+  throw new Error(
+    `Server entry not found. Checked: ${candidatePaths.join(", ")}`
+  );
 }
 
 export default async function handler(req, res) {
   let template;
   try {
     template = getTemplate();
-  } catch (e) {
-    console.error("TEMPLATE READ FAILED:", TEMPLATE_PATH, e);
+  } catch (err) {
+    console.error("TEMPLATE LOAD ERROR:", err);
     res.statusCode = 500;
-    res.end("Template not found: " + e.message);
+    res.setHeader("Content-Type", "text/plain");
+    res.end("Server Error: HTML template missing. " + err.message);
     return;
   }
 
-  // On Vercel the rewrite passes the real page path as ?__p=... because
-  // req.url can be the function's own path (/api/ssr) rather than the page.
+  // Parse true requested path (Vercel rewrite forwards as ?__p=...)
   const incoming = new URL(req.url, "http://localhost");
-  const realPath = incoming.searchParams.get("__p");
-  let url = req.url;
-  if (realPath !== null) {
-    incoming.searchParams.delete("__p");
-    url = (realPath.startsWith("/") ? realPath : "/" + realPath) + incoming.search;
+  const paramPath = incoming.searchParams.get("__p");
+  let url = paramPath || req.headers["x-matched-path"] || req.url;
+  if (!url.startsWith("/")) {
+    url = "/" + url;
   }
-  res.setHeader("x-ssr-url", url); // debug: what the function thinks it is rendering
-  const pathname = url.split("?")[0].replace(/\/$/, "") || "/";
-  let html = "";
-  let stateScript = "";
-  let ssrStatus = "skipped";
 
-  if (SSR_PATHS.includes(pathname)) {
-    try {
-      const { render } = await import("../dist/server/entry-server.js");
-      const result = await render(url);
-      html = result.html;
-      const json = JSON.stringify(result.state).replace(/</g, "\\u003c");
-      stateScript = `<script>window.__PRELOADED_STATE__=${json}</script>`;
-      ssrStatus = "ok";
-    } catch (e) {
-      ssrStatus = "failed";
-      res.setHeader("x-ssr-error", String(e && e.message).replace(/[^\x20-\x7e]/g, " ").slice(0, 200));
-      // Fall back to client-side rendering instead of showing a 500
-      console.error("SSR RENDER FAILED for", url, e);
-    }
+  let html = "";
+  let head = "";
+  let stateScript = "";
+
+  try {
+    const render = await getRenderFunction();
+    const result = await render(url);
+    html = result.html || "";
+    head = result.head || "";
+
+    const jsonState = JSON.stringify(result.state || {}).replace(/</g, "\\u003c");
+    stateScript = `<script>window.__PRELOADED_STATE__=${jsonState};window.__INITIAL_DATA__=window.__PRELOADED_STATE__;</script>`;
+
+    // Short ISR-style edge caching on Vercel
+    res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
+    res.setHeader("x-ssr", "hit");
+    res.setHeader("x-ssr-url", url);
+  } catch (err) {
+    console.error("SSR RENDER ERROR for", url, err);
+    // If render fails, log loudly and fall back to client template so site remains available
+    res.setHeader("x-ssr", "failed");
+    res.setHeader("x-ssr-error", String(err && err.message).replace(/[^\x20-\x7e]/g, " ").slice(0, 200));
+  }
+
+  let finalHtml = template;
+
+  // 1. Inject Head
+  if (finalHtml.includes("<!--app-head-->")) {
+    finalHtml = finalHtml.replace("<!--app-head-->", head);
+  } else if (head) {
+    finalHtml = finalHtml.replace("</head>", `${head}\n</head>`);
+  }
+
+  // 2. Inject HTML
+  if (finalHtml.includes("<!--app-html-->")) {
+    finalHtml = finalHtml.replace("<!--app-html-->", html);
+  } else if (finalHtml.includes('<div id="root"></div>')) {
+    finalHtml = finalHtml.replace('<div id="root"></div>', `<div id="root">${html}</div>`);
+  } else {
+    finalHtml = finalHtml.replace(
+      /<div id="root">[\s\S]*?<\/div>/,
+      `<div id="root">${html}</div>`
+    );
+  }
+
+  // 3. Inject State Script
+  if (finalHtml.includes("<!--app-state-->")) {
+    finalHtml = finalHtml.replace("<!--app-state-->", stateScript);
+  } else if (stateScript) {
+    finalHtml = finalHtml.replace("</body>", `${stateScript}\n</body>`);
   }
 
   res.statusCode = 200;
-  res.setHeader("Content-Type", "text/html");
-  res.setHeader("x-ssr", ssrStatus); // check in Network tab: ok | failed | skipped
-  res.end(
-    template
-      .replace("<!--app-html-->", html)
-      .replace("<!--app-state-->", stateScript)
-  );
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.end(finalHtml);
 }
+

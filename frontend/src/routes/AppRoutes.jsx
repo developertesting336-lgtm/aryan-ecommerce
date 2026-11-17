@@ -17,13 +17,11 @@ import VendorLayout from "../layouts/VendorLayout";
 import Home from "../pages/Home";
 import Products from "../pages/Products";
 import SearchPage from "../pages/SearchProducts";
+import Login from "../pages/Login";
+import RegisterPage from "../pages/Register";
 // ============================================
 // LAZY LOADED ROUTE PAGES
 // ============================================
-
-// Auth Pages
-const Login = lazy(() => import("../pages/Login"));
-const RegisterPage = lazy(() => import("../pages/Register"));
 
 // Customer Pages
 // const Home = lazy(() => import("../pages/Home"));
@@ -137,6 +135,7 @@ function AppRoutes() {
         <Route path="/login" element={<Login />} />
 
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/signup" element={<RegisterPage />} />
 
         {/* ======================================================
             CUSTOMER / SHOP

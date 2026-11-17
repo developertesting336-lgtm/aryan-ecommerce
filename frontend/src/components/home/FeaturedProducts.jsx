@@ -74,13 +74,20 @@ export default function FeaturedProducts() {
     error = null,
   } = useSelector((state) => state.product);
 
+  const homepageFeatured = useSelector(
+    (state) => state.homepage?.featuredProducts || []
+  );
+
   // =========================================================
   // MEMOIZED PRODUCTS
   // =========================================================
 
   const featuredProducts = useMemo(() => {
+    if (Array.isArray(homepageFeatured) && homepageFeatured.length > 0) {
+      return homepageFeatured;
+    }
     return Array.isArray(product) ? product : [];
-  }, [product]);
+  }, [homepageFeatured, product]);
 
   // =========================================================
   // REDUX PAGINATION

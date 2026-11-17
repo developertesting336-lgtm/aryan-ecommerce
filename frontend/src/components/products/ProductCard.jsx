@@ -1,7 +1,7 @@
 import { Heart, ShoppingCart, Package, Check, Star } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 
 import fallbackImage from "../../assets/wmpj6_512.avif";
@@ -21,7 +21,12 @@ import {
 import { getProductSlug } from "../../utils/productSlug";
 import { showSuccess, showError } from "../../utils/toast";
 
-const BASE_URL = "http://localhost:3000/uploads/";
+const API_ORIGIN =
+  (typeof import.meta !== "undefined" && (import.meta.env?.VITE_API_URL || import.meta.env?.VITE_BACKEND_URL))
+    ? (import.meta.env?.VITE_API_URL || import.meta.env?.VITE_BACKEND_URL).replace(/\/api\/?$/, "")
+    : "https://backend-one-rho-24.vercel.app";
+
+const BASE_URL = `${API_ORIGIN}/uploads/`;
 
 /*
 |--------------------------------------------------------------------------
@@ -493,7 +498,14 @@ export default function ProductCard({
           onClick={handleProductClick}
           className="cursor-pointer truncate text-[15px] font-semibold leading-[21px] tracking-[-0.01em] text-slate-900 dark:text-gray-100 transition-colors duration-200 hover:text-blue-600 dark:hover:text-blue-400"
         >
-          {name || "Product"}
+          <Link
+            to={`/product/${productSlug}`}
+            state={{ productId: _id }}
+            onClick={(e) => e.stopPropagation()}
+            className="hover:underline"
+          >
+            {name || "Product"}
+          </Link>
         </h3>
 
         {/* PRICE */}

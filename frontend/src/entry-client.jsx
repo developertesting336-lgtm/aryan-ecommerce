@@ -7,7 +7,7 @@ import "./index.css";
 import { createStore } from "./redux/store";
 import Root from "./Root";
 
-const serverState = window.__PRELOADED_STATE__;
+const serverState = window.__PRELOADED_STATE__ || window.__INITIAL_DATA__;
 
 let store;
 if (serverState) {

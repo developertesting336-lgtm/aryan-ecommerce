@@ -122,21 +122,25 @@ export const getUserById = createAsyncThunk(
 
 
 // ========================================
-// LOCAL STORAGE
+// LOCAL STORAGE (SSR safe)
 // ========================================
 
 let savedUser = null;
+let savedToken = null;
 
-try {
-  savedUser = JSON.parse(
-    localStorage.getItem("user")
-  );
-} catch (error) {
-  savedUser = null;
+if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+  try {
+    savedUser = JSON.parse(localStorage.getItem("user"));
+  } catch (error) {
+    savedUser = null;
+  }
+
+  try {
+    savedToken = localStorage.getItem("token");
+  } catch (error) {
+    savedToken = null;
+  }
 }
-
-const savedToken =
-  localStorage.getItem("token");
 
 
 // ========================================

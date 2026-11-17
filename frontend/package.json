@@ -7,9 +7,11 @@
     "node": "22.x"
   },
   "scripts": {
-    "dev": "node server.js",
-    "build": "vite build --outDir dist/client && vite build --ssr src/entry-server.jsx --outDir dist/server && node scripts/post-build.js",
+    "dev": "vite",
+    "dev:ssr": "node server.js",
+    "build": "vite build --outDir dist/client && vite build --ssr src/entry-server.jsx --outDir dist/server && node scripts/prepare-ssr.js",
     "start": "cross-env NODE_ENV=production node server.js",
+    "prerender": "node prerender.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },

@@ -242,9 +242,11 @@ export default function CategorySection() {
   // REDUX
   // =======================================================
 
-  const rootCategories = useSelector(
-    (state) => state.category?.rootCategories ?? []
-  );
+  const rootCategories = useSelector((state) => {
+    const list = state.category?.rootCategories ?? [];
+    if (list.length > 0) return list;
+    return state.homepage?.categories ?? [];
+  });
 
   const categoryChildren = useSelector(
     (state) => state.category?.children ?? {}
@@ -311,33 +313,36 @@ export default function CategorySection() {
   // =======================================================
 
   const electronicsChildren = useMemo(() => {
-    if (!electronicsCategory) {
-      return [];
+    if (electronicsCategory) {
+      const embeddedChildren =
+        electronicsCategory.children ||
+        electronicsCategory.subcategories ||
+        [];
+
+      if (
+        Array.isArray(fetchedElectronicsChildren) &&
+        fetchedElectronicsChildren.length
+      ) {
+        return fetchedElectronicsChildren;
+      }
+
+      if (
+        Array.isArray(embeddedChildren) &&
+        embeddedChildren.length
+      ) {
+        return embeddedChildren;
+      }
     }
 
-    const embeddedChildren =
-      electronicsCategory.children ||
-      electronicsCategory.subcategories ||
-      [];
-
-    if (
-      Array.isArray(fetchedElectronicsChildren) &&
-      fetchedElectronicsChildren.length
-    ) {
-      return fetchedElectronicsChildren;
-    }
-
-    if (
-      Array.isArray(embeddedChildren) &&
-      embeddedChildren.length
-    ) {
-      return embeddedChildren;
+    if (Array.isArray(rootCategories) && rootCategories.length > 0) {
+      return rootCategories;
     }
 
     return [];
   }, [
     electronicsCategory,
     fetchedElectronicsChildren,
+    rootCategories,
   ]);
 
   // =======================================================
