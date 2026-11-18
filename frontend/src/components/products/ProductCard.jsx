@@ -48,18 +48,9 @@ const getImageUrl = (image) => {
     return image;
   }
 
-  // /uploads/image.jpg
-  if (image.startsWith("/uploads/")) {
-    return `http://localhost:3000${image}`;
-  }
-
-  // uploads/image.jpg
-  if (image.startsWith("uploads/")) {
-    return `http://localhost:3000/${image}`;
-  }
-
-  // image.jpg
-  return `${BASE_URL}${image}`;
+  // Relative or uploaded image
+  const cleanPath = String(image).replace(/^\/?uploads\//, "").replace(/^\//, "");
+  return `${BASE_URL}${cleanPath}`;
 };
 
 /*

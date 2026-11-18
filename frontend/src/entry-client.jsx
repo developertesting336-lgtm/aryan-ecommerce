@@ -5,6 +5,7 @@ import { Provider } from "react-redux";
 // import { HelmetProvider } from "react-helmet-async";
 import "./index.css";
 import { createStore } from "./redux/store";
+import { rehydrateAuth } from "./redux/slices/authSlice";
 import Root from "./Root";
 
 const serverState = window.__PRELOADED_STATE__ || window.__INITIAL_DATA__;
@@ -34,6 +35,8 @@ const container = document.getElementById("root");
 
 if (serverState) {
   hydrateRoot(container, app);
+  store.dispatch(rehydrateAuth());
 } else {
+  store.dispatch(rehydrateAuth());
   createRoot(container).render(app);
 }

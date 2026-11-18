@@ -11,7 +11,11 @@ export default function AddonProducts({
 }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-const API_URL = "http://localhost:3000";
+const API_URL =
+  (typeof import.meta !== "undefined" &&
+    (import.meta.env?.VITE_API_URL || import.meta.env?.VITE_BACKEND_URL))
+    ? (import.meta.env?.VITE_API_URL || import.meta.env?.VITE_BACKEND_URL).replace(/\/api\/?$/, "")
+    : "https://backend-one-rho-24.vercel.app";
 
   const [selected, setSelected] = useState([currentProduct._id]);
   const { token, user } = useSelector((state) => state.auth || {});

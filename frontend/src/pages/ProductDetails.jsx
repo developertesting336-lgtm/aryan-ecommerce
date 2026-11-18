@@ -47,7 +47,11 @@ import { getProductReviews } from "../redux/slices/reviewsSlice";
 import { onReviewUpdate } from "../utils/reviewEvents";
 import { showSuccess, showError } from "../utils/toast";
 
-const API_URL = "http://localhost:3000";
+const API_URL =
+  (typeof import.meta !== "undefined" &&
+    (import.meta.env?.VITE_API_URL || import.meta.env?.VITE_BACKEND_URL))
+    ? (import.meta.env?.VITE_API_URL || import.meta.env?.VITE_BACKEND_URL).replace(/\/api\/?$/, "")
+    : "https://backend-one-rho-24.vercel.app";
 
 /* =========================================================
    IMAGE HELPERS
@@ -58,12 +62,13 @@ const getImageUrl = (image) => {
 
   if (
     typeof image === "string" &&
-    (image.startsWith("http://") || image.startsWith("https://"))
+    (image.startsWith("http://") || image.startsWith("https://") || image.startsWith("blob:"))
   ) {
     return image;
   }
 
-  return `${API_URL}/uploads/${image}`;
+  const cleanPath = String(image).replace(/^\/?uploads\//, "").replace(/^\//, "");
+  return `${API_URL}/uploads/${cleanPath}`;
 };
 
 const getProductImages = (images) => {

@@ -804,6 +804,7 @@ export default function Products() {
 
   const {
     product = [],
+    pagination = {},
     loading: productsLoading,
     error: productsError,
   } = useSelector(
@@ -869,12 +870,14 @@ export default function Products() {
   ========================================================= */
 
   useEffect(() => {
-    dispatch(
-      getProducts({
-        page: 1,
-        limit: 1000,
-      })
-    );
+    if (product.length === 0 || pagination?.limit !== 1000) {
+      dispatch(
+        getProducts({
+          page: 1,
+          limit: 1000,
+        })
+      );
+    }
   }, [dispatch]);
 
   /* =========================================================
@@ -1440,8 +1443,7 @@ export default function Products() {
   ========================================================= */
 
   const loading =
-    productsLoading ||
-    categoriesLoading;
+    (productsLoading || categoriesLoading) && product.length === 0;
 
   const error =
     productsError ||

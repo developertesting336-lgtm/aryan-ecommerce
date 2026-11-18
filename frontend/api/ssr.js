@@ -80,8 +80,14 @@ export default async function handler(req, res) {
   const incoming = new URL(req.url, "http://localhost");
   const paramPath = incoming.searchParams.get("__p");
   let url = paramPath || req.headers["x-matched-path"] || req.url;
-  if (!url.startsWith("/")) {
-    url = "/" + url;
+  url = "/" + url.replace(/^\/+/, "");
+  if (paramPath) {
+    const extraParams = new URLSearchParams(incoming.searchParams);
+    extraParams.delete("__p");
+    const queryStr = extraParams.toString();
+    if (queryStr) {
+      url = url.includes("?") ? `${url}&${queryStr}` : `${url}?${queryStr}`;
+    }
   }
 
   let html = "";
@@ -94,7 +100,10 @@ export default async function handler(req, res) {
     html = result.html || "";
     head = result.head || "";
 
-    const jsonState = JSON.stringify(result.state || {}).replace(/</g, "\\u003c");
+    const jsonState = JSON.stringify(result.state || {})
+      .replace(/</g, "\\u003c")
+      .replace(/\u2028/g, "\\u2028")
+      .replace(/\u2029/g, "\\u2029");
     stateScript = `<script>window.__PRELOADED_STATE__=${jsonState};window.__INITIAL_DATA__=window.__PRELOADED_STATE__;</script>`;
 
     // Short ISR-style edge caching on Vercel

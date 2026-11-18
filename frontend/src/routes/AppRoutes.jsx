@@ -16,6 +16,7 @@ import VendorLayout from "../layouts/VendorLayout";
 
 import Home from "../pages/Home";
 import Products from "../pages/Products";
+import ProductDetails from "../pages/ProductDetails";
 import SearchPage from "../pages/SearchProducts";
 import Login from "../pages/Login";
 import RegisterPage from "../pages/Register";
@@ -26,7 +27,7 @@ import RegisterPage from "../pages/Register";
 // Customer Pages
 // const Home = lazy(() => import("../pages/Home"));
 // const Products = lazy(() => import("../pages/Products"));
-const ProductDetails = lazy(() => import("../pages/ProductDetails"));
+// const ProductDetails = lazy(() => import("../pages/ProductDetails"));
 const Cart = lazy(() => import("../pages/Cart"));
 const Wishlist = lazy(() => import("../pages/WishList"));
 const Profile = lazy(() => import("../pages/Profile"));

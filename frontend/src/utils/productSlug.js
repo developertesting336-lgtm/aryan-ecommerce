@@ -38,7 +38,7 @@ export const extractIdFromSlug = (slugOrId) => {
   const lastDashIndex = trimmed.lastIndexOf("-");
   if (lastDashIndex !== -1) {
     const candidate = trimmed.slice(lastDashIndex + 1);
-    if (candidate) {
+    if (/^[0-9a-fA-F]{24}$/.test(candidate) || /^\d+$/.test(candidate)) {
       return candidate;
     }
   }

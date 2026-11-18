@@ -19,6 +19,7 @@ import express from "express";
 const isProd = process.env.NODE_ENV === "production";
 const port = process.env.PORT || 5173;
 const SSR_PATHS = ["/", "/products", "/search"];
+const isSsrPath = (p) => SSR_PATHS.includes(p) || /^\/(?:product|products)\/[^/]+/.test(p);
 
 const app = express();
 let vite;
@@ -77,13 +78,15 @@ app.use(async (req, res, next) => {
       html = result.html || "";
       head = result.head || "";
 
-      const jsonState = JSON.stringify(result.state || {}).replace(/</g, "\\u003c");
+      const jsonState = JSON.stringify(result.state || {})
+        .replace(/</g, "\\u003c")
+        .replace(/\u2028/g, "\\u2028")
+        .replace(/\u2029/g, "\\u2029");
       stateScript = `<script>window.__PRELOADED_STATE__=${jsonState};window.__INITIAL_DATA__=window.__PRELOADED_STATE__;</script>`;
     } catch (ssrErr) {
       console.error(`🚨 [SSR FAILURE] Error while rendering "${url}":`, ssrErr);
-      if (pathname === "/") {
-        // Loudly fail in dev on homepage SSR error so it cannot be missed
-        console.error("💥 Critical SSR failure on homepage ('/'). Check backend connectivity or component rendering.");
+      if (isSsrPath(pathname)) {
+        console.error(`💥 Critical SSR failure on '${pathname}'. Check backend connectivity or component rendering.`);
       }
       throw ssrErr;
     }

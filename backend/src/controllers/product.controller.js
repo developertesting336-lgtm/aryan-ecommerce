@@ -509,8 +509,11 @@ export const getVendorsProducts = async (req, res) => {
 
 export const getProductById = async (req,res) =>{
   try {
-    const {id} = req.params
-const product = await Product.findOne({_id:id});
+    const {id} = req.params;
+    const query = mongoose.Types.ObjectId.isValid(id)
+      ? { $or: [{ _id: id }, { slug: id }] }
+      : { slug: id };
+    const product = await Product.findOne(query);
 // const product = await Product.findOne(
 //   req.user.role === "admin"
 //     ? { _id: id }

@@ -125,41 +125,17 @@ export const getUserById = createAsyncThunk(
 // LOCAL STORAGE (SSR safe)
 // ========================================
 
-let savedUser = null;
-let savedToken = null;
-
-if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
-  try {
-    savedUser = JSON.parse(localStorage.getItem("user"));
-  } catch (error) {
-    savedUser = null;
-  }
-
-  try {
-    savedToken = localStorage.getItem("token");
-  } catch (error) {
-    savedToken = null;
-  }
-}
-
-
 // ========================================
 // INITIAL STATE
 // ========================================
 
 const initialState = {
-  user: savedUser || null,
-
-  token: savedToken || null,
-
+  user: null,
+  token: null,
   loading: false,
-
-  // IMPORTANT:
-  // error is always an object or null
   error: null,
-
   authChecked: false,
-   hydrated: false, // true once the browser has restored token/user
+  hydrated: false,
 };
 
 
@@ -174,6 +150,23 @@ const authSlice = createSlice({
   initialState,
 
   reducers: {
+
+    rehydrateAuth: (state) => {
+      if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+        try {
+          state.user = JSON.parse(localStorage.getItem("user")) || null;
+        } catch {
+          state.user = null;
+        }
+        try {
+          state.token = localStorage.getItem("token") || null;
+        } catch {
+          state.token = null;
+        }
+      }
+      state.hydrated = true;
+      state.authChecked = true;
+    },
 
     // ====================================
     // LOGOUT
@@ -388,6 +381,7 @@ const authSlice = createSlice({
 export const {
   logout,
   clearError,
+  rehydrateAuth,
 } = authSlice.actions;
 
 

@@ -11,13 +11,18 @@ const ThemeContext = createContext(null);
 const STORAGE_KEY = "theme";
 
 export function ThemeProvider({ children }) {
-  const [theme, setThemeState] = useState(() => {
+  // Always initialize as "light" so server SSR and client initial hydration match 100%
+  const [theme, setThemeState] = useState("light");
+
+  // On mount (client-side only, post-hydration), restore user preference or system theme
+  useEffect(() => {
     try {
       const savedTheme =
         localStorage.getItem(STORAGE_KEY) ||
         localStorage.getItem("admin-theme");
       if (savedTheme === "dark" || savedTheme === "light") {
-        return savedTheme;
+        setThemeState(savedTheme);
+        return;
       }
     } catch (e) {
       // localStorage might be unavailable or disabled
@@ -28,11 +33,9 @@ export function ThemeProvider({ children }) {
       window.matchMedia &&
       window.matchMedia("(prefers-color-scheme: dark)").matches
     ) {
-      return "dark";
+      setThemeState("dark");
     }
-
-    return "light";
-  });
+  }, []);
 
   const darkMode = theme === "dark";
 

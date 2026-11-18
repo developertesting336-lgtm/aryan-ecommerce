@@ -3,6 +3,7 @@ import { StaticRouter, matchPath } from "react-router";
 import { Provider } from "react-redux";
 import { createStore } from "./redux/store";
 import Root from "./Root";
+import { extractIdFromSlug } from "./utils/productSlug";
 
 // Polyfill minimal storage for SSR in Node if not already stubbed
 const memoryStorage = {
@@ -59,7 +60,7 @@ const fallbackHomepageData = {
 async function fetchHomepageData() {
   const backendUrl = getBackendUrl();
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 5000);
+  const timer = setTimeout(() => controller.abort(), 12000);
 
   try {
     const [homepageRes, rootsRes, productsRes] = await Promise.allSettled([
@@ -157,7 +158,7 @@ async function fetchHomepageData() {
 async function fetchProductsPageData() {
   const backendUrl = getBackendUrl();
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 8000); // slightly longer for 1000 products
+  const timer = setTimeout(() => controller.abort(), 12000);
 
   try {
     const [productsRes, categoriesRes] = await Promise.allSettled([
@@ -229,7 +230,7 @@ async function fetchSearchPageData(search, page = 1) {
 
   const backendUrl = getBackendUrl();
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 5000);
+  const timer = setTimeout(() => controller.abort(), 10000);
 
   try {
     const encodedSearch = encodeURIComponent(search.trim());
@@ -271,12 +272,187 @@ async function fetchSearchPageData(search, page = 1) {
 }
 
 // ============================================================================
+// Server-Side Data Fetching — Product Details Page
+// ============================================================================
+async function fetchProductDetailsData(slugOrId) {
+  if (!slugOrId || !slugOrId.trim()) {
+    return {
+      product: null,
+      relatedRelations: [],
+      reviews: [],
+      reviewPagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
+      distribution: {},
+      productsList: [],
+      rootCategories: [],
+    };
+  }
+
+  const backendUrl = getBackendUrl();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
+
+  const candidateId = extractIdFromSlug(slugOrId);
+  const primaryId = candidateId || slugOrId;
+
+  try {
+    let productRes = await fetch(`${backendUrl}/product/${encodeURIComponent(primaryId)}`, {
+      signal: controller.signal,
+      headers: { Accept: "application/json" },
+    });
+
+    if (!productRes.ok && primaryId !== slugOrId) {
+      productRes = await fetch(`${backendUrl}/product/${encodeURIComponent(slugOrId)}`, {
+        signal: controller.signal,
+        headers: { Accept: "application/json" },
+      });
+    }
+
+    let product = null;
+    if (productRes.ok) {
+      try {
+        const json = await productRes.json();
+        product = json.data?.product || json.data || json.product || json;
+      } catch (err) {
+        console.error("[SSR /product] Failed to parse product JSON:", err.message);
+      }
+    }
+
+    if (!product || !product._id) {
+      return {
+        product: null,
+        relatedRelations: [],
+        reviews: [],
+        reviewPagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
+        distribution: {},
+        productsList: [],
+        rootCategories: [],
+      };
+    }
+
+    const realProductId = product._id;
+
+    const [reviewsRes, relationsRes, catalogRes, rootsRes] = await Promise.allSettled([
+      fetch(`${backendUrl}/reviews/product/${realProductId}?page=1&limit=10`, {
+        signal: controller.signal,
+        headers: { Accept: "application/json" },
+      }),
+      fetch(`${backendUrl}/productRelation/${realProductId}`, {
+        signal: controller.signal,
+        headers: { Accept: "application/json" },
+      }),
+      fetch(`${backendUrl}/product?limit=20`, {
+        signal: controller.signal,
+        headers: { Accept: "application/json" },
+      }),
+      fetch(`${backendUrl}/categories/roots`, {
+        signal: controller.signal,
+        headers: { Accept: "application/json" },
+      }),
+    ]);
+
+    let reviews = [];
+    let reviewPagination = { page: 1, limit: 10, total: 0, totalPages: 0 };
+    let distribution = {};
+    if (reviewsRes.status === "fulfilled" && reviewsRes.value.ok) {
+      try {
+        const rJson = await reviewsRes.value.json();
+        reviews = Array.isArray(rJson.data?.reviews)
+          ? rJson.data.reviews
+          : Array.isArray(rJson.reviews)
+          ? rJson.reviews
+          : [];
+        distribution = rJson.data?.distribution || {};
+        reviewPagination = rJson.data?.pagination || {
+          page: 1,
+          limit: 10,
+          total: reviews.length,
+          totalPages: Math.ceil(reviews.length / 10) || 1,
+        };
+      } catch (err) {
+        console.error("[SSR /product] Failed to parse reviews:", err.message);
+      }
+    }
+
+    let relatedRelations = [];
+    if (relationsRes.status === "fulfilled" && relationsRes.value.ok) {
+      try {
+        const relJson = await relationsRes.value.json();
+        relatedRelations = Array.isArray(relJson.data?.products)
+          ? relJson.data.products
+          : Array.isArray(relJson.products)
+          ? relJson.products
+          : [];
+      } catch (err) {
+        console.error("[SSR /product] Failed to parse relations:", err.message);
+      }
+    }
+
+    let productsList = [product];
+    if (catalogRes.status === "fulfilled" && catalogRes.value.ok) {
+      try {
+        const catJson = await catalogRes.value.json();
+        const prods = Array.isArray(catJson.data?.products)
+          ? catJson.data.products
+          : Array.isArray(catJson.data)
+          ? catJson.data
+          : [];
+        const map = new Map();
+        map.set(String(product._id), product);
+        for (const p of prods) {
+          if (p && p._id && !map.has(String(p._id))) {
+            map.set(String(p._id), p);
+          }
+        }
+        productsList = Array.from(map.values());
+      } catch (err) {
+        console.error("[SSR /product] Failed to parse catalog products:", err.message);
+      }
+    }
+
+    let rootCategories = [];
+    if (rootsRes.status === "fulfilled" && rootsRes.value.ok) {
+      try {
+        const rootsJson = await rootsRes.value.json();
+        rootCategories = Array.isArray(rootsJson.data) ? rootsJson.data : [];
+      } catch (err) {
+        console.error("[SSR /product] Failed to parse roots:", err.message);
+      }
+    }
+
+    return {
+      product,
+      relatedRelations,
+      reviews,
+      reviewPagination,
+      distribution,
+      productsList,
+      rootCategories,
+    };
+  } catch (error) {
+    console.error("[SSR /product] Unexpected error fetching product details:", error.message);
+    return {
+      product: null,
+      relatedRelations: [],
+      reviews: [],
+      reviewPagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
+      distribution: {},
+      productsList: [],
+      rootCategories: [],
+    };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// ============================================================================
 // SEO Head Generator
 // ============================================================================
 function generateSeoHead(pathname, searchQuery, state) {
   const isHome = pathname === "/" || pathname === "";
   const isProducts = pathname === "/products";
   const isSearch = pathname === "/search";
+  const productMatch = pathname.match(/^\/(?:product|products)\/([^/]+)/);
+  const isProductDetails = Boolean(productMatch);
 
   const SITE_URL = "https://aryan-ecommerce-mu.vercel.app";
   const ogImage = `${SITE_URL}/Media.jfif`;
@@ -315,6 +491,74 @@ function generateSeoHead(pathname, searchQuery, state) {
     canonicalUrl = searchQuery
       ? `${SITE_URL}/search?q=${encodeURIComponent(searchQuery)}`
       : `${SITE_URL}/search`;
+  } else if (isProductDetails) {
+    const prod = state?.product?.selectedProduct;
+    if (prod) {
+      title = `${prod.name || "Product"} | NovaCart`;
+      const rawDesc =
+        prod.description ||
+        `Buy ${prod.name} at NovaCart. High quality, verified seller, best price & fast delivery.`;
+      description = rawDesc
+        .replace(/<[^>]*>/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 180);
+
+      const rawImage = Array.isArray(prod.images) && prod.images.length > 0 ? prod.images[0] : prod.image;
+      let prodOgImage = ogImage;
+      if (typeof rawImage === "string") {
+        prodOgImage = rawImage.startsWith("http")
+          ? rawImage
+          : `${getBackendUrl().replace(/\/api\/?$/, "")}/uploads/${rawImage.replace(/^\/?uploads\//, "")}`;
+      }
+      canonicalUrl = `${SITE_URL}/product/${prod.slug || prod._id}`;
+
+      const price = Number(prod.price || 0);
+      const inStock = Number(prod.stock || 0) > 0;
+      const ratingAvg = Number(prod.rating?.average || prod.rating || 5);
+      const ratingCount = Number(prod.rating?.count || state?.review?.reviews?.length || 1);
+
+      const productSchema = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: prod.name,
+        description,
+        image: prodOgImage,
+        sku: String(prod._id),
+        offers: {
+          "@type": "Offer",
+          price,
+          priceCurrency: "INR",
+          availability: inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          url: canonicalUrl,
+        },
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: ratingAvg.toFixed(1),
+          reviewCount: ratingCount,
+        },
+      };
+
+      return [
+        `<title>${title}</title>`,
+        `<meta name="description" content="${description.replace(/"/g, "&quot;")}" />`,
+        `<link rel="canonical" href="${canonicalUrl}" />`,
+        `<meta property="og:type" content="product" />`,
+        `<meta property="og:title" content="${title.replace(/"/g, "&quot;")}" />`,
+        `<meta property="og:description" content="${description.replace(/"/g, "&quot;")}" />`,
+        `<meta property="og:url" content="${canonicalUrl}" />`,
+        `<meta property="og:image" content="${prodOgImage}" />`,
+        `<meta name="twitter:card" content="summary_large_image" />`,
+        `<meta name="twitter:title" content="${title.replace(/"/g, "&quot;")}" />`,
+        `<meta name="twitter:description" content="${description.replace(/"/g, "&quot;")}" />`,
+        `<meta name="twitter:image" content="${prodOgImage}" />`,
+        `<script type="application/ld+json">${JSON.stringify(productSchema)}</script>`,
+      ].join("\n    ");
+    } else {
+      title = "Product Details | NovaCart";
+      description = "View product details, specifications and reviews at NovaCart.";
+      canonicalUrl = `${SITE_URL}${pathname}`;
+    }
   } else {
     title = "NovaCart Store";
     description =
@@ -409,33 +653,108 @@ function generateSeoHead(pathname, searchQuery, state) {
 // Main SSR Render Function
 // ============================================================================
 export async function render(url) {
-  const { pathname } = new URL(url, "http://localhost");
-  const isHome = pathname === "/" || pathname === "";
+  const parsedUrl = new URL(url, "http://localhost");
+  const pathname = parsedUrl.pathname;
+  const searchParams = parsedUrl.searchParams;
+  const searchQuery = searchParams.get("q") || searchParams.get("search") || "";
+  const rawPageParam = parseInt(searchParams.get("page"), 10);
+  const pageQuery = Number.isInteger(rawPageParam) && rawPageParam > 0 ? rawPageParam : 1;
 
-  let initialData = {
-    homepage: fallbackHomepageData,
-    rootCategories: [],
-    products: [],
+  const isHome = pathname === "/" || pathname === "";
+  const isProducts = pathname === "/products";
+  const isSearch = pathname === "/search";
+  const productMatch = pathname.match(/^\/(?:product|products)\/([^/]+)/);
+  const isProductDetails = Boolean(productMatch);
+  const productSlugOrId = productMatch ? decodeURIComponent(productMatch[1]) : null;
+
+  let initialHomepage = fallbackHomepageData;
+  let initialRootCategories = [];
+  let initialProducts = [];
+  let initialCategories = [];
+  let initialSearchedProducts = [];
+  let initialSelectedProduct = null;
+  let initialRelatedRelations = [];
+  let initialReviews = [];
+  let initialReviewsPagination = { page: 1, limit: 10, total: 0, totalPages: 0 };
+  let initialDistribution = {};
+  let initialPagination = {
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1,
   };
 
   if (isHome) {
-    initialData = await fetchHomepageData();
+    const homeData = await fetchHomepageData();
+    initialHomepage = homeData.homepage;
+    initialRootCategories = homeData.rootCategories;
+    initialProducts = [];
+    initialCategories = homeData.rootCategories;
+    initialPagination = {
+      page: 1,
+      limit: 10,
+      total: 0,
+      totalPages: 1,
+    };
+  } else if (isProducts) {
+    const productsData = await fetchProductsPageData();
+    initialProducts = productsData.products;
+    initialCategories = productsData.categories;
+    initialRootCategories = productsData.categories.filter((c) => !c.parent && !c.parentId);
+    initialPagination = {
+      page: 1,
+      limit: 1000,
+      total: productsData.products.length,
+      totalPages: 1,
+    };
+  } else if (isSearch) {
+    const searchData = await fetchSearchPageData(searchQuery, pageQuery);
+    initialSearchedProducts = searchData.searchedproducts;
+    initialPagination = searchData.pagination?.total
+      ? searchData.pagination
+      : {
+          page: pageQuery,
+          limit: 10,
+          total: initialSearchedProducts.length,
+          totalPages: Math.ceil(initialSearchedProducts.length / 10) || 1,
+        };
+  } else if (isProductDetails) {
+    const detailsData = await fetchProductDetailsData(productSlugOrId);
+    initialSelectedProduct = detailsData.product;
+    initialRelatedRelations = detailsData.relatedRelations;
+    initialReviews = detailsData.reviews;
+    initialReviewsPagination = detailsData.reviewPagination;
+    initialDistribution = detailsData.distribution;
+    initialProducts = detailsData.productsList;
+    initialRootCategories = detailsData.rootCategories;
+    initialCategories = detailsData.rootCategories;
+    initialPagination = {
+      page: 1,
+      limit: 20,
+      total: initialProducts.length,
+      totalPages: 1,
+    };
   }
 
   // Fresh Redux store per request
   const store = createStore({
     homepage: {
-      ...initialData.homepage,
+      ...initialHomepage,
       loading: false,
       error: null,
     },
     category: {
-      categories: initialData.rootCategories,
-      rootCategories: initialData.rootCategories,
+      categories: initialCategories,
+      rootCategories: initialRootCategories,
       children: {},
       stats: {},
       selectedCategory: null,
-      pagination: { total: initialData.rootCategories.length, page: 1, limit: 10, totalPages: 1 },
+      pagination: {
+        total: initialCategories.length,
+        page: 1,
+        limit: 100,
+        totalPages: 1,
+      },
       loading: false,
       createLoading: false,
       updateLoading: false,
@@ -444,20 +763,24 @@ export async function render(url) {
       success: false,
       message: null,
     },
+    review: {
+      reviews: initialReviews,
+      distribution: initialDistribution,
+      selectedReview: null,
+      pagination: initialReviewsPagination,
+      loading: false,
+      createLoading: false,
+      error: null,
+    },
     product: {
-      product: initialData.products.length ? initialData.products : initialData.homepage.featuredProducts,
-      selectedProduct: null,
+      product: isProducts || isProductDetails ? initialProducts : [],
+      selectedProduct: initialSelectedProduct,
       selectedLoading: false,
       selectedError: null,
-      relatedProducts: [],
+      relatedProducts: initialRelatedRelations,
       relatedLoading: false,
-      searchedproducts: [],
-      pagination: {
-        page: 1,
-        limit: 8,
-        total: initialData.products.length,
-        totalPages: 1,
-      },
+      searchedproducts: initialSearchedProducts,
+      pagination: initialPagination,
       loading: false,
       error: null,
       createLoading: false,
@@ -475,7 +798,7 @@ export async function render(url) {
   );
 
   const state = store.getState();
-  const head = generateSeoHead(pathname, state);
+  const head = generateSeoHead(pathname, searchQuery, state);
 
   return { html, state, head };
 }

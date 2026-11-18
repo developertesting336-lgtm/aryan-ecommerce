@@ -199,10 +199,6 @@ const couponSchema = new Schema(
 export const Coupon = mongoose.model("Coupon", couponSchema);
 
 couponSchema.index({
-  code: 1,
-});
-
-couponSchema.index({
   isActive: 1,
   startsAt: 1,
   expiresAt: 1,

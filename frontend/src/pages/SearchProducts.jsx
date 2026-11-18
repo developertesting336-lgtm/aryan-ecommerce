@@ -68,8 +68,17 @@ export default function SearchPage() {
    * =========================================================
    */
 
+  const isHydratedRef = useRef(
+    typeof window !== "undefined" &&
+    Boolean(window.__PRELOADED_STATE__?.product?.searchedproducts?.length)
+  );
+
   useEffect(() => {
     if (!search.trim()) return;
+    if (isHydratedRef.current) {
+      isHydratedRef.current = false;
+      return;
+    }
 
     dispatch(
       searchProducts({
