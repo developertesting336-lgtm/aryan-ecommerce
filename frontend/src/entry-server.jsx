@@ -63,12 +63,12 @@ async function fetchHomepageData() {
   const timer = setTimeout(() => controller.abort(), 12000);
 
   try {
-    const [homepageRes, rootsRes, productsRes] = await Promise.allSettled([
+    const [homepageRes, categoriesRes, productsRes] = await Promise.allSettled([
       fetch(`${backendUrl}/homepage`, {
         signal: controller.signal,
         headers: { Accept: "application/json" },
       }),
-      fetch(`${backendUrl}/categories/roots`, {
+      fetch(`${backendUrl}/categories?page=1&limit=1000&isActive=true`, {
         signal: controller.signal,
         headers: { Accept: "application/json" },
       }),
@@ -79,6 +79,7 @@ async function fetchHomepageData() {
     ]);
 
     let homepage = { ...fallbackHomepageData };
+    let allCategories = [];
     let rootCategories = [];
     let products = [];
 
@@ -101,12 +102,13 @@ async function fetchHomepageData() {
       console.error("[SSR] Failed to fetch /homepage:", homepageRes.reason?.message);
     }
 
-    if (rootsRes.status === "fulfilled" && rootsRes.value.ok) {
+    if (categoriesRes.status === "fulfilled" && categoriesRes.value.ok) {
       try {
-        const json = await rootsRes.value.json();
-        rootCategories = Array.isArray(json.data) ? json.data : Array.isArray(json) ? json : [];
+        const json = await categoriesRes.value.json();
+        allCategories = Array.isArray(json.data) ? json.data : Array.isArray(json) ? json : [];
+        rootCategories = allCategories.filter((c) => !c.parent && !c.parentId);
       } catch (err) {
-        console.error("[SSR] Failed to parse /categories/roots response:", err.message);
+        console.error("[SSR] Failed to parse /categories response:", err.message);
       }
     }
 
@@ -137,6 +139,7 @@ async function fetchHomepageData() {
 
     return {
       homepage,
+      allCategories,
       rootCategories,
       products,
     };
@@ -166,7 +169,7 @@ async function fetchProductsPageData() {
         signal: controller.signal,
         headers: { Accept: "application/json" },
       }),
-      fetch(`${backendUrl}/categories?page=1&limit=100&isActive=true`, {
+      fetch(`${backendUrl}/categories?page=1&limit=1000&isActive=true`, {
         signal: controller.signal,
         headers: { Accept: "application/json" },
       }),
@@ -344,7 +347,7 @@ async function fetchProductDetailsData(slugOrId) {
         signal: controller.signal,
         headers: { Accept: "application/json" },
       }),
-      fetch(`${backendUrl}/categories/roots`, {
+      fetch(`${backendUrl}/categories?page=1&limit=1000&isActive=true`, {
         signal: controller.signal,
         headers: { Accept: "application/json" },
       }),
@@ -409,13 +412,15 @@ async function fetchProductDetailsData(slugOrId) {
       }
     }
 
+    let allCategories = [];
     let rootCategories = [];
     if (rootsRes.status === "fulfilled" && rootsRes.value.ok) {
       try {
         const rootsJson = await rootsRes.value.json();
-        rootCategories = Array.isArray(rootsJson.data) ? rootsJson.data : [];
+        allCategories = Array.isArray(rootsJson.data) ? rootsJson.data : Array.isArray(rootsJson) ? rootsJson : [];
+        rootCategories = allCategories.filter((c) => !c.parent && !c.parentId);
       } catch (err) {
-        console.error("[SSR /product] Failed to parse roots:", err.message);
+        console.error("[SSR /product] Failed to parse categories:", err.message);
       }
     }
 
@@ -426,6 +431,7 @@ async function fetchProductDetailsData(slugOrId) {
       reviewPagination,
       distribution,
       productsList,
+      allCategories,
       rootCategories,
     };
   } catch (error) {
@@ -447,7 +453,7 @@ async function fetchProductDetailsData(slugOrId) {
 // ============================================================================
 // SEO Head Generator
 // ============================================================================
-function generateSeoHead(pathname, searchQuery, state) {
+function generateSeoHead(pathname, searchQuery, state, categoryQuery = "") {
   const isHome = pathname === "/" || pathname === "";
   const isProducts = pathname === "/products";
   const isSearch = pathname === "/search";
@@ -465,15 +471,32 @@ function generateSeoHead(pathname, searchQuery, state) {
       "Shop the latest laptops, smartphones, headphones, gaming gear and electronics at NovaCart. Enjoy unbeatable deals, fast delivery and secure checkout.";
     canonicalUrl = SITE_URL;
   } else if (isProducts) {
-    title = "All Products | NovaCart";
     const cats = state?.category?.categories || [];
-    const catNames = cats
-      .slice(0, 5)
-      .map((c) => c.name)
-      .filter(Boolean)
-      .join(", ");
-    description = `Browse our full catalog${catNames ? ` including ${catNames}` : ""}. Find the best deals on electronics, fashion, and more at NovaCart.`;
-    canonicalUrl = `${SITE_URL}/products`;
+    let activeCat = null;
+    if (categoryQuery) {
+      const lower = categoryQuery.toLowerCase();
+      activeCat = cats.find(
+        (c) =>
+          String(c._id) === categoryQuery ||
+          String(c.slug || "").toLowerCase() === lower ||
+          String(c.name || "").toLowerCase() === lower
+      );
+    }
+
+    if (activeCat) {
+      title = `${activeCat.name} | NovaCart`;
+      description = `Shop the best deals on ${activeCat.name} at NovaCart. High quality products, verified sellers and fast delivery.`;
+      canonicalUrl = `${SITE_URL}/products?category=${encodeURIComponent(activeCat.slug || activeCat._id)}`;
+    } else {
+      title = "All Products | NovaCart";
+      const catNames = cats
+        .slice(0, 5)
+        .map((c) => c.name)
+        .filter(Boolean)
+        .join(", ");
+      description = `Browse our full catalog${catNames ? ` including ${catNames}` : ""}. Find the best deals on electronics, fashion, and more at NovaCart.`;
+      canonicalUrl = `${SITE_URL}/products`;
+    }
   } else if (isSearch) {
     const results = state?.product?.searchedproducts || [];
     title = searchQuery
@@ -657,6 +680,7 @@ export async function render(url) {
   const pathname = parsedUrl.pathname;
   const searchParams = parsedUrl.searchParams;
   const searchQuery = searchParams.get("q") || searchParams.get("search") || "";
+  const categoryQuery = searchParams.get("category") || "";
   const rawPageParam = parseInt(searchParams.get("page"), 10);
   const pageQuery = Number.isInteger(rawPageParam) && rawPageParam > 0 ? rawPageParam : 1;
 
@@ -689,7 +713,7 @@ export async function render(url) {
     initialHomepage = homeData.homepage;
     initialRootCategories = homeData.rootCategories;
     initialProducts = [];
-    initialCategories = homeData.rootCategories;
+    initialCategories = homeData.allCategories || homeData.rootCategories;
     initialPagination = {
       page: 1,
       limit: 10,
@@ -727,7 +751,7 @@ export async function render(url) {
     initialDistribution = detailsData.distribution;
     initialProducts = detailsData.productsList;
     initialRootCategories = detailsData.rootCategories;
-    initialCategories = detailsData.rootCategories;
+    initialCategories = detailsData.allCategories || detailsData.rootCategories;
     initialPagination = {
       page: 1,
       limit: 20,
@@ -798,7 +822,7 @@ export async function render(url) {
   );
 
   const state = store.getState();
-  const head = generateSeoHead(pathname, searchQuery, state);
+  const head = generateSeoHead(pathname, searchQuery, state, categoryQuery);
 
   return { html, state, head };
 }

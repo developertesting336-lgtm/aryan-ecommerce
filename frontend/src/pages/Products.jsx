@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 
 import { getProducts } from "../redux/slices/productSlice";
 import { getCategories } from "../redux/slices/categorySlice";
@@ -124,18 +125,28 @@ const getParentId = (category) => {
  * This works with unlimited category levels.
  */
 const getDescendantCategoryIds = (
-  selectedCategoryId,
+  selectedCategoryOrSlug,
   categories
 ) => {
   const ids = new Set();
 
-  if (!selectedCategoryId) {
+  if (!selectedCategoryOrSlug || selectedCategoryOrSlug === "all") {
     return ids;
   }
 
-  ids.add(
-    String(selectedCategoryId)
-  );
+  // Find target category by _id, slug, or name (case-insensitive)
+  const target = Array.isArray(categories)
+    ? categories.find(
+        (c) =>
+          String(c._id) === String(selectedCategoryOrSlug) ||
+          String(c.slug || "").toLowerCase() === String(selectedCategoryOrSlug).toLowerCase() ||
+          String(c.name || "").toLowerCase() === String(selectedCategoryOrSlug).toLowerCase()
+      )
+    : null;
+
+  const primaryId = target ? String(target._id) : String(selectedCategoryOrSlug);
+  ids.add(primaryId);
+  if (target?.slug) ids.add(String(target.slug).toLowerCase());
 
   let changed = true;
 
@@ -163,6 +174,9 @@ const getDescendantCategoryIds = (
         ids.add(
           String(categoryId)
         );
+        if (category.slug) {
+          ids.add(String(category.slug).toLowerCase());
+        }
 
         changed = true;
       }
@@ -215,8 +229,74 @@ function FilterContent({
   clearFilters,
   hasFilters,
 }) {
-  const [expandedCategories, setExpandedCategories] =
-    useState({});
+  // Pre-expand all root categories by default so subcategories are rendered in SSR HTML & visible on mount!
+  const [expandedCategories, setExpandedCategories] = useState(() => {
+    const initial = {};
+    if (Array.isArray(categories)) {
+      categories.forEach((cat) => {
+        if (!getParentId(cat)) {
+          initial[String(cat._id)] = true;
+        }
+      });
+    }
+    return initial;
+  });
+
+  // Calculate product counts for every category and its descendants
+  const categoryCounts = useMemo(() => {
+    const counts = {};
+    if (!Array.isArray(categories) || !Array.isArray(product)) return counts;
+
+    categories.forEach((cat) => {
+      const descIds = getDescendantCategoryIds(cat._id, categories);
+      const count = product.filter((p) => {
+        const pCatId = getProductCategoryId(p);
+        const pSlug = p?.category?.slug;
+        const pParentId = getParentId(p?.category);
+        return (
+          (pCatId && descIds.has(String(pCatId))) ||
+          (pSlug && descIds.has(String(pSlug).toLowerCase())) ||
+          (pParentId && descIds.has(String(pParentId)))
+        );
+      }).length;
+      counts[String(cat._id)] = count;
+    });
+
+    return counts;
+  }, [categories, product]);
+
+  // Whenever selectedCategory changes or categories load, auto-expand its entire ancestor chain
+  useEffect(() => {
+    if (!selectedCategory || selectedCategory === "all" || !Array.isArray(categories) || !categories.length) {
+      return;
+    }
+
+    const toExpand = {};
+    let currentId = selectedCategory;
+
+    toExpand[String(currentId)] = true;
+
+    while (currentId) {
+      const currentCat = categories.find(
+        (c) =>
+          String(c._id) === String(currentId) ||
+          String(c.slug || "").toLowerCase() === String(currentId).toLowerCase()
+      );
+      if (!currentCat) break;
+      const parentId = getParentId(currentCat);
+      if (parentId) {
+        toExpand[String(parentId)] = true;
+        currentId = parentId;
+      } else {
+        break;
+      }
+    }
+
+    setExpandedCategories((prev) => ({
+      ...prev,
+      ...toExpand,
+    }));
+  }, [selectedCategory, categories]);
 
   /* =========================================================
      PRICE INPUT
@@ -278,24 +358,34 @@ function FilterContent({
      ROOT CATEGORIES
   ========================================================= */
 
-  const rootCategories =
-    categories.filter(
-      (category) =>
-        !getParentId(category)
-    );
+  const categoryIdSet = useMemo(
+    () => new Set(categories.map((c) => String(c._id))),
+    [categories]
+  );
+
+  const rootCategories = useMemo(() => {
+    return categories.filter((category) => {
+      const pId = getParentId(category);
+      return !pId || !categoryIdSet.has(String(pId));
+    });
+  }, [categories, categoryIdSet]);
 
   /* =========================================================
      TOGGLE CATEGORY
   ========================================================= */
 
   const toggleCategory = (
-    categoryId
+    categoryId,
+    e
   ) => {
+    if (e) {
+      e.stopPropagation?.();
+    }
     setExpandedCategories(
       (prev) => ({
         ...prev,
-        [categoryId]:
-          !prev[categoryId],
+        [String(categoryId)]:
+          !prev[String(categoryId)],
       })
     );
   };
@@ -307,10 +397,17 @@ function FilterContent({
   const selectCategory = (
     categoryId
   ) => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    if (typeof window !== "undefined") {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
+
+    setExpandedCategories((prev) => ({
+      ...prev,
+      [String(categoryId)]: true,
+    }));
 
     setSelectedCategory(
       categoryId
@@ -335,25 +432,30 @@ function FilterContent({
 
     const isExpanded =
       expandedCategories[
-        category._id
+        String(category._id)
       ] === true;
 
     const active =
       String(
         selectedCategory
       ) ===
-      String(category._id);
+      String(category._id) ||
+      (category.slug &&
+        String(selectedCategory).toLowerCase() ===
+          String(category.slug).toLowerCase());
+
+    const count = categoryCounts[String(category._id)] ?? 0;
 
     return (
-      <div key={category._id}>
+      <div key={category._id} className="category-tree-item">
         {/* =================================================
             CATEGORY ROW
         ================================================= */}
 
         <div
           className={`
-            flex w-full items-center
-            rounded-xl transition
+            flex w-full items-center justify-between
+            rounded-xl transition group
             ${
               active
                 ? "bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"
@@ -361,7 +463,7 @@ function FilterContent({
             }
           `}
         >
-          {/* CATEGORY NAME */}
+          {/* CATEGORY NAME & COUNT */}
 
           <button
             type="button"
@@ -372,7 +474,7 @@ function FilterContent({
             }
             className={`
               flex min-w-0 flex-1
-              items-center
+              items-center justify-between
               text-left text-sm
               ${
                 level === 0
@@ -387,20 +489,32 @@ function FilterContent({
                   : `${12 + level * 14}px`,
             }}
           >
-            {level > 0 && (
-              <span className="mr-2 text-slate-300">
-                —
+            <div className="flex items-center min-w-0 truncate">
+              {level > 0 && (
+                <span className="mr-2 text-slate-300 dark:text-gray-600">
+                  —
+                </span>
+              )}
+
+              <span
+                className={`truncate ${
+                  active
+                    ? "font-semibold text-blue-700 dark:text-blue-300"
+                    : "font-medium"
+                }`}
+              >
+                {category.name}
               </span>
-            )}
+            </div>
 
             <span
-              className={
+              className={`ml-2 text-xs font-normal tabular-nums ${
                 active
-                  ? "font-semibold"
-                  : "font-medium"
-              }
+                  ? "text-blue-500 dark:text-blue-300"
+                  : "text-slate-400 dark:text-gray-500"
+              }`}
             >
-              {category.name}
+              {count}
             </span>
           </button>
 
@@ -409,9 +523,10 @@ function FilterContent({
           {hasChildren && (
             <button
               type="button"
-              onClick={() =>
+              onClick={(e) =>
                 toggleCategory(
-                  category._id
+                  category._id,
+                  e
                 )
               }
               className="
@@ -420,14 +535,14 @@ function FilterContent({
                 items-center justify-center
                 rounded-lg
                 text-slate-400
-                hover:text-slate-700
+                hover:text-slate-700 dark:hover:text-gray-200
               "
               aria-label={`Toggle ${category.name}`}
             >
               <ChevronDown
                 size={15}
                 className={`
-                  transition-transform
+                  transition-transform duration-200
                   ${
                     isExpanded
                       ? "rotate-180"
@@ -449,8 +564,8 @@ function FilterContent({
               className={`
                 ${
                   level === 0
-                    ? "ml-3 border-l border-slate-100"
-                    : "ml-4 border-l border-slate-100"
+                    ? "ml-3 border-l border-slate-100 dark:border-gray-800"
+                    : "ml-4 border-l border-slate-100 dark:border-gray-800"
                 }
               `}
             >
@@ -489,10 +604,12 @@ function FilterContent({
             <button
               type="button"
               onClick={() => {
-                window.scrollTo({
-                  top: 0,
-                  behavior: "smooth",
-                });
+                if (typeof window !== "undefined") {
+                  window.scrollTo({
+                    top: 0,
+                    behavior: "smooth",
+                  });
+                }
 
                 setSelectedCategory(
                   "all"
@@ -823,6 +940,9 @@ export default function Products() {
      STATE
   ========================================================= */
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categoryParam = searchParams.get("category");
+
   const [sort, setSort] =
     useState("latest");
 
@@ -834,10 +954,19 @@ export default function Products() {
     setMobileFiltersOpen,
   ] = useState(false);
 
-  const [
-    selectedCategory,
-    setSelectedCategory,
-  ] = useState("all");
+  // Sync selectedCategory with category from URL query param (slug or ID)
+  const selectedCategory = useMemo(() => {
+    if (!categoryParam || categoryParam === "all") return "all";
+
+    const matched = categories.find(
+      (c) =>
+        String(c._id) === String(categoryParam) ||
+        String(c.slug || "").toLowerCase() === String(categoryParam).toLowerCase() ||
+        String(c.name || "").toLowerCase() === String(categoryParam).toLowerCase()
+    );
+
+    return matched ? String(matched._id) : categoryParam;
+  }, [categoryParam, categories]);
 
   const [priceInput, setPriceInput] =
     useState({
@@ -878,25 +1007,26 @@ export default function Products() {
         })
       );
     }
-  }, [dispatch]);
+  }, [dispatch, product.length, pagination?.limit]);
 
   /* =========================================================
      FETCH CATEGORIES
   ========================================================= */
 
   useEffect(() => {
-    if (!categories.length) {
+    const hasSubcategories = categories.some((c) => Boolean(c.parent || c.parentId));
+    if (!categories.length || !hasSubcategories) {
       dispatch(
         getCategories({
           page: 1,
-          limit: 100,
+          limit: 1000,
           isActive: true,
         })
       );
     }
   }, [
     dispatch,
-    categories.length,
+    categories,
   ]);
 
   /* =========================================================
@@ -1025,17 +1155,39 @@ export default function Products() {
               getProductCategoryId(
                 item
               );
+            const productCategorySlug =
+              item?.category?.slug;
+            const parentId =
+              getParentId(
+                item?.category
+              );
 
             if (
-              !productCategoryId
+              !productCategoryId &&
+              !productCategorySlug
             ) {
               return false;
             }
 
-            return categoryIds.has(
-              String(
-                productCategoryId
-              )
+            return (
+              (productCategoryId &&
+                categoryIds.has(
+                  String(
+                    productCategoryId
+                  )
+                )) ||
+              (productCategorySlug &&
+                categoryIds.has(
+                  String(
+                    productCategorySlug
+                  ).toLowerCase()
+                )) ||
+              (parentId &&
+                categoryIds.has(
+                  String(
+                    parentId
+                  )
+                ))
             );
           }
         );
@@ -1309,14 +1461,26 @@ export default function Products() {
   ) => {
     setPage(1);
 
-    setSelectedCategory(
-      categoryId
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (!categoryId || categoryId === "all") {
+          next.delete("category");
+        } else {
+          const cat = categories.find((c) => String(c._id) === String(categoryId));
+          next.set("category", cat?.slug || categoryId);
+        }
+        return next;
+      },
+      { replace: true }
     );
 
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    if (typeof window !== "undefined") {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
   };
 
   /* =========================================================
@@ -1338,10 +1502,6 @@ export default function Products() {
   const clearFilters = () => {
     setPage(1);
 
-    setSelectedCategory(
-      "all"
-    );
-
     setPriceInput({
       min: "",
       max: "",
@@ -1351,6 +1511,15 @@ export default function Products() {
       min: "",
       max: "",
     });
+
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete("category");
+        return next;
+      },
+      { replace: true }
+    );
 
     setSort("latest");
   };
